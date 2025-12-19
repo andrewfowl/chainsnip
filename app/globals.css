@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer base {
+  :root {
+    /* Updated to dark-first aesthetic matching reference */
+    --background: 240 10% 4%; /* #09090b zinc-950 */
+    --foreground: 0 0% 100%; /* white */
+    --card: 240 6% 10%; /* #18181b zinc-900 */
+    --card-foreground: 0 0% 100%;
+    --popover: 240 6% 10%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 207 100% 43%; /* #0079da */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 5% 17%; /* #27272a zinc-800 */
+    --secondary-foreground: 0 0% 100%;
+    --muted: 240 5% 17%;
+    --muted-foreground: 215 16% 62%; /* #94a3b8 slate-400 */
+    --accent: 160 84% 39%; /* #10b981 emerald-500 */
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 4% 20%; /* zinc-800 */
+    --input: 240 4% 20%;
+    --ring: 207 100% 43%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 240 10% 4%;
+    --foreground: 0 0% 100%;
+    --card: 240 6% 10%;
+    --card-foreground: 0 0% 100%;
+    --popover: 240 6% 10%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 207 100% 43%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 5% 17%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 240 5% 17%;
+    --muted-foreground: 215 16% 62%;
+    --accent: 160 84% 39%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 4% 20%;
+    --input: 240 4% 20%;
+    --ring: 207 100% 43%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    scroll-behavior: smooth;
+  }
+
+  body.app-loading {
+    overflow: hidden;
+  }
+}
