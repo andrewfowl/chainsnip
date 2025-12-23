@@ -11,7 +11,7 @@ import type React from "react"
 import { useState } from "react"
 import { Eye, EyeOff, UserPlus, Loader2 } from "lucide-react"
 import { Checkbox } from "@/components/ui/checkbox"
-import { signUp } from "@/lib/auth"
+import { signUp } from "@/app/actions/auth"
 
 export default function SignupPage() {
   const router = useRouter()
@@ -54,7 +54,7 @@ export default function SignupPage() {
       return
     }
 
-    const result = signUp(email, password, name)
+    const result = await signUp(email, password, name)
 
     if (result.success) {
       toast({ title: "Success", description: "Account created successfully!" })

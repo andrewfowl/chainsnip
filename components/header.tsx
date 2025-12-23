@@ -5,7 +5,8 @@ import { Wallet, Menu, X, LayoutDashboard, LogOut } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { getCurrentUser, signOut, type User } from "@/lib/auth"
+import { getCurrentUser, signOut } from "@/app/actions/auth"
+import type { User } from "@/lib/auth"
 
 export default function Header() {
   const pathname = usePathname()
@@ -13,11 +14,11 @@ export default function Header() {
   const [user, setUser] = useState<User | null>(null)
 
   useEffect(() => {
-    setUser(getCurrentUser())
+    getCurrentUser().then(setUser)
   }, [pathname])
 
-  const handleSignOut = () => {
-    signOut()
+  const handleSignOut = async () => {
+    await signOut()
     setUser(null)
     window.location.href = "/"
   }

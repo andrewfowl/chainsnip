@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast"
 import type React from "react"
 import { useState } from "react"
 import { Eye, EyeOff, LogIn, Loader2 } from "lucide-react"
-import { signIn } from "@/lib/auth"
+import { signIn } from "@/app/actions/auth"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -32,7 +32,7 @@ export default function LoginPage() {
       return
     }
 
-    const result = signIn(email, password)
+    const result = await signIn(email, password)
 
     if (result.success) {
       toast({ title: "Success", description: "Welcome back!" })

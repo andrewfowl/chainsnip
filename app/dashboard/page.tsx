@@ -19,7 +19,8 @@ import {
 } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
-import { getCurrentUser, type User } from "@/lib/auth"
+import { getCurrentUser } from "@/app/actions/auth"
+import type { User } from "@/lib/auth"
 import {
   getArchives,
   saveArchive,
@@ -82,17 +83,20 @@ export default function DashboardPage() {
   const [newArchiveClient, setNewArchiveClient] = useState("")
 
   useEffect(() => {
-    const currentUser = getCurrentUser()
-    if (!currentUser) {
-      router.push("/auth/login")
-      return
-    }
-    setUser(currentUser)
-    setArchives(getArchives(currentUser.id))
-    setCustomExplorers(getCustomExplorers())
-    setIsLoading(false)
+    const loadUser = async () => {
+      const currentUser = await getCurrentUser()
+      if (!currentUser) {
+        router.push("/auth/login")
+        return
+      }
+      setUser(currentUser)
+      setArchives(getArchives(currentUser.id))
+      setCustomExplorers(getCustomExplorers())
+      setIsLoading(false)
 
-    setNewArchiveSnapshotDate(format(new Date(), "yyyy-MM-dd"))
+      setNewArchiveSnapshotDate(format(new Date(), "yyyy-MM-dd"))
+    }
+    loadUser()
   }, [router])
 
   useEffect(() => {

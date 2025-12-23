@@ -1,87 +1,85 @@
-// Simple auth utilities using localStorage for demo
+import { queryOne } from "./db"
+
 export interface User {
   id: string
   email: string
   name: string
   plan: "free" | "pro" | "enterprise" | "lifetime"
-  createdAt: string
+  created_at: string
 }
 
-const USERS_KEY = "chainsnip_users"
-const SESSION_KEY = "chainsnip_session"
-
-export function getUsers(): User[] {
-  if (typeof window === "undefined") return []
-  const users = localStorage.getItem(USERS_KEY)
-  return users ? JSON.parse(users) : []
+export interface DbUser {
+  id: string
+  email: string
+  name: string
+  password_hash: string
+  plan: string
+  created_at: string
+  updated_at: string
 }
 
-export function saveUsers(users: User[]) {
-  localStorage.setItem(USERS_KEY, JSON.stringify(users))
+export interface DbSession {
+  id: string
+  user_id: string
+  token: string
+  expires_at: string
+  created_at: string
 }
 
-export function getCurrentUser(): User | null {
-  if (typeof window === "undefined") return null
-  const session = localStorage.getItem(SESSION_KEY)
-  if (!session) return null
-  const users = getUsers()
-  return users.find((u) => u.id === session) || null
+// Simple hash function for demo (in production use bcrypt)
+export async function hashPassword(password: string): Promise<string> {
+  const encoder = new TextEncoder()
+  const data = encoder.encode(password + "chainsnip_salt_2024")
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("")
 }
 
-export function signUp(email: string, password: string, name: string): { success: boolean; error?: string } {
-  const users = getUsers()
-  if (users.find((u) => u.email === email)) {
-    return { success: false, error: "Email already registered" }
+export async function verifyPassword(password: string, hash: string): Promise<boolean> {
+  const passwordHash = await hashPassword(password)
+  return passwordHash === hash
+}
+
+export function generateToken(): string {
+  const array = new Uint8Array(32)
+  crypto.getRandomValues(array)
+  return Array.from(array)
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("")
+}
+
+// Get user by ID (can be used server-side)
+export async function getUserById(userId: string): Promise<User | null> {
+  try {
+    const user = await queryOne<DbUser>(`SELECT * FROM users WHERE id = $1`, [userId])
+
+    if (!user) return null
+
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      plan: user.plan as User["plan"],
+      created_at: user.created_at,
+    }
+  } catch (error) {
+    console.error("Get user error:", error)
+    return null
   }
-
-  const newUser: User = {
-    id: crypto.randomUUID(),
-    email,
-    name,
-    plan: "free",
-    createdAt: new Date().toISOString(),
-  }
-
-  // Store password hash (in real app, use proper hashing)
-  const credentials = JSON.parse(localStorage.getItem("chainsnip_credentials") || "{}")
-  credentials[email] = password
-  localStorage.setItem("chainsnip_credentials", JSON.stringify(credentials))
-
-  saveUsers([...users, newUser])
-  localStorage.setItem(SESSION_KEY, newUser.id)
-
-  return { success: true }
 }
 
-export function signIn(email: string, password: string): { success: boolean; error?: string } {
-  const users = getUsers()
-  const user = users.find((u) => u.email === email)
+// Get user by session token (for server components)
+export async function getUserBySessionToken(sessionToken: string): Promise<User | null> {
+  try {
+    const session = await queryOne<DbSession>(`SELECT * FROM sessions WHERE token = $1 AND expires_at > NOW()`, [
+      sessionToken,
+    ])
 
-  if (!user) {
-    return { success: false, error: "Invalid email or password" }
-  }
+    if (!session) return null
 
-  const credentials = JSON.parse(localStorage.getItem("chainsnip_credentials") || "{}")
-  if (credentials[email] !== password) {
-    return { success: false, error: "Invalid email or password" }
-  }
-
-  localStorage.setItem(SESSION_KEY, user.id)
-  return { success: true }
-}
-
-export function signOut() {
-  localStorage.removeItem(SESSION_KEY)
-}
-
-export function updateUserPlan(plan: "free" | "pro" | "enterprise" | "lifetime") {
-  const user = getCurrentUser()
-  if (!user) return
-
-  const users = getUsers()
-  const index = users.findIndex((u) => u.id === user.id)
-  if (index !== -1) {
-    users[index].plan = plan
-    saveUsers(users)
+    return getUserById(session.user_id)
+  } catch (error) {
+    console.error("Get user by session error:", error)
+    return null
   }
 }

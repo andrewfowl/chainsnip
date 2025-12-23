@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { getCurrentUser } from "@/lib/auth"
+import { getCurrentUser } from "@/app/actions/auth"
 import { getArchives, type Archive } from "@/lib/archives"
 import {
   ArrowLeft,
@@ -39,28 +39,30 @@ export default function ArchiveViewerPage() {
   const [isFullscreen, setIsFullscreen] = useState(false)
 
   useEffect(() => {
-    const user = getCurrentUser()
-    if (!user) {
-      router.push("/auth/login")
-      return
-    }
+    const loadArchive = async () => {
+      const user = await getCurrentUser()
+      if (!user) {
+        router.push("/auth/login")
+        return
+      }
 
-    const archives = getArchives(user.id)
-    const found = archives.find((a) => a.id === id)
+      const archives = getArchives(user.id)
+      const found = archives.find((a) => a.id === id)
 
-    if (!found) {
-      router.push("/dashboard")
-      return
-    }
+      if (!found) {
+        router.push("/dashboard")
+        return
+      }
 
-    setArchive(found)
-    // Set default tab based on available content
-    if (found.screenshotUrl) {
-      setActiveTab("screenshot")
-    } else if (found.htmlUrl) {
-      setActiveTab("html")
+      setArchive(found)
+      if (found.screenshotUrl) {
+        setActiveTab("screenshot")
+      } else if (found.htmlUrl) {
+        setActiveTab("html")
+      }
+      setIsLoading(false)
     }
-    setIsLoading(false)
+    loadArchive()
   }, [id, router])
 
   const handleCopy = (text: string) => {

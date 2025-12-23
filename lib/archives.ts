@@ -1,59 +1,322 @@
+import { queryOne, queryMany, execute } from "./db"
+import { crypto } from "crypto"
+
 // Archive management utilities for blockchain explorer snapshots
 export interface Archive {
   id: string
-  userId: string
+  user_id: string
   url: string
-  walletAddress: string
+  wallet_address: string
   chain: string
   explorer: string
   title: string
   content: string
-  clientName?: string // New field for client organization
+  client_name?: string
   thumbnail?: string
-  screenshotUrl?: string
-  htmlUrl?: string
-  proofHash?: string
-  captureStatus: "pending" | "capturing" | "completed" | "failed"
-  captureError?: string
-  archivedAt: string
-  snapshotDate: string
-  lastUpdated: string
-  scheduleInterval?: "monthly" | null
-  nextScheduledSave?: string
+  screenshot_url?: string
+  html_url?: string
+  proof_hash?: string
+  capture_status: "pending" | "capturing" | "completed" | "failed"
+  capture_error?: string
+  archived_at: string
+  snapshot_date: string
+  last_updated: string
+  schedule_interval?: "monthly" | null
+  next_scheduled_save?: string
   status: "active" | "failed" | "pending"
 }
 
 export interface CustomExplorer {
   id: string
+  user_id: string
   name: string
-  domain: string // Just the domain to match
+  domain: string
 }
 
 export interface UsageStats {
-  userId: string
-  totalCapturesEver: number // Never decreases, only increases
-  lastResetDate?: string // For potential future billing cycles
+  user_id: string
+  total_captures_ever: number
+  last_reset_date?: string
 }
 
-const ARCHIVES_KEY = "chainship_archives"
-const CUSTOM_EXPLORERS_KEY = "chainship_custom_explorers"
-const USAGE_STATS_KEY = "chainship_usage_stats"
-
-export function getArchives(userId: string): Archive[] {
-  if (typeof window === "undefined") return []
-  const archives = localStorage.getItem(ARCHIVES_KEY)
-  const all: Archive[] = archives ? JSON.parse(archives) : []
-  return all
-    .filter((a) => a.userId === userId)
-    .sort((a, b) => new Date(b.archivedAt).getTime() - new Date(a.archivedAt).getTime())
+// Database row types (snake_case from DB)
+interface DbArchive {
+  id: string
+  user_id: string
+  url: string
+  wallet_address: string | null
+  chain: string | null
+  explorer: string | null
+  title: string | null
+  content: string | null
+  client_name: string | null
+  thumbnail: string | null
+  screenshot_url: string | null
+  html_url: string | null
+  proof_hash: string | null
+  capture_status: string
+  capture_error: string | null
+  archived_at: string
+  snapshot_date: string | null
+  last_updated: string
+  schedule_interval: string | null
+  next_scheduled_save: string | null
+  status: string
 }
 
-export function getAllArchives(): Archive[] {
-  if (typeof window === "undefined") return []
-  const archives = localStorage.getItem(ARCHIVES_KEY)
-  return archives ? JSON.parse(archives) : []
+function mapDbArchiveToArchive(db: DbArchive): Archive {
+  return {
+    id: db.id,
+    user_id: db.user_id,
+    url: db.url,
+    wallet_address: db.wallet_address || "Unknown",
+    chain: db.chain || "Unknown",
+    explorer: db.explorer || "Unknown",
+    title: db.title || "",
+    content: db.content || "",
+    client_name: db.client_name || undefined,
+    thumbnail: db.thumbnail || undefined,
+    screenshot_url: db.screenshot_url || undefined,
+    html_url: db.html_url || undefined,
+    proof_hash: db.proof_hash || undefined,
+    capture_status: db.capture_status as Archive["capture_status"],
+    capture_error: db.capture_error || undefined,
+    archived_at: db.archived_at,
+    snapshot_date: db.snapshot_date || "",
+    last_updated: db.last_updated,
+    schedule_interval: db.schedule_interval as Archive["schedule_interval"],
+    next_scheduled_save: db.next_scheduled_save || undefined,
+    status: db.status as Archive["status"],
+  }
 }
 
+export async function getArchives(userId: string): Promise<Archive[]> {
+  try {
+    const rows = await queryMany<DbArchive>(`SELECT * FROM archives WHERE user_id = $1 ORDER BY archived_at DESC`, [
+      userId,
+    ])
+    return rows.map(mapDbArchiveToArchive)
+  } catch (error) {
+    console.error("Error fetching archives:", error)
+    return []
+  }
+}
+
+export async function getArchiveById(id: string): Promise<Archive | null> {
+  try {
+    const row = await queryOne<DbArchive>(`SELECT * FROM archives WHERE id = $1`, [id])
+    return row ? mapDbArchiveToArchive(row) : null
+  } catch (error) {
+    console.error("Error fetching archive:", error)
+    return null
+  }
+}
+
+export async function saveArchive(
+  archive: Omit<
+    Archive,
+    "id" | "archived_at" | "last_updated" | "status" | "chain" | "explorer" | "wallet_address" | "capture_status"
+  >,
+): Promise<Archive> {
+  const { chain, explorer } = detectChainFromUrl(archive.url)
+  const walletAddress = extractWalletAddress(archive.url)
+  const id = crypto.randomUUID()
+  const now = new Date().toISOString()
+
+  let nextScheduledSave: string | null = null
+  if (archive.schedule_interval === "monthly") {
+    nextScheduledSave = getNextMonthEnd().toISOString()
+  }
+
+  try {
+    await execute(
+      `INSERT INTO archives (
+        id, user_id, url, wallet_address, chain, explorer, title, content, 
+        client_name, snapshot_date, schedule_interval, next_scheduled_save,
+        capture_status, status, archived_at, last_updated
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 'pending', 'active', $13, $13)`,
+      [
+        id,
+        archive.user_id,
+        archive.url,
+        walletAddress,
+        chain,
+        explorer,
+        archive.title,
+        archive.content,
+        archive.client_name || null,
+        archive.snapshot_date,
+        archive.schedule_interval || null,
+        nextScheduledSave,
+        now,
+      ],
+    )
+
+    // Increment capture count
+    await incrementCaptureCount(archive.user_id)
+
+    return {
+      id,
+      user_id: archive.user_id,
+      url: archive.url,
+      wallet_address: walletAddress,
+      chain,
+      explorer,
+      title: archive.title,
+      content: archive.content,
+      client_name: archive.client_name,
+      snapshot_date: archive.snapshot_date,
+      schedule_interval: archive.schedule_interval,
+      next_scheduled_save: nextScheduledSave || undefined,
+      capture_status: "pending",
+      status: "active",
+      archived_at: now,
+      last_updated: now,
+    }
+  } catch (error) {
+    console.error("Error saving archive:", error)
+    throw error
+  }
+}
+
+export async function updateArchive(id: string, updates: Partial<Archive>): Promise<void> {
+  try {
+    const setClauses: string[] = []
+    const values: unknown[] = []
+    let paramIndex = 1
+
+    const fieldMap: Record<string, string> = {
+      screenshot_url: "screenshot_url",
+      html_url: "html_url",
+      proof_hash: "proof_hash",
+      capture_status: "capture_status",
+      capture_error: "capture_error",
+      status: "status",
+      client_name: "client_name",
+      title: "title",
+      content: "content",
+    }
+
+    for (const [key, dbField] of Object.entries(fieldMap)) {
+      if (key in updates) {
+        setClauses.push(`${dbField} = $${paramIndex}`)
+        values.push((updates as Record<string, unknown>)[key])
+        paramIndex++
+      }
+    }
+
+    if (setClauses.length === 0) return
+
+    setClauses.push(`last_updated = NOW()`)
+    values.push(id)
+
+    await execute(`UPDATE archives SET ${setClauses.join(", ")} WHERE id = $${paramIndex}`, values)
+  } catch (error) {
+    console.error("Error updating archive:", error)
+    throw error
+  }
+}
+
+export async function deleteArchive(id: string): Promise<void> {
+  try {
+    await execute(`DELETE FROM archives WHERE id = $1`, [id])
+  } catch (error) {
+    console.error("Error deleting archive:", error)
+    throw error
+  }
+}
+
+export async function getArchiveCount(userId: string): Promise<number> {
+  try {
+    const result = await queryOne<{ count: string }>(`SELECT COUNT(*) as count FROM archives WHERE user_id = $1`, [
+      userId,
+    ])
+    return Number.parseInt(result?.count || "0", 10)
+  } catch (error) {
+    console.error("Error counting archives:", error)
+    return 0
+  }
+}
+
+// Custom Explorers
+export async function getCustomExplorers(userId: string): Promise<CustomExplorer[]> {
+  try {
+    const rows = await queryMany<CustomExplorer>(
+      `SELECT * FROM custom_explorers WHERE user_id = $1 ORDER BY created_at DESC`,
+      [userId],
+    )
+    return rows
+  } catch (error) {
+    console.error("Error fetching custom explorers:", error)
+    return []
+  }
+}
+
+export async function saveCustomExplorer(explorer: Omit<CustomExplorer, "id">): Promise<CustomExplorer> {
+  const id = crypto.randomUUID()
+
+  try {
+    await execute(`INSERT INTO custom_explorers (id, user_id, name, domain) VALUES ($1, $2, $3, $4)`, [
+      id,
+      explorer.user_id,
+      explorer.name,
+      explorer.domain,
+    ])
+
+    return { id, ...explorer }
+  } catch (error) {
+    console.error("Error saving custom explorer:", error)
+    throw error
+  }
+}
+
+export async function deleteCustomExplorer(id: string): Promise<void> {
+  try {
+    await execute(`DELETE FROM custom_explorers WHERE id = $1`, [id])
+  } catch (error) {
+    console.error("Error deleting custom explorer:", error)
+    throw error
+  }
+}
+
+// Usage Stats
+export async function getUserUsageStats(userId: string): Promise<UsageStats> {
+  try {
+    const stats = await queryOne<{ user_id: string; total_captures_ever: number; last_reset_date: string | null }>(
+      `SELECT * FROM usage_stats WHERE user_id = $1`,
+      [userId],
+    )
+
+    if (!stats) {
+      return { user_id: userId, total_captures_ever: 0 }
+    }
+
+    return {
+      user_id: stats.user_id,
+      total_captures_ever: stats.total_captures_ever,
+      last_reset_date: stats.last_reset_date || undefined,
+    }
+  } catch (error) {
+    console.error("Error fetching usage stats:", error)
+    return { user_id: userId, total_captures_ever: 0 }
+  }
+}
+
+async function incrementCaptureCount(userId: string): Promise<void> {
+  try {
+    await execute(
+      `INSERT INTO usage_stats (user_id, total_captures_ever, updated_at) 
+       VALUES ($1, 1, NOW()) 
+       ON CONFLICT (user_id) 
+       DO UPDATE SET total_captures_ever = usage_stats.total_captures_ever + 1, updated_at = NOW()`,
+      [userId],
+    )
+  } catch (error) {
+    console.error("Error incrementing capture count:", error)
+  }
+}
+
+// Chain detection functions (unchanged - these don't need DB)
 export function detectChainFromUrl(url: string): { chain: string; explorer: string } {
   const urlLower = url.toLowerCase()
 
@@ -159,16 +422,6 @@ export function detectChainFromUrl(url: string): { chain: string; explorer: stri
   if (urlLower.includes("subscan.io")) return { chain: "Polkadot/Substrate", explorer: "Subscan" }
   if (urlLower.includes("algoexplorer.io")) return { chain: "Algorand", explorer: "AlgoExplorer" }
 
-  const customExplorers = getCustomExplorers()
-  for (const custom of customExplorers) {
-    if (urlLower.includes(custom.domain.toLowerCase())) {
-      // Extract chain name from domain if possible
-      const domainParts = custom.domain.replace(/\.(com|io|org|net|info|xyz)$/i, "").split(".")
-      const chainGuess = domainParts[domainParts.length - 1]
-      return { chain: chainGuess.charAt(0).toUpperCase() + chainGuess.slice(1), explorer: custom.name }
-    }
-  }
-
   return { chain: "Unknown", explorer: "Unknown Explorer" }
 }
 
@@ -182,7 +435,7 @@ export function extractWalletAddress(url: string): string {
     /address\/([1-9A-HJ-NP-Za-km-z]{32,44})/i,
     // Bitcoin addresses
     /address\/([13][a-km-zA-HJ-NP-Z1-9]{25,34})/i,
-    /address\/(bc1[a-z0-9]{39,59})/i, // Bech32
+    /address\/(bc1[a-z0-9]{39,59})/i,
     // Cosmos ecosystem addresses
     /account\/(cosmos[a-z0-9]{39,59})/i,
     /account\/(osmo[a-z0-9]{39,59})/i,
@@ -198,7 +451,7 @@ export function extractWalletAddress(url: string): string {
     /account\/(stride[a-z0-9]{39,59})/i,
     /account\/(axelar[a-z0-9]{39,59})/i,
     /account\/(neutron[a-z0-9]{39,59})/i,
-    /account\/([a-z]+1[a-z0-9]{38,58})/i, // Generic Cosmos SDK
+    /account\/([a-z]+1[a-z0-9]{38,58})/i,
     // Hedera
     /account\/(0\.0\.\d+)/i,
     /address\/(0\.0\.\d+)/i,
@@ -221,7 +474,7 @@ export function extractWalletAddress(url: string): string {
     /\/address\/([a-zA-Z0-9]{20,})/i,
     /\/account\/([a-zA-Z0-9]{20,})/i,
     /\/wallet\/([a-zA-Z0-9]{20,})/i,
-    // Sui addresses (start with 0x, 64 hex chars)
+    // Sui addresses
     /account\/(0x[a-fA-F0-9]{64})/i,
     /address\/(0x[a-fA-F0-9]{64})/i,
   ]
@@ -244,91 +497,11 @@ export function getNextMonthEnd(): Date {
   return nextMonth
 }
 
-export function saveArchive(
-  archive: Omit<
-    Archive,
-    "id" | "archivedAt" | "lastUpdated" | "status" | "chain" | "explorer" | "walletAddress" | "captureStatus"
-  >,
-): Archive {
-  const all = getAllArchives()
-  const { chain, explorer } = detectChainFromUrl(archive.url)
-  const walletAddress = extractWalletAddress(archive.url)
-
-  const newArchive: Archive = {
-    ...archive,
-    id: crypto.randomUUID(),
-    chain,
-    explorer,
-    walletAddress,
-    archivedAt: new Date().toISOString(),
-    lastUpdated: new Date().toISOString(),
-    status: "active",
-    captureStatus: "pending",
-  }
-
-  if (archive.scheduleInterval === "monthly") {
-    newArchive.nextScheduledSave = getNextMonthEnd().toISOString()
-  }
-
-  incrementCaptureCount(archive.userId)
-
-  localStorage.setItem(ARCHIVES_KEY, JSON.stringify([...all, newArchive]))
-  return newArchive
-}
-
-export function updateArchive(id: string, updates: Partial<Archive>) {
-  const all = getAllArchives()
-  const index = all.findIndex((a) => a.id === id)
-  if (index !== -1) {
-    all[index] = { ...all[index], ...updates, lastUpdated: new Date().toISOString() }
-    localStorage.setItem(ARCHIVES_KEY, JSON.stringify(all))
-  }
-}
-
-export function deleteArchive(id: string) {
-  const all = getAllArchives()
-  localStorage.setItem(ARCHIVES_KEY, JSON.stringify(all.filter((a) => a.id !== id)))
-}
-
-export function getArchiveCount(userId: string): number {
-  return getArchives(userId).length
-}
-
-export function getCustomExplorers(): CustomExplorer[] {
-  if (typeof window === "undefined") return []
-  const explorers = localStorage.getItem(CUSTOM_EXPLORERS_KEY)
-  return explorers ? JSON.parse(explorers) : []
-}
-
-export function saveCustomExplorer(explorer: Omit<CustomExplorer, "id">): CustomExplorer {
-  const all = getCustomExplorers()
-  const newExplorer: CustomExplorer = {
-    ...explorer,
-    id: crypto.randomUUID(),
-  }
-  localStorage.setItem(CUSTOM_EXPLORERS_KEY, JSON.stringify([...all, newExplorer]))
-  return newExplorer
-}
-
-export function deleteCustomExplorer(id: string) {
-  const all = getCustomExplorers()
-  localStorage.setItem(CUSTOM_EXPLORERS_KEY, JSON.stringify(all.filter((e) => e.id !== id)))
-}
-
-export function getAllExplorers() {
-  const custom = getCustomExplorers().map((c) => ({
-    name: c.name,
-    chain: c.domain,
-    url: c.domain,
-    isCustom: true,
-  }))
-  return [...SUPPORTED_EXPLORERS.map((e) => ({ ...e, isCustom: false })), ...custom]
-}
-
 export const PLAN_LIMITS = {
   free: { maxWallets: 3, maxSnapshots: 10, monthlyAutoSave: false },
   pro: { maxWallets: 25, maxSnapshots: 300, monthlyAutoSave: true },
   enterprise: { maxWallets: Number.POSITIVE_INFINITY, maxSnapshots: Number.POSITIVE_INFINITY, monthlyAutoSave: true },
+  lifetime: { maxWallets: 25, maxSnapshots: 300, monthlyAutoSave: true },
 }
 
 export const SUPPORTED_EXPLORERS = [
@@ -372,7 +545,7 @@ export const SUPPORTED_EXPLORERS = [
   // Hedera
   { name: "HashScan", chain: "Hedera", url: "hashscan.io" },
   { name: "Hedera Explorer", chain: "Hedera", url: "hederaexplorer.io" },
-  // XRP/Ripple - expanded
+  // XRP/Ripple
   { name: "XRPScan", chain: "XRP Ledger", url: "xrpscan.com" },
   { name: "Bithomp", chain: "XRP Ledger", url: "bithomp.com" },
   { name: "XRPL Explorer", chain: "XRP Ledger", url: "xrpl.org" },
@@ -398,24 +571,13 @@ export const SUPPORTED_EXPLORERS = [
   { name: "Blockchair", chain: "Multi-chain", url: "blockchair.com" },
 ]
 
-export function getUserUsageStats(userId: string): UsageStats {
-  if (typeof window === "undefined") return { userId, totalCapturesEver: 0 }
-  const stats = localStorage.getItem(USAGE_STATS_KEY)
-  const allStats: UsageStats[] = stats ? JSON.parse(stats) : []
-  return allStats.find((s) => s.userId === userId) || { userId, totalCapturesEver: 0 }
-}
-
-function incrementCaptureCount(userId: string) {
-  if (typeof window === "undefined") return
-  const stats = localStorage.getItem(USAGE_STATS_KEY)
-  const allStats: UsageStats[] = stats ? JSON.parse(stats) : []
-  const userStatIndex = allStats.findIndex((s) => s.userId === userId)
-
-  if (userStatIndex !== -1) {
-    allStats[userStatIndex].totalCapturesEver += 1
-  } else {
-    allStats.push({ userId, totalCapturesEver: 1 })
-  }
-
-  localStorage.setItem(USAGE_STATS_KEY, JSON.stringify(allStats))
+export async function getAllExplorers(userId?: string) {
+  const customExplorers = userId ? await getCustomExplorers(userId) : []
+  const custom = customExplorers.map((c) => ({
+    name: c.name,
+    chain: c.domain,
+    url: c.domain,
+    isCustom: true,
+  }))
+  return [...SUPPORTED_EXPLORERS.map((e) => ({ ...e, isCustom: false })), ...custom]
 }
