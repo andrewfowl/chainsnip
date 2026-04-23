@@ -496,7 +496,13 @@ export default function DashboardPage() {
           <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-muted-foreground">Manage your blockchain explorer snapshots for accounting records.</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          <Button variant="outline" asChild>
+            <a href="/dashboard/historical-balance">
+              <Clock className="mr-2 h-4 w-4" />
+              Historical Balances
+            </a>
+          </Button>
           <Dialog open={isCustomExplorerDialogOpen} onOpenChange={setIsCustomExplorerDialogOpen}>
             <DialogTrigger asChild>
               <Button variant="outline">
