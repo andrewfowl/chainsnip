@@ -106,10 +106,10 @@ importers:
         version: 0.85.2(@babel/core@7.29.0)(react@19.2.0)
       '@react-three/drei':
         specifier: 10.7.7
-        version: 10.7.7(@react-three/fiber@9.4.2(cghjue4tcgo5la6mdy2zj5auw4))(@types/react@19.2.14)(@types/three@0.184.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(three@0.181.2)
+        version: 10.7.7(@react-three/fiber@9.4.2(01d8354ff349a7820c4a1d07f354b527))(@types/react@19.2.14)(@types/three@0.184.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(three@0.181.2)
       '@react-three/fiber':
         specifier: 9.4.2
-        version: 9.4.2(cghjue4tcgo5la6mdy2zj5auw4)
+        version: 9.4.2(01d8354ff349a7820c4a1d07f354b527)
       '@sparticuz/chromium-min':
         specifier: 133.0.0
         version: 133.0.0
@@ -206,6 +206,9 @@ importers:
       react-native-webview:
         specifier: latest
         version: 13.16.1(react-native@0.85.2(@babel/core@7.29.0)(@react-native/jest-preset@0.85.2(@babel/core@7.29.0)(react@19.2.0))(@react-native/metro-config@0.85.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.0))(react@19.2.0)
+      react-native-worklets:
+        specifier: latest
+        version: 0.8.1(@babel/core@7.29.0)(@react-native/metro-config@0.85.2(@babel/core@7.29.0))(react-native@0.85.2(@babel/core@7.29.0)(@react-native/jest-preset@0.85.2(@babel/core@7.29.0)(react@19.2.0))(@react-native/metro-config@0.85.2(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.0))(react@19.2.0)
       react-resizable-panels:
         specifier: ^2.1.7
         version: 2.1.9(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -7668,12 +7671,12 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.14
 
-  '@react-three/drei@10.7.7(@react-three/fiber@9.4.2(cghjue4tcgo5la6mdy2zj5auw4))(@types/react@19.2.14)(@types/three@0.184.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(three@0.181.2)':
+  '@react-three/drei@10.7.7(@react-three/fiber@9.4.2(01d8354ff349a7820c4a1d07f354b527))(@types/react@19.2.14)(@types/three@0.184.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(three@0.181.2)':
     dependencies:
       '@babel/runtime': 7.29.2
       '@mediapipe/tasks-vision': 0.10.17
       '@monogrid/gainmap-js': 3.4.0(three@0.181.2)
-      '@react-three/fiber': 9.4.2(cghjue4tcgo5la6mdy2zj5auw4)
+      '@react-three/fiber': 9.4.2(01d8354ff349a7820c4a1d07f354b527)
       '@use-gesture/react': 10.3.1(react@19.2.0)
       camera-controls: 3.1.2(three@0.181.2)
       cross-env: 7.0.3
@@ -7701,7 +7704,7 @@ snapshots:
       - '@types/three'
       - immer
 
-  '@react-three/fiber@9.4.2(cghjue4tcgo5la6mdy2zj5auw4)':
+  '@react-three/fiber@9.4.2(01d8354ff349a7820c4a1d07f354b527)':
     dependencies:
       '@babel/runtime': 7.29.2
       '@types/react-reconciler': 0.32.3(@types/react@19.2.14)

@@ -75,6 +75,7 @@
     "react-native-reanimated": "latest",
     "react-native-web": "latest",
     "react-native-webview": "latest",
+    "react-native-worklets": "latest",
     "react-resizable-panels": "^2.1.7",
     "reactflow": "11.11.4",
     "recharts": "2.15.4",
