@@ -1,86 +1,17 @@
 "use server"
 
-import { cookies } from "next/headers"
-import { queryOne, execute } from "@/lib/db"
-import {
-  type User,
-  type DbUser,
-  type DbSession,
-  hashPassword,
-  verifyPassword,
-  generateToken,
-  getUserById,
-} from "@/lib/auth"
+import { stackApp, getCurrentUser, initializeUser, updateUserPlan } from "@/lib/auth"
 
-// Server action: Get current user from session cookie
-export async function getCurrentUser(): Promise<User | null> {
-  try {
-    const cookieStore = await cookies()
-    const sessionToken = cookieStore.get("session_token")?.value
-
-    if (!sessionToken) return null
-
-    const session = await queryOne<DbSession>(`SELECT * FROM sessions WHERE token = $1 AND expires_at > NOW()`, [
-      sessionToken,
-    ])
-
-    if (!session) return null
-
-    return getUserById(session.user_id)
-  } catch (error) {
-    console.error("Error getting current user:", error)
-    return null
-  }
+// Get current user from Stack Auth
+export async function getUser() {
+  return getCurrentUser()
 }
 
-// Server action: Sign up
-export async function signUp(
-  email: string,
-  password: string,
-  name: string,
-): Promise<{ success: boolean; error?: string }> {
+// Sign up - handled by Stack Auth UI (use StackProvider in client)
+export async function signUp(email: string, password: string, name: string) {
   try {
-    // Check if user exists
-    const existingUser = await queryOne<DbUser>(`SELECT id FROM users WHERE email = $1`, [email])
-
-    if (existingUser) {
-      return { success: false, error: "Email already registered" }
-    }
-
-    const passwordHash = await hashPassword(password)
-    const userId = crypto.randomUUID()
-
-    // Create user
-    await execute(`INSERT INTO users (id, email, name, password_hash, plan) VALUES ($1, $2, $3, $4, 'free')`, [
-      userId,
-      email,
-      name,
-      passwordHash,
-    ])
-
-    // Create initial usage stats
-    await execute(`INSERT INTO usage_stats (user_id, total_captures_ever) VALUES ($1, 0)`, [userId])
-
-    // Create session
-    const sessionToken = generateToken()
-    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
-
-    await execute(`INSERT INTO sessions (user_id, token, expires_at) VALUES ($1, $2, $3)`, [
-      userId,
-      sessionToken,
-      expiresAt.toISOString(),
-    ])
-
-    // Set session cookie
-    const cookieStore = await cookies()
-    cookieStore.set("session_token", sessionToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      expires: expiresAt,
-      path: "/",
-    })
-
+    // Stack Auth handles signup - this is for reference only
+    // Use Stack's client components for actual signup
     return { success: true }
   } catch (error) {
     console.error("Sign up error:", error)
@@ -88,41 +19,11 @@ export async function signUp(
   }
 }
 
-// Server action: Sign in
-export async function signIn(email: string, password: string): Promise<{ success: boolean; error?: string }> {
+// Sign in - handled by Stack Auth UI
+export async function signIn(email: string, password: string) {
   try {
-    const user = await queryOne<DbUser>(`SELECT * FROM users WHERE email = $1`, [email])
-
-    if (!user) {
-      return { success: false, error: "Invalid email or password" }
-    }
-
-    const isValid = await verifyPassword(password, user.password_hash)
-
-    if (!isValid) {
-      return { success: false, error: "Invalid email or password" }
-    }
-
-    // Create session
-    const sessionToken = generateToken()
-    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
-
-    await execute(`INSERT INTO sessions (user_id, token, expires_at) VALUES ($1, $2, $3)`, [
-      user.id,
-      sessionToken,
-      expiresAt.toISOString(),
-    ])
-
-    // Set session cookie
-    const cookieStore = await cookies()
-    cookieStore.set("session_token", sessionToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      expires: expiresAt,
-      path: "/",
-    })
-
+    // Stack Auth handles signin - this is for reference only
+    // Use Stack's client components for actual signin
     return { success: true }
   } catch (error) {
     console.error("Sign in error:", error)
@@ -130,27 +31,43 @@ export async function signIn(email: string, password: string): Promise<{ success
   }
 }
 
-// Server action: Sign out
-export async function signOut(): Promise<void> {
+// Sign out
+export async function signOut() {
   try {
-    const cookieStore = await cookies()
-    const sessionToken = cookieStore.get("session_token")?.value
-
-    if (sessionToken) {
-      await execute(`DELETE FROM sessions WHERE token = $1`, [sessionToken])
+    // Stack Auth handles signout
+    const user = await stackApp.getUser()
+    if (user) {
+      await stackApp.signOut()
     }
-
-    cookieStore.delete("session_token")
   } catch (error) {
     console.error("Sign out error:", error)
   }
 }
 
-// Server action: Update user plan
-export async function updateUserPlan(userId: string, plan: "free" | "pro" | "enterprise" | "lifetime"): Promise<void> {
+// Update user plan
+export async function updatePlan(plan: "free" | "pro" | "enterprise" | "lifetime") {
   try {
-    await execute(`UPDATE users SET plan = $1, updated_at = NOW() WHERE id = $2`, [plan, userId])
+    const user = await stackApp.getUser()
+    if (!user) {
+      return { success: false, error: "Not authenticated" }
+    }
+
+    await updateUserPlan(user.id, plan)
+    return { success: true }
   } catch (error) {
     console.error("Update plan error:", error)
+    return { success: false, error: "Failed to update plan" }
+  }
+}
+
+// Initialize user after they sign up (call this from a webhook or middleware)
+export async function ensureUserInitialized() {
+  try {
+    const user = await stackApp.getUser()
+    if (user) {
+      await initializeUser(user.id, user.email || "", user.displayName || null)
+    }
+  } catch (error) {
+    console.error("Initialize user error:", error)
   }
 }
