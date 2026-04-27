@@ -91,7 +91,7 @@ export default function DashboardPage() {
       }
       setUser(currentUser)
       setArchives(await getArchives(currentUser.id))
-      setCustomExplorers(await getCustomExplorers())
+      setCustomExplorers(await getCustomExplorers(currentUser.id))
       setIsLoading(false)
 
       setNewArchiveSnapshotDate(format(new Date(), "yyyy-MM-dd"))
@@ -161,7 +161,7 @@ export default function DashboardPage() {
       const title = `${url.hostname}${url.pathname.slice(0, 30)}...`
 
       // First, create the archive record
-      const newArchive = saveArchive({
+      const newArchive = await saveArchive({
         userId: user.id,
         url: newArchiveUrl,
         title,
@@ -353,7 +353,7 @@ export default function DashboardPage() {
       .replace(/\/.*$/, "")
       .toLowerCase()
 
-    const explorer = saveCustomExplorer({ name: newCustomExplorer.name, domain })
+    const explorer = await saveCustomExplorer({ userId: user!.id, name: newCustomExplorer.name, domain })
     setCustomExplorers([...customExplorers, explorer])
     setNewCustomExplorer({ name: "", domain: "" })
     setIsCustomExplorerDialogOpen(false)
@@ -497,11 +497,9 @@ export default function DashboardPage() {
           <p className="text-muted-foreground">Manage your blockchain explorer snapshots for accounting records.</p>
         </div>
         <div className="flex gap-2 flex-wrap">
-          <Button variant="outline" asChild>
-            <a href="/dashboard/historical-balance">
-              <Clock className="mr-2 h-4 w-4" />
-              Historical Balances
-            </a>
+          <Button variant="outline" onClick={() => router.push("/dashboard/historical-balance")}>
+            <Clock className="mr-2 h-4 w-4" />
+            Historical Balances
           </Button>
           <Dialog open={isCustomExplorerDialogOpen} onOpenChange={setIsCustomExplorerDialogOpen}>
             <DialogTrigger asChild>
