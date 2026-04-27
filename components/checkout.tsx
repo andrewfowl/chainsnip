@@ -14,8 +14,12 @@ interface CheckoutProps {
 }
 
 export default function Checkout({ productId }: CheckoutProps) {
-  const fetchClientSecret = useCallback(() => {
-    return createCheckoutSession(productId)
+  const fetchClientSecret = useCallback(async () => {
+    const clientSecret = await createCheckoutSession(productId)
+    if (!clientSecret) {
+      throw new Error("Failed to create checkout session")
+    }
+    return clientSecret
   }, [productId])
 
   return (

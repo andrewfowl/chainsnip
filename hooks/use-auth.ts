@@ -8,7 +8,7 @@ export function useAuth() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await fetch("/api/auth/get-session")
+        const response = await fetch("/api/auth/session")
         if (response.ok) {
           const data = await response.json()
           setUser(data.user || null)
