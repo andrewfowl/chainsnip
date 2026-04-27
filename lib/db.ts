@@ -20,5 +20,18 @@ export async function execute(query: string, params?: unknown[]): Promise<void> 
   await pool.query(query, params)
 }
 
+// Get user plan from usage_stats
+export async function getUserPlan(userId: string): Promise<"free" | "pro" | "enterprise" | "lifetime"> {
+  try {
+    const result = await queryOne<{ plan: string }>(
+      `SELECT plan FROM usage_stats WHERE user_id = $1`,
+      [userId],
+    )
+    return (result?.plan || "free") as "free" | "pro" | "enterprise" | "lifetime"
+  } catch {
+    return "free"
+  }
+}
+
 // Export the pool for direct usage if needed
 export { pool }
