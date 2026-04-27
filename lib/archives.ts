@@ -3,39 +3,39 @@ import { queryOne, queryMany, execute } from "./db"
 // Archive management utilities for blockchain explorer snapshots
 export interface Archive {
   id: string
-  user_id: string
+  userId: string
   url: string
-  wallet_address: string
+  walletAddress: string
   chain: string
   explorer: string
   title: string
   content: string
-  client_name?: string
+  clientName?: string
   thumbnail?: string
-  screenshot_url?: string
-  html_url?: string
-  proof_hash?: string
-  capture_status: "pending" | "capturing" | "completed" | "failed"
-  capture_error?: string
-  archived_at: string
-  snapshot_date: string
-  last_updated: string
-  schedule_interval?: "monthly" | null
-  next_scheduled_save?: string
+  screenshotUrl?: string
+  htmlUrl?: string
+  proofHash?: string
+  captureStatus: "pending" | "capturing" | "completed" | "failed"
+  captureError?: string
+  archivedAt: string
+  snapshotDate: string
+  lastUpdated: string
+  scheduleInterval?: "monthly" | null
+  nextScheduledSave?: string
   status: "active" | "failed" | "pending"
 }
 
 export interface CustomExplorer {
   id: string
-  user_id: string
+  userId: string
   name: string
   domain: string
 }
 
 export interface UsageStats {
-  user_id: string
-  total_captures_ever: number
-  last_reset_date?: string
+  userId: string
+  totalCapturesEver: number
+  lastResetDate?: string
 }
 
 // Database row types (snake_case from DB)
@@ -66,25 +66,25 @@ interface DbArchive {
 function mapDbArchiveToArchive(db: DbArchive): Archive {
   return {
     id: db.id,
-    user_id: db.user_id,
+    userId: db.user_id,
     url: db.url,
-    wallet_address: db.wallet_address || "Unknown",
+    walletAddress: db.wallet_address || "Unknown",
     chain: db.chain || "Unknown",
     explorer: db.explorer || "Unknown",
     title: db.title || "",
     content: db.content || "",
-    client_name: db.client_name || undefined,
+    clientName: db.client_name || undefined,
     thumbnail: db.thumbnail || undefined,
-    screenshot_url: db.screenshot_url || undefined,
-    html_url: db.html_url || undefined,
-    proof_hash: db.proof_hash || undefined,
-    capture_status: db.capture_status as Archive["capture_status"],
-    capture_error: db.capture_error || undefined,
-    archived_at: db.archived_at,
-    snapshot_date: db.snapshot_date || "",
-    last_updated: db.last_updated,
-    schedule_interval: db.schedule_interval as Archive["schedule_interval"],
-    next_scheduled_save: db.next_scheduled_save || undefined,
+    screenshotUrl: db.screenshot_url || undefined,
+    htmlUrl: db.html_url || undefined,
+    proofHash: db.proof_hash || undefined,
+    captureStatus: db.capture_status as Archive["captureStatus"],
+    captureError: db.capture_error || undefined,
+    archivedAt: db.archived_at,
+    snapshotDate: db.snapshot_date || "",
+    lastUpdated: db.last_updated,
+    scheduleInterval: db.schedule_interval as Archive["scheduleInterval"],
+    nextScheduledSave: db.next_scheduled_save || undefined,
     status: db.status as Archive["status"],
   }
 }
@@ -114,7 +114,7 @@ export async function getArchiveById(id: string): Promise<Archive | null> {
 export async function saveArchive(
   archive: Omit<
     Archive,
-    "id" | "archived_at" | "last_updated" | "status" | "chain" | "explorer" | "wallet_address" | "capture_status"
+    "id" | "archivedAt" | "lastUpdated" | "status" | "chain" | "explorer" | "walletAddress" | "captureStatus"
   >,
 ): Promise<Archive> {
   const { chain, explorer } = detectChainFromUrl(archive.url)
@@ -123,7 +123,7 @@ export async function saveArchive(
   const now = new Date().toISOString()
 
   let nextScheduledSave: string | null = null
-  if (archive.schedule_interval === "monthly") {
+  if (archive.scheduleInterval === "monthly") {
     nextScheduledSave = getNextMonthEnd().toISOString()
   }
 
@@ -136,41 +136,41 @@ export async function saveArchive(
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 'pending', 'active', $13, $13)`,
       [
         id,
-        archive.user_id,
+        archive.userId,
         archive.url,
         walletAddress,
         chain,
         explorer,
         archive.title,
         archive.content,
-        archive.client_name || null,
-        archive.snapshot_date,
-        archive.schedule_interval || null,
+        archive.clientName || null,
+        archive.snapshotDate,
+        archive.scheduleInterval || null,
         nextScheduledSave,
         now,
       ],
     )
 
     // Increment capture count
-    await incrementCaptureCount(archive.user_id)
+    await incrementCaptureCount(archive.userId)
 
     return {
       id,
-      user_id: archive.user_id,
+      userId: archive.userId,
       url: archive.url,
-      wallet_address: walletAddress,
+      walletAddress,
       chain,
       explorer,
       title: archive.title,
       content: archive.content,
-      client_name: archive.client_name,
-      snapshot_date: archive.snapshot_date,
-      schedule_interval: archive.schedule_interval,
-      next_scheduled_save: nextScheduledSave || undefined,
-      capture_status: "pending",
+      clientName: archive.clientName,
+      snapshotDate: archive.snapshotDate,
+      scheduleInterval: archive.scheduleInterval,
+      nextScheduledSave: nextScheduledSave || undefined,
+      captureStatus: "pending",
       status: "active",
-      archived_at: now,
-      last_updated: now,
+      archivedAt: now,
+      lastUpdated: now,
     }
   } catch (error) {
     console.error("Error saving archive:", error)
@@ -184,14 +184,15 @@ export async function updateArchive(id: string, updates: Partial<Archive>): Prom
     const values: unknown[] = []
     let paramIndex = 1
 
+    // Map camelCase to snake_case for DB
     const fieldMap: Record<string, string> = {
-      screenshot_url: "screenshot_url",
-      html_url: "html_url",
-      proof_hash: "proof_hash",
-      capture_status: "capture_status",
-      capture_error: "capture_error",
+      screenshotUrl: "screenshot_url",
+      htmlUrl: "html_url",
+      proofHash: "proof_hash",
+      captureStatus: "capture_status",
+      captureError: "capture_error",
       status: "status",
-      client_name: "client_name",
+      clientName: "client_name",
       title: "title",
       content: "content",
     }
@@ -238,13 +239,25 @@ export async function getArchiveCount(userId: string): Promise<number> {
 }
 
 // Custom Explorers
+interface DbCustomExplorer {
+  id: string
+  user_id: string
+  name: string
+  domain: string
+}
+
 export async function getCustomExplorers(userId: string): Promise<CustomExplorer[]> {
   try {
-    const rows = await queryMany<CustomExplorer>(
+    const rows = await queryMany<DbCustomExplorer>(
       `SELECT * FROM custom_explorers WHERE user_id = $1 ORDER BY created_at DESC`,
       [userId],
     )
-    return rows
+    return rows.map(row => ({
+      id: row.id,
+      userId: row.user_id,
+      name: row.name,
+      domain: row.domain,
+    }))
   } catch (error) {
     console.error("Error fetching custom explorers:", error)
     return []
@@ -257,7 +270,7 @@ export async function saveCustomExplorer(explorer: Omit<CustomExplorer, "id">): 
   try {
     await execute(`INSERT INTO custom_explorers (id, user_id, name, domain) VALUES ($1, $2, $3, $4)`, [
       id,
-      explorer.user_id,
+      explorer.userId,
       explorer.name,
       explorer.domain,
     ])
@@ -287,17 +300,17 @@ export async function getUserUsageStats(userId: string): Promise<UsageStats> {
     )
 
     if (!stats) {
-      return { user_id: userId, total_captures_ever: 0 }
+      return { userId, totalCapturesEver: 0 }
     }
 
     return {
-      user_id: stats.user_id,
-      total_captures_ever: stats.total_captures_ever,
-      last_reset_date: stats.last_reset_date || undefined,
+      userId: stats.user_id,
+      totalCapturesEver: stats.total_captures_ever,
+      lastResetDate: stats.last_reset_date || undefined,
     }
   } catch (error) {
     console.error("Error fetching usage stats:", error)
-    return { user_id: userId, total_captures_ever: 0 }
+    return { userId, totalCapturesEver: 0 }
   }
 }
 
