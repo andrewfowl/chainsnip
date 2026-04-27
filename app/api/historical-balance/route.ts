@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
 
-// Network configurations with public RPC endpoints
-// Note: For production, users should provide their own archive node endpoints
+// Chainstack node URL - provides full archive access for historical queries
+const CHAINSTACK_NODE_URL = process.env.CHAINSTACK_NODE_URL
+
+// Network configurations with RPC endpoints
+// Chainstack node is used as primary for Ethereum when available
 const NETWORK_CONFIGS: Record<string, {
   name: string
   chainId: number
@@ -12,51 +15,52 @@ const NETWORK_CONFIGS: Record<string, {
   ethereum: {
     name: "Ethereum Mainnet",
     chainId: 1,
-    rpcUrl: "https://eth.llamarpc.com",
+    // Use Chainstack archive node if available, fallback to public RPC
+    rpcUrl: CHAINSTACK_NODE_URL || "https://eth.llamarpc.com",
     blockExplorerApi: "https://api.etherscan.io/api",
-    isArchive: true,
+    isArchive: !!CHAINSTACK_NODE_URL, // True archive access only with Chainstack
   },
   polygon: {
     name: "Polygon",
     chainId: 137,
     rpcUrl: "https://polygon.llamarpc.com",
     blockExplorerApi: "https://api.polygonscan.com/api",
-    isArchive: true,
+    isArchive: false,
   },
   bsc: {
     name: "BNB Smart Chain",
     chainId: 56,
     rpcUrl: "https://bsc.llamarpc.com",
     blockExplorerApi: "https://api.bscscan.com/api",
-    isArchive: true,
+    isArchive: false,
   },
   arbitrum: {
     name: "Arbitrum One",
     chainId: 42161,
     rpcUrl: "https://arbitrum.llamarpc.com",
     blockExplorerApi: "https://api.arbiscan.io/api",
-    isArchive: true,
+    isArchive: false,
   },
   optimism: {
     name: "Optimism",
     chainId: 10,
     rpcUrl: "https://optimism.llamarpc.com",
     blockExplorerApi: "https://api-optimistic.etherscan.io/api",
-    isArchive: true,
+    isArchive: false,
   },
   base: {
     name: "Base",
     chainId: 8453,
     rpcUrl: "https://base.llamarpc.com",
     blockExplorerApi: "https://api.basescan.org/api",
-    isArchive: true,
+    isArchive: false,
   },
   avalanche: {
     name: "Avalanche C-Chain",
     chainId: 43114,
     rpcUrl: "https://avalanche.llamarpc.com",
     blockExplorerApi: "https://api.snowtrace.io/api",
-    isArchive: true,
+    isArchive: false,
   },
 }
 
@@ -306,6 +310,9 @@ export async function POST(request: NextRequest) {
       blockNumber, // Optional: directly specify block number
     } = body
 
+    console.log("[v0] Historical balance query:", { network, walletAddress, contractAddress, date, blockNumber })
+    console.log("[v0] Using Chainstack:", !!CHAINSTACK_NODE_URL)
+
     if (!network || !walletAddress) {
       return NextResponse.json(
         { error: "Missing required fields: network and walletAddress" },
@@ -385,6 +392,8 @@ export async function POST(request: NextRequest) {
     const fractionalPart = balanceBigInt % divisor
     const formattedBalance = `${integerPart}.${fractionalPart.toString().padStart(decimals, "0")}`
 
+    console.log("[v0] Historical balance result:", { formattedBalance, symbol, blockNumber: targetBlock })
+
     return NextResponse.json({
       success: true,
       data: {
@@ -422,5 +431,6 @@ export async function GET() {
       chainId: config.chainId,
       isArchive: config.isArchive,
     })),
+    hasArchiveNode: !!CHAINSTACK_NODE_URL,
   })
 }
