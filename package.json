@@ -46,7 +46,6 @@
     "@react-three/drei": "10.7.7",
     "@react-three/fiber": "9.4.2",
     "@sparticuz/chromium-min": "133.0.0",
-    "@stackframe/stack": "2.8.85",
     "@stripe/react-stripe-js": "5.4.1",
     "@stripe/stripe-js": "8.5.3",
     "@tailwindcss/typography": "0.5.19",
