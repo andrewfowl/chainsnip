@@ -90,8 +90,8 @@ export default function DashboardPage() {
         return
       }
       setUser(currentUser)
-      setArchives(getArchives(currentUser.id))
-      setCustomExplorers(getCustomExplorers())
+      setArchives(await getArchives(currentUser.id))
+      setCustomExplorers(await getCustomExplorers())
       setIsLoading(false)
 
       setNewArchiveSnapshotDate(format(new Date(), "yyyy-MM-dd"))
