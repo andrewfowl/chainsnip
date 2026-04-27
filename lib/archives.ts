@@ -1,5 +1,4 @@
 import { queryOne, queryMany, execute } from "./db"
-import { crypto } from "crypto"
 
 // Archive management utilities for blockchain explorer snapshots
 export interface Archive {
