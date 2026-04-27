@@ -61,12 +61,16 @@ export async function signUp(
   name: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    console.log("[v0] signUp called for email:", email)
+
     // Validate inputs
     if (!isValidEmail(email)) {
+      console.log("[v0] signUp: invalid email")
       return { success: false, error: "Invalid email format" }
     }
 
     if (!isValidPassword(password)) {
+      console.log("[v0] signUp: invalid password length")
       return {
         success: false,
         error: "Password must be between 8 and 128 characters",
@@ -82,15 +86,17 @@ export async function signUp(
     }
 
     const headersList = await headers()
+    console.log("[v0] signUp: calling auth.api.signUpEmail")
     const result = await auth.api.signUpEmail({
       body: { email, password, name },
       headers: headersList,
     })
 
+    console.log("[v0] signUp result:", JSON.stringify(result))
     return { success: !!result, error: result ? undefined : "Failed to create account" }
-  } catch (error) {
-    console.error("Sign up error:", error)
-    return { success: false, error: "An error occurred during sign up" }
+  } catch (error: any) {
+    console.error("[v0] Sign up error:", error?.message || error)
+    return { success: false, error: error?.message || "An error occurred during sign up" }
   }
 }
 
