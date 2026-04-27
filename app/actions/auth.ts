@@ -20,8 +20,7 @@ export async function signIn(email: string, password: string): Promise<{ success
   try {
     const headersList = await headers()
     const result = await auth.api.signInEmail({
-      email,
-      password,
+      body: { email, password },
       headers: headersList,
     })
     return { success: !!result, error: result ? undefined : "Failed to sign in" }
@@ -36,9 +35,7 @@ export async function signUp(email: string, password: string, name: string): Pro
   try {
     const headersList = await headers()
     const result = await auth.api.signUpEmail({
-      email,
-      password,
-      name,
+      body: { email, password, name },
       headers: headersList,
     })
     return { success: !!result, error: result ? undefined : "Failed to create account" }
