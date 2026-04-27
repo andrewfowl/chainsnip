@@ -14,7 +14,7 @@
     "@expo/metro-runtime": "latest",
     "@hookform/resolvers": "^3.10.0",
     "@lynx-js/react": "latest",
-    "@neondatabase/auth": "^1.0.0",
+    "@neondatabase/auth": "0.2.0-beta.1",
     "@neondatabase/serverless": "1.0.2",
     "@prisma/client": "latest",
     "@radix-ui/react-accordion": "1.2.2",
