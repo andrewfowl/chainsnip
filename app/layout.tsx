@@ -1,5 +1,5 @@
 import type React from "react"
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import ClientRootLayout from "./ClientRootLayout"
@@ -7,11 +7,15 @@ import { Toaster } from "@/components/ui/toaster"
 
 const inter = Inter({ subsets: ["latin"] })
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+}
+
 export const metadata: Metadata = {
   title: "ChainShip - Blockchain Balance Snapshots for Crypto Accountants",
   description:
     "Capture and archive blockchain explorer pages with wallet balances at month-end dates. Audit-ready proof for crypto accounting, tax prep, and compliance.",
-  viewport: "width=device-width, initial-scale=1",
   generator: "v0.dev",
   icons: {
     icon: [

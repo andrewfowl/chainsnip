@@ -1,9 +1,7 @@
 import { betterAuth } from "better-auth"
 import { Pool } from "@neondatabase/serverless"
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL!,
-})
+const pool = new Pool({ connectionString: process.env.DATABASE_URL })
 
 // Determine base URL - use env var if set, otherwise use VERCEL_URL for previews
 const getBaseURL = () => {

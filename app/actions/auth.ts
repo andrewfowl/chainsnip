@@ -1,7 +1,6 @@
 "use server"
 
 import { auth } from "@/lib/auth"
-import { rateLimitAuthRequest } from "@/lib/rate-limit"
 import { headers } from "next/headers"
 
 // Validate email format
@@ -27,21 +26,12 @@ export async function getCurrentUser() {
   }
 }
 
-// Sign in using Better Auth with rate limiting
+// Sign in using Better Auth
 export async function signIn(
   email: string,
   password: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    // Rate limit by email
-    const rateLimitResult = await rateLimitAuthRequest(`signin:${email}`)
-    if (!rateLimitResult.success) {
-      return {
-        success: false,
-        error: "Too many login attempts. Please try again later.",
-      }
-    }
-
     // Validate inputs
     if (!isValidEmail(email)) {
       return { success: false, error: "Invalid email format" }
@@ -64,22 +54,13 @@ export async function signIn(
   }
 }
 
-// Sign up using Better Auth with rate limiting and validation
+// Sign up using Better Auth with validation
 export async function signUp(
   email: string,
   password: string,
   name: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    // Rate limit by email
-    const rateLimitResult = await rateLimitAuthRequest(`signup:${email}`)
-    if (!rateLimitResult.success) {
-      return {
-        success: false,
-        error: "Too many signup attempts. Please try again later.",
-      }
-    }
-
     // Validate inputs
     if (!isValidEmail(email)) {
       return { success: false, error: "Invalid email format" }

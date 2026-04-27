@@ -36,7 +36,9 @@ export default function LoginPage() {
 
     if (result.success) {
       toast({ title: "Success", description: "Welcome back!" })
-      router.push("/dashboard")
+      // Use window.location for full page navigation to ensure cookies are sent
+      window.location.href = "/dashboard"
+      return
     } else {
       toast({ title: "Error", description: result.error || "Login failed", variant: "destructive" })
     }

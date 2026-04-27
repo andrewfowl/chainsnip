@@ -58,7 +58,9 @@ export default function SignupPage() {
 
     if (result.success) {
       toast({ title: "Success", description: "Account created successfully!" })
-      router.push("/dashboard")
+      // Use window.location for full page navigation to ensure cookies are sent
+      window.location.href = "/dashboard"
+      return
     } else {
       toast({ title: "Error", description: result.error || "Signup failed", variant: "destructive" })
     }
