@@ -1,13 +1,13 @@
 import { betterAuth } from "better-auth"
-import { neonAdapter } from "@neondatabase/auth"
 import { Pool } from "@neondatabase/serverless"
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL! })
 
 export const auth = betterAuth({
-  database: neonAdapter(pool, {
-    schema: "neon_auth",
-  }),
+  database: {
+    type: "postgres",
+    pool,
+  },
   appName: "ChainSnip",
   emailAndPassword: {
     enabled: true,
