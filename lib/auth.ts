@@ -7,6 +7,7 @@ const pool = new Pool({
 
 export const auth = betterAuth({
   database: pool,
+  secret: process.env.BETTER_AUTH_SECRET!,
   appName: "ChainSnip",
   emailAndPassword: {
     enabled: true,
