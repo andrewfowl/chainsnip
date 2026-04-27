@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { Lightbulb, Palette, Film, Music, Brain, Merge, Cpu, DatabaseZap, Workflow, Rocket } from "lucide-react" // Atom for Sparkles, more specific icons
+import { Lightbulb, Palette, Film, Music, Brain, Merge, Rocket } from "lucide-react"
 import Link from "next/link"
 
 export default function CreatePage() {
@@ -41,24 +41,7 @@ export default function CreatePage() {
       icon: Merge,
       href: "/#blog-merger-section", // Link to the section on the homepage
     },
-    {
-      title: "AI Co-Pilot",
-      description: "Leverage intelligent assistance for complex creative tasks.",
-      icon: Cpu,
-      href: "/create/ai-copilot", // Placeholder
-    },
-    {
-      title: "Data Synthesis Engine",
-      description: "Transform raw data into actionable creative intelligence.",
-      icon: DatabaseZap,
-      href: "/create/data-synthesis", // Placeholder
-    },
-    {
-      title: "Custom Workflow Builder",
-      description: "Design and automate your unique creative pipelines.",
-      icon: Workflow,
-      href: "/create/workflow-builder", // Placeholder
-    },
+
   ]
 
   return (
