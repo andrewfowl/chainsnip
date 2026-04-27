@@ -1,4 +1,5 @@
 import { betterAuth } from "better-auth"
+import { emailVerification } from "better-auth/plugins"
 import { Pool } from "@neondatabase/serverless"
 
 const pool = new Pool({
@@ -20,6 +21,17 @@ export const auth = betterAuth({
   appName: "ChainSnip",
   emailAndPassword: {
     enabled: true,
+    minPasswordLength: 8,
+    maxPasswordLength: 128,
+  },
+  plugins: [emailVerification()],
+  session: {
+    expiresIn: 60 * 60 * 24 * 7, // 7 days
+    updateAge: 60 * 60 * 24, // Update every 24 hours
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60, // 5 minutes
+    },
   },
   trustedOrigins: [
     "https://chainsnip.com",
