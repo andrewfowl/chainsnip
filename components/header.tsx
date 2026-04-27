@@ -1,44 +1,34 @@
-"use client"
+'use client';
 
-import Link from "next/link"
-import { Wallet, Menu, X, LayoutDashboard, LogOut } from "lucide-react"
-import { usePathname } from "next/navigation"
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { getCurrentUser, signOut } from "@/app/actions/auth"
-import type { User } from "@/lib/auth"
+import Link from 'next/link';
+import { Wallet, Menu, X, LayoutDashboard } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { UserButton } from '@neondatabase/auth/react';
+import { useSession } from '@/lib/auth/client';
 
 export default function Header() {
-  const pathname = usePathname()
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [user, setUser] = useState<User | null>(null)
-
-  useEffect(() => {
-    getCurrentUser().then(setUser)
-  }, [pathname])
-
-  const handleSignOut = async () => {
-    await signOut()
-    setUser(null)
-    window.location.href = "/"
-  }
+  const pathname = usePathname();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { data: session } = useSession();
 
   const navItems = [
-    { href: "/#features", label: "Features" },
-    { href: "/#pricing", label: "Pricing" },
-    { href: "/#how-it-works", label: "How It Works" },
-  ]
+    { href: '/#features', label: 'Features' },
+    { href: '/#pricing', label: 'Pricing' },
+    { href: '/#how-it-works', label: 'How It Works' },
+  ];
 
   useEffect(() => {
     if (isMobileMenuOpen) {
-      document.body.style.overflow = "hidden"
+      document.body.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = "auto"
+      document.body.style.overflow = 'auto';
     }
     return () => {
-      document.body.style.overflow = "auto"
-    }
-  }, [isMobileMenuOpen])
+      document.body.style.overflow = 'auto';
+    };
+  }, [isMobileMenuOpen]);
 
   return (
     <>
@@ -65,7 +55,7 @@ export default function Header() {
           </nav>
 
           <div className="hidden lg:flex items-center gap-3">
-            {user ? (
+            {session?.user ? (
               <>
                 <Link href="/dashboard">
                   <Button variant="ghost" size="sm">
@@ -73,10 +63,7 @@ export default function Header() {
                     Dashboard
                   </Button>
                 </Link>
-                <Button variant="outline" size="sm" onClick={handleSignOut}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Sign Out
-                </Button>
+                <UserButton />
               </>
             ) : (
               <>
@@ -121,7 +108,7 @@ export default function Header() {
                 </Link>
               ))}
               <div className="border-t border-border pt-4 mt-2 flex flex-col gap-2">
-                {user ? (
+                {session?.user ? (
                   <>
                     <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
                       <Button variant="outline" className="w-full justify-start bg-transparent">
@@ -129,10 +116,7 @@ export default function Header() {
                         Dashboard
                       </Button>
                     </Link>
-                    <Button variant="ghost" className="w-full justify-start" onClick={handleSignOut}>
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Sign Out
-                    </Button>
+                    <UserButton />
                   </>
                 ) : (
                   <>
@@ -152,5 +136,5 @@ export default function Header() {
         </>
       )}
     </>
-  )
+  );
 }
