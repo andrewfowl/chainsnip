@@ -23,7 +23,6 @@
     "@lynx-js/react": "latest",
     "@lynx-js/types": "latest",
     "@mongodb-js/zstd": "latest",
-    "@neondatabase/auth": "0.2.0-beta.1",
     "@neondatabase/serverless": "1.0.2",
     "@op-engineering/op-sqlite": "latest",
     "@opentelemetry/api": "latest",
@@ -88,7 +87,7 @@
     "@vitest/ui": "latest",
     "@xata.io/client": "latest",
     "autoprefixer": "^10.4.20",
-    "better-auth": "1.6.9",
+    "bcryptjs": "3.0.3",
     "better-sqlite3": "latest",
     "bun-types": "latest",
     "canvas": "latest",
@@ -171,6 +170,7 @@
     "zod": "3.25.76"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",

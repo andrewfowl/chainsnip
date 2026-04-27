@@ -11,8 +11,8 @@ export function middleware(request: NextRequest) {
   const isProtectedRoute = PROTECTED_ROUTES.some((route) => pathname.startsWith(route))
 
   if (isProtectedRoute) {
-    // Get the session cookie (Better Auth uses 'better-auth.session_token')
-    const sessionToken = request.cookies.get("better-auth.session_token")?.value
+    // Get the session cookie
+    const sessionToken = request.cookies.get("session_token")?.value
 
     if (!sessionToken) {
       // Redirect to login if no session token
@@ -23,7 +23,6 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // Allow public routes and authenticated requests
   return NextResponse.next()
 }
 
