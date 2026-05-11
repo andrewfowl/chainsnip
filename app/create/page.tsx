@@ -1,47 +1,40 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { Lightbulb, Palette, Film, Music, Brain, Merge, Rocket } from "lucide-react"
+import { Camera, Clock, Brain, Merge, Rocket, FileArchive } from "lucide-react"
 import Link from "next/link"
 
 export default function CreatePage() {
   const creationOptions = [
     {
+      title: "Snapshot Explorer",
+      description: "Capture and archive blockchain explorer pages for your records.",
+      icon: Camera,
+      href: "/dashboard",
+    },
+    {
+      title: "Historical Balances",
+      description: "Query wallet balances at specific points in time.",
+      icon: Clock,
+      href: "/dashboard/historical-balance",
+    },
+    {
+      title: "View Archives",
+      description: "Browse and manage your saved blockchain snapshots.",
+      icon: FileArchive,
+      href: "/dashboard",
+    },
+    {
       title: "Visualize Ideas",
       description: "Map concepts, brainstorm, and see connections.",
       icon: Brain,
-      href: "/showcase", // Links to React Flow showcase
-    },
-    {
-      title: "Design System",
-      description: "Craft a unique visual identity and design language.",
-      icon: Palette,
-      href: "/create/design-system",
-    },
-    {
-      title: "Interactive Story",
-      description: "Weave narratives that adapt to user choices.",
-      icon: Lightbulb,
-      href: "/create/interactive-story",
-    },
-    {
-      title: "Motion Graphics",
-      description: "Animate visuals that captivate and explain.",
-      icon: Film,
-      href: "/create/motion-graphics",
-    },
-    {
-      title: "Soundscape Design",
-      description: "Compose audio experiences that immerse.",
-      icon: Music,
-      href: "/create/soundscape-design",
+      href: "/showcase",
     },
     {
       title: "Merge & Fuse Insights",
       description: "Combine existing articles into new creative visions.",
       icon: Merge,
-      href: "/#blog-merger-section", // Link to the section on the homepage
+      href: "/#blog-merger-section",
     },
-
   ]
 
   return (

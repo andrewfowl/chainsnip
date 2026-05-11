@@ -42,14 +42,14 @@ export default function Header() {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-background/80 backdrop-blur-md border-b border-border">
+      <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-background/80 backdrop-blur-xl border-b border-border/40">
         <div className="container mx-auto flex items-center justify-between px-4 h-full">
           <Link
             href="/"
-            className="flex items-center gap-2 text-xl font-bold text-foreground hover:text-primary transition-colors"
+            className="flex items-center gap-2 text-base font-semibold text-foreground hover:opacity-80 transition-opacity"
           >
-            <Wallet className="w-7 h-7 text-primary" />
-            <span>ChainShip</span>
+            <Wallet className="w-5 h-5" />
+            <span className="tracking-tight">ChainShip</span>
           </Link>
 
           <nav className="hidden lg:flex items-center gap-8">
@@ -57,36 +57,36 @@ export default function Header() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 {item.label}
               </Link>
             ))}
           </nav>
 
-          <div className="hidden lg:flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-2">
             {user ? (
               <>
                 <Link href="/dashboard">
-                  <Button variant="ghost" size="sm">
-                    <LayoutDashboard className="mr-2 h-4 w-4" />
+                  <Button variant="ghost" size="sm" className="text-sm text-muted-foreground hover:text-foreground">
                     Dashboard
                   </Button>
                 </Link>
-                <Button variant="outline" size="sm" onClick={handleSignOut}>
-                  <LogOut className="mr-2 h-4 w-4" />
+                <Button variant="ghost" size="sm" className="text-sm text-muted-foreground hover:text-foreground" onClick={handleSignOut}>
                   Sign Out
                 </Button>
               </>
             ) : (
               <>
                 <Link href="/auth/login">
-                  <Button variant="ghost" size="sm">
-                    Log in
+                  <Button variant="ghost" size="sm" className="text-sm text-muted-foreground hover:text-foreground">
+                    Sign in
                   </Button>
                 </Link>
                 <Link href="/auth/signup">
-                  <Button size="sm">Sign up</Button>
+                  <Button size="sm" className="text-sm bg-foreground text-background hover:bg-foreground/90">
+                    Get Started
+                  </Button>
                 </Link>
               </>
             )}

@@ -15,10 +15,22 @@ const config: Config = {
       center: true,
       padding: "2rem",
       screens: {
-        "2xl": "1400px",
+        "2xl": "1280px", // Tighter max-width for better readability
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+      },
+      letterSpacing: {
+        tighter: '-0.03em',
+        tight: '-0.02em',
+      },
+      lineHeight: {
+        tight: '1.1',
+        snug: '1.25',
+        relaxed: '1.6',
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

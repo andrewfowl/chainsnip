@@ -337,7 +337,8 @@ export default function DashboardPage() {
     }
   }
 
-  const handleAddCustomExplorer = () => {
+  // Handler to save custom blockchain explorers
+  const handleAddCustomExplorer = async () => {
     if (!newCustomExplorer.name || !newCustomExplorer.domain) {
       toast({
         title: "Missing Fields",
