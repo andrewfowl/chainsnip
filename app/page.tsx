@@ -215,10 +215,13 @@ export default function HomePage() {
       <section id="features" className="py-24">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
+            <Badge className="mb-4 bg-primary/10 text-primary border-primary/20 rounded-full px-4 py-1.5 font-medium">
+              Features
+            </Badge>
             <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4 tracking-tight">
               Built for crypto accounting workflows
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto font-medium">
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Stop manually screenshotting explorer pages. ChainShip automates balance verification so you can focus on
               your clients.
             </p>
@@ -246,8 +249,13 @@ export default function HomePage() {
       <section id="how-it-works" className="py-24 border-t border-border">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4 tracking-tight">How It Works</h2>
-            <p className="text-lg text-muted-foreground font-medium">Capture audit-ready proof in three simple steps</p>
+            <Badge className="mb-4 bg-secondary text-muted-foreground border-border rounded-full px-4 py-1.5 font-medium">
+              How It Works
+            </Badge>
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4 tracking-tight">
+              Three simple steps
+            </h2>
+            <p className="text-lg text-muted-foreground">Capture audit-ready proof in minutes, not hours</p>
           </div>
 
           <div className="max-w-5xl mx-auto">
@@ -300,6 +308,9 @@ export default function HomePage() {
       <section className="py-24 border-t border-border">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
+            <Badge className="mb-4 bg-secondary text-muted-foreground border-border rounded-full px-4 py-1.5 font-medium">
+              Use Cases
+            </Badge>
             <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4 tracking-tight">
               Perfect for every crypto accounting need
             </h2>
@@ -346,10 +357,13 @@ export default function HomePage() {
       <section id="pricing" className="py-24 border-t border-border">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
+            <Badge className="mb-4 bg-accent/10 text-accent border-accent/20 rounded-full px-4 py-1.5 font-medium">
+              Pricing
+            </Badge>
             <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4 tracking-tight">
               Simple, transparent pricing
             </h2>
-            <p className="text-lg text-muted-foreground font-medium">Start free, scale as your practice grows</p>
+            <p className="text-lg text-muted-foreground">Start free, scale as your practice grows</p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
@@ -409,21 +423,32 @@ export default function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 border-t border-border">
+      <section className="py-24 border-t border-border relative overflow-hidden">
+        {/* Background gradient */}
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-primary/5 rounded-full blur-3xl" />
+        </div>
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-4 tracking-tight">
               Ready to simplify crypto accounting?
             </h2>
-            <p className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto font-medium">
-              Join hundreds of accountants who trust ChainShip for audit-ready balance verification.
+            <p className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto leading-relaxed">
+              Start capturing audit-ready balance snapshots today. No credit card required for free tier.
             </p>
-            <Link href="/auth/signup">
-              <Button size="lg" className="text-base px-8 rounded-full h-14 font-medium">
-                Create Free Account
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link href="/auth/signup">
+                <Button size="lg" className="text-base px-8 rounded-full h-14 font-medium">
+                  Create Free Account
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+              <Link href="/#pricing">
+                <Button size="lg" variant="outline" className="text-base px-8 rounded-full h-14 font-medium border-border bg-transparent">
+                  View Pricing
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>

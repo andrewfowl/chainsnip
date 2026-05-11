@@ -1,7 +1,15 @@
+"use client"
+
 import Link from "next/link"
 import { Github, Twitter, Linkedin, Wallet } from "lucide-react"
+import { useState, useEffect } from "react"
 
 export default function Footer() {
+  const [year, setYear] = useState<number | null>(null)
+  
+  useEffect(() => {
+    setYear(new Date().getFullYear())
+  }, [])
   const socialLinks = [
     { name: "GitHub", icon: Github, href: "#" },
     { name: "Twitter", icon: Twitter, href: "#" },
@@ -103,7 +111,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-12 pt-8 border-t border-border text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} ChainShip. All rights reserved.</p>
+          <p>&copy; {year ?? "2026"} ChainShip. All rights reserved.</p>
         </div>
       </div>
     </footer>
