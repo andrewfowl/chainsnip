@@ -30,9 +30,11 @@ export default function Footer() {
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="flex items-center gap-2 text-xl font-bold text-foreground mb-4">
-              <Wallet className="w-6 h-6 text-primary" />
-              <span>ChainShip</span>
+            <Link href="/" className="flex items-center gap-2.5 text-xl font-bold text-foreground mb-4">
+              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Wallet className="w-5 h-5 text-primary" />
+              </div>
+              <span className="tracking-tight">ChainShip</span>
             </Link>
             <p className="text-sm text-muted-foreground mb-4">
               Audit-ready balance snapshots from blockchain explorers. Trusted by crypto accountants worldwide.

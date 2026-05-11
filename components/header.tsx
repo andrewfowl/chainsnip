@@ -42,14 +42,16 @@ export default function Header() {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-background/80 backdrop-blur-md border-b border-border">
+      <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-background/95 backdrop-blur-xl border-b border-border/50">
         <div className="container mx-auto flex items-center justify-between px-4 h-full">
           <Link
             href="/"
-            className="flex items-center gap-2 text-xl font-bold text-foreground hover:text-primary transition-colors"
+            className="flex items-center gap-2.5 text-xl font-bold text-foreground hover:opacity-80 transition-opacity"
           >
-            <Wallet className="w-7 h-7 text-primary" />
-            <span>ChainShip</span>
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Wallet className="w-5 h-5 text-primary" />
+            </div>
+            <span className="tracking-tight">ChainShip</span>
           </Link>
 
           <nav className="hidden lg:flex items-center gap-8">

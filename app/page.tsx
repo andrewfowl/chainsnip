@@ -142,16 +142,20 @@ export default function HomePage() {
 
   return (
     <div className="relative min-h-screen">
-      {/* Hero Section - Updated styling for new aesthetic */}
-      <section className="container mx-auto px-4 pt-24 pb-32">
+      {/* Hero Section */}
+      <section className="container mx-auto px-4 pt-24 pb-32 relative">
+        {/* Subtle gradient glow behind hero */}
+        <div className="absolute inset-0 -z-10 overflow-hidden">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-primary/5 rounded-full blur-3xl" />
+        </div>
         <div className="max-w-4xl mx-auto text-center">
-          <Badge className="mb-6 bg-secondary text-muted-foreground border-border rounded-full px-4 py-1.5">
-            Trusted by 500+ crypto accounting professionals
+          <Badge className="mb-6 bg-primary/10 text-primary border-primary/20 rounded-full px-4 py-1.5 font-medium">
+            Trusted by crypto accounting professionals
           </Badge>
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-foreground mb-6 tracking-tight text-balance">
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-foreground mb-6 tracking-tight text-balance leading-[1.1]">
             Audit-ready crypto balance snapshots.
           </h1>
-          <p className="text-lg text-muted-foreground mb-10 max-w-2xl mx-auto font-medium">
+          <p className="text-lg text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
             Automatically archive blockchain explorer pages at month-end. Get timestamped, verifiable proof of wallet
             balances for your clients.
           </p>
@@ -177,14 +181,14 @@ export default function HomePage() {
         {/* Stats */}
         <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-3xl mx-auto">
           {[
-            { value: "1.2M+", label: "Snapshots Captured" },
-            { value: "500+", label: "Accountants" },
             { value: "15+", label: "Explorers Supported" },
-            { value: "100%", label: "Audit Pass Rate" },
+            { value: "Multi-Chain", label: "ETH, BSC, SOL & More" },
+            { value: "Instant", label: "Screenshot Capture" },
+            { value: "Verifiable", label: "Timestamped Proof" },
           ].map((stat) => (
-            <div key={stat.label} className="text-center">
-              <div className="text-4xl font-bold text-foreground">{stat.value}</div>
-              <div className="text-sm text-muted-foreground font-medium">{stat.label}</div>
+            <div key={stat.label} className="text-center p-4 rounded-xl bg-card/50 border border-border/50">
+              <div className="text-3xl font-bold text-foreground mb-1">{stat.value}</div>
+              <div className="text-xs text-muted-foreground uppercase tracking-wide">{stat.label}</div>
             </div>
           ))}
         </div>
