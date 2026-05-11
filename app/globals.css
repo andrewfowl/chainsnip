@@ -2,61 +2,86 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-}
-
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+  .text-pretty {
+    text-wrap: pretty;
   }
 }
 
 @layer base {
   :root {
-    /* Updated to dark-first aesthetic matching reference */
-    --background: 240 10% 4%; /* #09090b zinc-950 */
-    --foreground: 0 0% 100%; /* white */
-    --card: 240 6% 10%; /* #18181b zinc-900 */
-    --card-foreground: 0 0% 100%;
-    --popover: 240 6% 10%;
-    --popover-foreground: 0 0% 100%;
-    --primary: 207 100% 43%; /* #0079da */
+    /* 
+     * Visual Style Guide - ChainShip
+     * ================================
+     * Color Palette: 4 colors (dark theme optimized for B2B fintech)
+     * - Background: Deep charcoal (#09090b) - sophisticated, professional
+     * - Primary: Royal blue (#0066ff) - trust, reliability, corporate
+     * - Accent: Emerald (#10b981) - success, growth, verification
+     * - Neutral: Slate grays for text hierarchy
+     * 
+     * Typography: Inter/System UI
+     * - Headlines: Bold, tight tracking (-0.02em)
+     * - Body: Regular weight, relaxed line-height (1.6)
+     * - Labels: Medium weight, uppercase tracking
+     * 
+     * Spacing: 8px base unit
+     * Border Radius: 8px (sm), 12px (md), 16px (lg)
+     */
+    
+    --background: 240 10% 3.9%; /* #09090b - deep charcoal */
+    --foreground: 0 0% 98%; /* #fafafa - near white */
+    
+    --card: 240 6% 6%; /* #0f0f11 - elevated surface */
+    --card-foreground: 0 0% 98%;
+    
+    --popover: 240 6% 6%;
+    --popover-foreground: 0 0% 98%;
+    
+    --primary: 217 100% 50%; /* #0066ff - trust blue */
     --primary-foreground: 0 0% 100%;
-    --secondary: 240 5% 17%; /* #27272a zinc-800 */
-    --secondary-foreground: 0 0% 100%;
-    --muted: 240 5% 17%;
-    --muted-foreground: 215 16% 62%; /* #94a3b8 slate-400 */
-    --accent: 160 84% 39%; /* #10b981 emerald-500 */
+    
+    --secondary: 240 4% 12%; /* #1c1c1e - subtle surface */
+    --secondary-foreground: 0 0% 90%;
+    
+    --muted: 240 4% 12%;
+    --muted-foreground: 240 5% 55%; /* #87878a - readable gray */
+    
+    --accent: 160 84% 39%; /* #10b981 - emerald */
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 84% 60%;
+    
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 240 4% 20%; /* zinc-800 */
-    --input: 240 4% 20%;
-    --ring: 207 100% 43%;
-    --radius: 0.5rem;
+    
+    --border: 240 4% 16%; /* #27272a - subtle borders */
+    --input: 240 4% 16%;
+    --ring: 217 100% 50%;
+    
+    --radius: 0.75rem; /* 12px - modern rounded corners */
   }
 
   .dark {
-    --background: 240 10% 4%;
-    --foreground: 0 0% 100%;
-    --card: 240 6% 10%;
-    --card-foreground: 0 0% 100%;
-    --popover: 240 6% 10%;
-    --popover-foreground: 0 0% 100%;
-    --primary: 207 100% 43%;
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 6% 6%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 6% 6%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 217 100% 50%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 240 5% 17%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 240 5% 17%;
-    --muted-foreground: 215 16% 62%;
+    --secondary: 240 4% 12%;
+    --secondary-foreground: 0 0% 90%;
+    --muted: 240 4% 12%;
+    --muted-foreground: 240 5% 55%;
     --accent: 160 84% 39%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 62% 50%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 240 4% 20%;
-    --input: 240 4% 20%;
-    --ring: 207 100% 43%;
+    --border: 240 4% 16%;
+    --input: 240 4% 16%;
+    --ring: 217 100% 50%;
   }
 }
 
