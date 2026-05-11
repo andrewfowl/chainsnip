@@ -147,13 +147,16 @@ export default function HomePage() {
           <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] bg-primary/[0.08] rounded-full blur-[120px]" />
         </div>
         
-        <div className="max-w-4xl mx-auto text-center">
+        <div className="max-w-4xl mx-auto text-center animate-fade-in">
           {/* Announcement badge */}
-          <div className="inline-flex items-center gap-2 mb-8 px-4 py-2 rounded-full bg-card border border-border text-sm text-muted-foreground">
+          <Link 
+            href="#features"
+            className="inline-flex items-center gap-2 mb-8 px-4 py-2 rounded-full bg-card border border-border text-sm text-muted-foreground hover:border-primary/50 hover:text-foreground transition-all duration-300 group"
+          >
             <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
             <span>Now supporting 15+ blockchain explorers</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </div>
+            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+          </Link>
           
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-semibold text-foreground mb-8 tracking-tighter text-balance leading-[1.05]">
             Audit-Ready Crypto
@@ -161,7 +164,7 @@ export default function HomePage() {
             <span className="text-muted-foreground">Balance Snapshots</span>
           </h1>
           
-          <p className="text-lg sm:text-xl text-muted-foreground mb-12 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg sm:text-xl text-muted-foreground mb-12 max-w-2xl mx-auto leading-relaxed text-pretty">
             Automatically archive blockchain explorer pages at month-end.
             <br className="hidden sm:block" />
             Timestamped, verifiable proof for your clients.
@@ -169,9 +172,9 @@ export default function HomePage() {
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/auth/signup">
-              <Button size="lg" className="text-base px-8 h-14 font-medium bg-foreground text-background hover:bg-foreground/90">
+              <Button size="lg" className="text-base px-8 h-14 font-medium bg-foreground text-background hover:bg-foreground/90 hover:scale-[1.02] transition-all duration-200 group">
                 Get Started
-                <ArrowRight className="ml-2 h-5 w-5" />
+                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-0.5 transition-transform" />
               </Button>
             </Link>
             <Link href="#how-it-works">
@@ -189,22 +192,28 @@ export default function HomePage() {
 
       {/* Stats/Value Props */}
       <section className="container mx-auto px-4 pb-24">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto stagger-children">
           {[
             { 
               title: "Automated Capture", 
-              description: "Schedule month-end snapshots automatically. No manual screenshots needed."
+              description: "Schedule month-end snapshots automatically. No manual screenshots needed.",
+              icon: CalendarCheck,
             },
             { 
               title: "Verifiable Proof", 
-              description: "Each snapshot is timestamped and hashed for tamper-proof audit trails."
+              description: "Each snapshot is timestamped and hashed for tamper-proof audit trails.",
+              icon: Shield,
             },
             { 
               title: "Multi-Chain Ready", 
-              description: "Works with Ethereum, BSC, Solana, and 15+ blockchain explorers."
+              description: "Works with Ethereum, BSC, Solana, and 15+ blockchain explorers.",
+              icon: Link2,
             },
           ].map((item, i) => (
-            <div key={i} className="p-6 rounded-2xl bg-card border border-border">
+            <div key={i} className="p-6 rounded-2xl bg-card border border-border hover-lift group">
+              <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center mb-4 group-hover:bg-primary/10 transition-colors">
+                <item.icon className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+              </div>
               <h3 className="text-lg font-semibold text-foreground mb-2">{item.title}</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
             </div>
@@ -212,16 +221,21 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Social Proof */}
-      <section className="py-12 border-y border-border">
+      {/* Social Proof - Balanced centered layout */}
+      <section className="py-16 border-y border-border bg-card/30">
         <div className="container mx-auto px-4">
-          <p className="text-center text-sm text-muted-foreground mb-6 font-medium">
+          <p className="text-center text-sm text-muted-foreground mb-8 uppercase tracking-wider font-medium">
             Works with all major blockchain explorers
           </p>
-          <div className="flex flex-wrap justify-center items-center gap-6 md:gap-10">
+          <div className="flex flex-wrap justify-center items-center gap-x-12 gap-y-6 max-w-4xl mx-auto">
             {SUPPORTED_EXPLORERS.slice(0, 6).map((explorer) => (
-              <div key={explorer.name} className="flex items-center gap-2 text-muted-foreground">
-                <Wallet className="w-4 h-4" />
+              <div 
+                key={explorer.name} 
+                className="flex items-center gap-2.5 text-muted-foreground hover:text-foreground transition-colors group"
+              >
+                <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+                  <Wallet className="w-4 h-4 group-hover:text-primary transition-colors" />
+                </div>
                 <span className="text-sm font-medium">{explorer.name}</span>
               </div>
             ))}
@@ -232,26 +246,40 @@ export default function HomePage() {
       {/* Features Section */}
       <section id="features" className="py-24 border-t border-border">
         <div className="container mx-auto px-4">
-          <div className="max-w-2xl mb-16">
-            <p className="text-sm font-medium text-primary mb-3 uppercase tracking-wider">Features</p>
-            <h2 className="text-3xl sm:text-4xl font-semibold text-foreground mb-4 tracking-tight">
-              Built for crypto accounting workflows
-            </h2>
-            <p className="text-lg text-muted-foreground leading-relaxed">
-              Stop manually screenshotting explorer pages. ChainShip automates balance verification so you can focus on your clients.
-            </p>
-          </div>
+          {/* Two-column layout for better balance */}
+          <div className="grid lg:grid-cols-2 gap-16 items-start max-w-6xl mx-auto">
+            {/* Left: Header content */}
+            <div className="lg:sticky lg:top-32">
+              <p className="text-sm font-medium text-primary mb-3 uppercase tracking-wider">Features</p>
+              <h2 className="text-3xl sm:text-4xl font-semibold text-foreground mb-4 tracking-tight text-balance">
+                Built for crypto accounting workflows
+              </h2>
+              <p className="text-lg text-muted-foreground leading-relaxed mb-8">
+                Stop manually screenshotting explorer pages. ChainShip automates balance verification so you can focus on your clients.
+              </p>
+              <Link href="/auth/signup">
+                <Button className="bg-foreground text-background hover:bg-foreground/90 group">
+                  Start Free Trial
+                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+                </Button>
+              </Link>
+            </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl">
-            {features.map((feature) => (
-              <div key={feature.title} className="group">
-                <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center mb-4">
-                  <feature.icon className="w-5 h-5 text-foreground" />
+            {/* Right: Feature grid */}
+            <div className="grid sm:grid-cols-2 gap-6">
+              {features.map((feature, i) => (
+                <div 
+                  key={feature.title} 
+                  className="p-5 rounded-xl border border-border bg-card/50 hover:border-primary/30 hover:bg-card transition-all duration-300 group"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center mb-4 group-hover:bg-primary/10 transition-colors">
+                    <feature.icon className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                  </div>
+                  <h3 className="text-base font-semibold text-foreground mb-2">{feature.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
                 </div>
-                <h3 className="text-base font-semibold text-foreground mb-2">{feature.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -259,7 +287,8 @@ export default function HomePage() {
       {/* How It Works */}
       <section id="how-it-works" className="py-24 border-t border-border">
         <div className="container mx-auto px-4">
-          <div className="max-w-2xl mb-16">
+          {/* Centered header for visual balance */}
+          <div className="max-w-2xl mx-auto text-center mb-16">
             <p className="text-sm font-medium text-primary mb-3 uppercase tracking-wider">How It Works</p>
             <h2 className="text-3xl sm:text-4xl font-semibold text-foreground mb-4 tracking-tight">
               Three simple steps
@@ -269,12 +298,20 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-px bg-border rounded-2xl overflow-hidden max-w-4xl">
-            {steps.map((item) => (
-              <div key={item.step} className="bg-card p-8">
-                <span className="text-5xl font-light text-muted-foreground/30 mb-4 block">{item.step}</span>
-                <h3 className="text-lg font-semibold text-foreground mb-2">{item.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {steps.map((item, i) => (
+              <div key={item.step} className="relative group">
+                {/* Connecting line between steps */}
+                {i < steps.length - 1 && (
+                  <div className="hidden md:block absolute top-8 left-[60%] w-[80%] h-px bg-gradient-to-r from-border to-transparent" />
+                )}
+                <div className="p-6 rounded-2xl border border-border bg-card hover:border-primary/30 transition-all duration-300">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 text-primary font-semibold text-lg group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    {item.step}
+                  </div>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">{item.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -284,34 +321,27 @@ export default function HomePage() {
       {/* Use Cases */}
       <section className="py-24 border-t border-border">
         <div className="container mx-auto px-4">
-          <div className="max-w-2xl mb-16">
+          {/* Centered header */}
+          <div className="max-w-2xl mx-auto text-center mb-16">
             <p className="text-sm font-medium text-primary mb-3 uppercase tracking-wider">Use Cases</p>
             <h2 className="text-3xl sm:text-4xl font-semibold text-foreground mb-4 tracking-tight">
               Perfect for every crypto accounting need
             </h2>
           </div>
-          <div className="grid md:grid-cols-3 gap-6 max-w-4xl">
-            <div className="p-6 rounded-2xl bg-card border border-border">
-              <Scale className="w-8 h-8 text-foreground mb-4" />
-              <h3 className="text-base font-semibold text-foreground mb-2">Tax Preparation</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Document year-end balances across all client wallets for accurate tax reporting.
-              </p>
-            </div>
-            <div className="p-6 rounded-2xl bg-card border border-border">
-              <FileCheck className="w-8 h-8 text-foreground mb-4" />
-              <h3 className="text-base font-semibold text-foreground mb-2">Financial Audits</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Provide auditors with timestamped proof of on-chain balances.
-              </p>
-            </div>
-            <div className="p-6 rounded-2xl bg-card border border-border">
-              <Building2 className="w-8 h-8 text-foreground mb-4" />
-              <h3 className="text-base font-semibold text-foreground mb-2">Fund Administration</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Track NAV calculations with verified balance snapshots.
-              </p>
-            </div>
+          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            {[
+              { icon: Scale, title: "Tax Preparation", description: "Document year-end balances across all client wallets for accurate tax reporting." },
+              { icon: FileCheck, title: "Financial Audits", description: "Provide auditors with timestamped proof of on-chain balances." },
+              { icon: Building2, title: "Fund Administration", description: "Track NAV calculations with verified balance snapshots." },
+            ].map((item, i) => (
+              <div key={i} className="p-6 rounded-2xl bg-card border border-border hover-lift group">
+                <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center mb-4 group-hover:bg-primary/10 transition-colors">
+                  <item.icon className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
+                </div>
+                <h3 className="text-lg font-semibold text-foreground mb-2">{item.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -319,7 +349,8 @@ export default function HomePage() {
       {/* Pricing Section */}
       <section id="pricing" className="py-24 border-t border-border">
         <div className="container mx-auto px-4">
-          <div className="max-w-2xl mb-16">
+          {/* Centered header */}
+          <div className="max-w-2xl mx-auto text-center mb-16">
             <p className="text-sm font-medium text-accent mb-3 uppercase tracking-wider">Pricing</p>
             <h2 className="text-3xl sm:text-4xl font-semibold text-foreground mb-4 tracking-tight">
               Simple, transparent pricing
@@ -329,14 +360,14 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
             {plans.map((plan) => (
               <div
                 key={plan.name}
-                className={`relative p-6 rounded-2xl ${
+                className={`relative p-6 rounded-2xl transition-all duration-300 ${
                   plan.popular 
-                    ? "bg-foreground text-background" 
-                    : "bg-card border border-border"
+                    ? "bg-foreground text-background scale-[1.02] shadow-2xl shadow-primary/10" 
+                    : "bg-card border border-border hover:border-primary/30"
                 }`}
               >
                 {plan.popular && (
@@ -399,7 +430,11 @@ export default function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 border-t border-border">
+      <section className="py-24 border-t border-border relative overflow-hidden">
+        {/* Background glow */}
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-primary/[0.05] rounded-full blur-[100px]" />
+        </div>
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto text-center">
             <h2 className="text-3xl sm:text-4xl font-semibold text-foreground mb-4 tracking-tight">
@@ -408,12 +443,19 @@ export default function HomePage() {
             <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
               Start capturing audit-ready balance snapshots today.
             </p>
-            <Link href="/auth/signup">
-              <Button size="lg" className="text-base px-8 h-14 font-medium bg-foreground text-background hover:bg-foreground/90">
-                Get Started Free
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link href="/auth/signup">
+                <Button size="lg" className="text-base px-8 h-14 font-medium bg-foreground text-background hover:bg-foreground/90 hover:scale-[1.02] transition-all duration-200 group">
+                  Get Started Free
+                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-0.5 transition-transform" />
+                </Button>
+              </Link>
+              <Link href="#pricing">
+                <Button size="lg" variant="outline" className="text-base px-8 h-14 font-medium border-border hover:border-primary/50">
+                  View Pricing
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>

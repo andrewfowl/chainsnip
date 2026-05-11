@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Wallet, Menu, X } from "lucide-react"
+import { Wallet, Menu, X, LayoutDashboard, LogOut } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"

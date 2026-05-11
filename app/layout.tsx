@@ -13,10 +13,38 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: "ChainShip - Blockchain Balance Snapshots for Crypto Accountants",
+  title: {
+    default: "ChainShip - Audit-Ready Crypto Balance Snapshots",
+    template: "%s | ChainShip",
+  },
   description:
-    "Capture and archive blockchain explorer pages with wallet balances at month-end dates. Audit-ready proof for crypto accounting, tax prep, and compliance.",
-  generator: "v0.dev",
+    "Automatically capture and archive blockchain explorer pages with wallet balances at month-end. Timestamped, verifiable proof for crypto accountants, auditors, and financial professionals.",
+  keywords: [
+    "crypto accounting",
+    "blockchain snapshots",
+    "wallet balance verification",
+    "crypto audit",
+    "cryptocurrency tax",
+    "blockchain explorer",
+    "month-end balances",
+    "crypto compliance",
+    "Web3 accounting",
+    "DeFi auditing",
+  ],
+  authors: [{ name: "ChainShip" }],
+  creator: "ChainShip",
+  publisher: "ChainShip",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },
@@ -25,10 +53,32 @@ export const metadata: Metadata = {
     apple: "/apple-icon.png",
   },
   openGraph: {
-    title: "ChainShip - Blockchain Balance Snapshots",
-    description: "Audit-ready proof for crypto accounting, tax prep, and compliance.",
     type: "website",
+    locale: "en_US",
+    url: "https://chainship.io",
+    siteName: "ChainShip",
+    title: "ChainShip - Audit-Ready Crypto Balance Snapshots",
+    description: "Automatically capture and archive blockchain explorer pages. Timestamped, verifiable proof for crypto accountants.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "ChainShip - Audit-Ready Crypto Balance Snapshots",
+      },
+    ],
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "ChainShip - Audit-Ready Crypto Balance Snapshots",
+    description: "Automatically capture and archive blockchain explorer pages. Timestamped, verifiable proof for crypto accountants.",
+    images: ["/og-image.png"],
+    creator: "@chainship",
+  },
+  alternates: {
+    canonical: "https://chainship.io",
+  },
+    generator: 'v0.app'
 }
 
 export default function RootLayout({
