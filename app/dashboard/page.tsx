@@ -337,6 +337,7 @@ export default function DashboardPage() {
     }
   }
 
+  // Handler to save custom blockchain explorers
   const handleAddCustomExplorer = async () => {
     if (!newCustomExplorer.name || !newCustomExplorer.domain) {
       toast({
