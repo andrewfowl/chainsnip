@@ -34,7 +34,6 @@ import {
   Wallet,
   Coins,
   ArrowLeft,
-  Clock,
   Hash,
   AlertCircle,
 } from "lucide-react"
@@ -70,7 +69,7 @@ const COMMON_TOKENS: Record<string, { address: string; symbol: string; name: str
     { address: "", symbol: "ETH", name: "Ethereum (Native)" },
     { address: "0xdAC17F958D2ee523a2206206994597C13D831ec7", symbol: "USDT", name: "Tether USD" },
     { address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", symbol: "USDC", name: "USD Coin" },
-    { address: "0x6B175474E89094C44Da98b954EesD1 fF C2B6baab", symbol: "DAI", name: "Dai Stablecoin" },
+    { address: "0x6B175474E89094C44Da98b954EesD1fFC2B6baab", symbol: "DAI", name: "Dai Stablecoin" },
     { address: "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84", symbol: "stETH", name: "Lido Staked ETH" },
   ],
   polygon: [
@@ -175,7 +174,7 @@ export default function HistoricalBalancePage() {
         body: JSON.stringify({
           network: selectedNetwork,
           walletAddress,
-          contractAddress: contractAddress || null,
+          contractAddress: contractAddress && contractAddress !== "native" ? contractAddress : null,
           date: useBlockNumber ? undefined : selectedDate,
           blockNumber: useBlockNumber ? parseInt(blockNumber) : undefined,
         }),
@@ -329,16 +328,16 @@ export default function HistoricalBalancePage() {
             <div className="space-y-2">
               <Label>Token (Optional)</Label>
               <Select
-                value={contractAddress}
-                onValueChange={(v) => setContractAddress(v)}
+                value={contractAddress || "native"}
+                onValueChange={(v) => setContractAddress(v === "native" ? "" : v)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Native token or select..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Native Token</SelectItem>
-                  {networkTokens.map((token) => (
-                    <SelectItem key={token.address || "native"} value={token.address}>
+                  <SelectItem value="native">Native Token</SelectItem>
+                  {networkTokens.filter(t => t.address).map((token) => (
+                    <SelectItem key={token.address} value={token.address}>
                       {token.symbol} - {token.name}
                     </SelectItem>
                   ))}

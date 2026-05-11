@@ -13,6 +13,7 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://chainship.io"),
   title: {
     default: "ChainShip - Audit-Ready Crypto Balance Snapshots",
     template: "%s | ChainShip",
