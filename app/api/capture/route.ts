@@ -765,18 +765,26 @@ async function captureWithPuppeteer(
 }
 
 export async function POST(request: NextRequest) {
+  const startTime = Date.now()
+  console.log("[v0] ========== CAPTURE API REQUEST START ==========")
+  
   try {
     const { url, archiveId } = await request.json()
-    console.log("[v0] Capture request:", { url, archiveId })
+    console.log("[v0] Request payload:", JSON.stringify({ url, archiveId }, null, 2))
+    console.log("[v0] Archive ID:", archiveId)
+    console.log("[v0] Target URL:", url)
 
     if (!url || !archiveId) {
+      console.log("[v0] ERROR: Missing required fields - url:", !!url, "archiveId:", !!archiveId)
       return NextResponse.json({ error: "URL and archiveId are required" }, { status: 400 })
     }
 
     let parsedUrl: URL
     try {
       parsedUrl = new URL(url)
+      console.log("[v0] URL parsed successfully - hostname:", parsedUrl.hostname, "pathname:", parsedUrl.pathname)
     } catch {
+      console.log("[v0] ERROR: Invalid URL format:", url)
       return NextResponse.json({ error: "Invalid URL provided" }, { status: 400 })
     }
 
@@ -788,52 +796,75 @@ export async function POST(request: NextRequest) {
       timeStyle: "long",
       timeZone: timezone !== "UTC" ? timezone : undefined,
     })
+    console.log("[v0] Timestamp info - ISO:", timestamp, "Formatted:", formattedTimestamp, "Timezone:", timezone)
 
     const safeHostname = parsedUrl.hostname.replace(/\./g, "-")
     const dateStr = now.toISOString().slice(0, 10)
+    console.log("[v0] File naming - safeHostname:", safeHostname, "dateStr:", dateStr)
 
     let screenshotUrl: string | null = null
     let htmlUrl: string | null = null
     let captureError: string | null = null
 
+    console.log("[v0] ---------- STARTING CAPTURE PROCESS ----------")
+    const captureStartTime = Date.now()
     const { screenshot, html, error } = await captureWithPuppeteer(url, formattedTimestamp, timezone, archiveId)
+    const captureElapsed = Date.now() - captureStartTime
+    console.log("[v0] Capture process completed in", captureElapsed, "ms")
+    console.log("[v0] Capture results - screenshot:", screenshot ? `${screenshot.length} bytes` : "null", "html:", html ? `${html.length} chars` : "null", "error:", error || "none")
+    
     if (error) {
       captureError = error
+      console.log("[v0] WARNING: Capture returned error:", error)
     }
 
     if (screenshot && screenshot.length > 0) {
-      console.log("[v0] Processing screenshot, adding watermark...")
+      console.log("[v0] ---------- PROCESSING SCREENSHOT ----------")
+      console.log("[v0] Raw screenshot size:", screenshot.length, "bytes")
 
       let finalScreenshot: Buffer
       try {
+        console.log("[v0] Adding watermark to screenshot...")
+        const watermarkStartTime = Date.now()
         finalScreenshot = await addWatermarkToScreenshot(screenshot, formattedTimestamp, timezone, url, archiveId)
+        console.log("[v0] Watermark added successfully in", Date.now() - watermarkStartTime, "ms, new size:", finalScreenshot.length, "bytes")
       } catch (wmErr) {
-        console.log("[v0] Watermark failed, using original:", wmErr)
+        console.log("[v0] WARNING: Watermark failed, using original screenshot. Error:", wmErr)
         finalScreenshot = screenshot
       }
 
       const filename = `snapshots/${archiveId}/${safeHostname}_${dateStr}_${formattedTimestamp.replace(/[^a-zA-Z0-9]/g, "-")}_${archiveId.slice(0, 8)}.png`
+      console.log("[v0] Uploading screenshot to Blob storage, filename:", filename)
 
       try {
+        const uploadStartTime = Date.now()
         const screenshotBlob = await put(filename, finalScreenshot, {
           access: "public",
           contentType: "image/png",
           addRandomSuffix: false,
         })
         screenshotUrl = screenshotBlob.url
-        console.log("[v0] Screenshot uploaded:", screenshotUrl)
+        console.log("[v0] Screenshot uploaded successfully in", Date.now() - uploadStartTime, "ms")
+        console.log("[v0] Screenshot URL:", screenshotUrl)
       } catch (uploadErr) {
-        console.error("[v0] Screenshot upload error:", uploadErr)
+        console.error("[v0] ERROR: Screenshot upload failed:", uploadErr)
         captureError = captureError || `Upload failed: ${uploadErr}`
       }
+    } else {
+      console.log("[v0] WARNING: No screenshot captured or screenshot is empty")
     }
 
     if (html && html.length > 5000) {
+      console.log("[v0] ---------- PROCESSING HTML ----------")
+      console.log("[v0] HTML content length:", html.length, "chars")
+      
       const hasBalanceContent =
         html.includes("balance") || html.includes("token") || html.includes("asset") || html.includes("amount")
+      console.log("[v0] HTML has balance-related content:", hasBalanceContent)
 
       if (hasBalanceContent) {
         try {
+          console.log("[v0] Wrapping HTML with ChainShip banner...")
           const archivedHtml = `<!DOCTYPE html>
 <html>
 <head>
@@ -868,30 +899,55 @@ export async function POST(request: NextRequest) {
 </body>
 </html>`
 
-          const htmlBlob = await put(`snapshots/${archiveId}/${safeHostname}-${dateStr}.html`, archivedHtml, {
+          const htmlFilename = `snapshots/${archiveId}/${safeHostname}-${dateStr}.html`
+          console.log("[v0] Uploading HTML to Blob storage, filename:", htmlFilename)
+          
+          const uploadStartTime = Date.now()
+          const htmlBlob = await put(htmlFilename, archivedHtml, {
             access: "public",
             contentType: "text/html",
           })
           htmlUrl = htmlBlob.url
+          console.log("[v0] HTML uploaded successfully in", Date.now() - uploadStartTime, "ms")
+          console.log("[v0] HTML URL:", htmlUrl)
         } catch (uploadErr) {
-          console.error("[v0] HTML upload error:", uploadErr)
+          console.error("[v0] ERROR: HTML upload failed:", uploadErr)
         }
+      } else {
+        console.log("[v0] Skipping HTML upload - no balance-related content found")
       }
+    } else {
+      console.log("[v0] Skipping HTML processing - content too short or empty:", html ? html.length : 0, "chars")
     }
 
     if (!screenshotUrl && !htmlUrl) {
+      const totalElapsed = Date.now() - startTime
+      console.log("[v0] ERROR: Complete capture failure - no screenshot and no HTML captured")
+      console.log("[v0] Total request time:", totalElapsed, "ms")
+      console.log("[v0] ========== CAPTURE API REQUEST FAILED ==========")
       return NextResponse.json(
         { error: captureError || "Failed to capture. Explorer may be blocking automated access." },
         { status: 500 },
       )
     }
 
+    console.log("[v0] ---------- GENERATING PROOF HASH ----------")
     const proofData = `${archiveId}|${url}|${timestamp}|${timezone}|${screenshotUrl || "none"}|${htmlUrl || "none"}`
     const encoder = new TextEncoder()
     const hashBuffer = await crypto.subtle.digest("SHA-256", encoder.encode(proofData))
     const proofHash = Array.from(new Uint8Array(hashBuffer))
       .map((b) => b.toString(16).padStart(2, "0"))
       .join("")
+    console.log("[v0] Proof hash generated:", proofHash.slice(0, 16) + "...")
+
+    const totalElapsed = Date.now() - startTime
+    console.log("[v0] ---------- CAPTURE SUMMARY ----------")
+    console.log("[v0] Archive ID:", archiveId)
+    console.log("[v0] Screenshot URL:", screenshotUrl || "none")
+    console.log("[v0] HTML URL:", htmlUrl || "none")
+    console.log("[v0] Proof Hash:", proofHash.slice(0, 16) + "...")
+    console.log("[v0] Total request time:", totalElapsed, "ms")
+    console.log("[v0] ========== CAPTURE API REQUEST SUCCESS ==========")
 
     return NextResponse.json({
       success: true,
@@ -904,7 +960,13 @@ export async function POST(request: NextRequest) {
       proofHash,
     })
   } catch (error) {
-    console.error("[v0] Capture error:", error)
+    const totalElapsed = Date.now() - startTime
+    console.error("[v0] FATAL ERROR in capture API:", error)
+    console.error("[v0] Error type:", error instanceof Error ? error.constructor.name : typeof error)
+    console.error("[v0] Error message:", error instanceof Error ? error.message : String(error))
+    console.error("[v0] Error stack:", error instanceof Error ? error.stack : "N/A")
+    console.log("[v0] Total request time before failure:", totalElapsed, "ms")
+    console.log("[v0] ========== CAPTURE API REQUEST FAILED ==========")
     return NextResponse.json({ error: error instanceof Error ? error.message : "Capture failed" }, { status: 500 })
   }
 }
