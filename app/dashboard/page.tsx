@@ -211,6 +211,7 @@ export default function DashboardPage() {
         body: JSON.stringify({
           url: newArchiveUrl,
           archiveId: newArchive.id,
+          userId: user.id,
         }),
       })
 
@@ -317,6 +318,7 @@ export default function DashboardPage() {
         body: JSON.stringify({
           url: archive.url,
           archiveId: archive.id,
+          userId: archive.userId,
         }),
       })
 

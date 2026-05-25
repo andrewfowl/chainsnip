@@ -1,4 +1,4 @@
-import { queryOne, queryMany, execute } from "./db"
+import { queryOne, queryMany, execute, isDatabaseConfigured, getDatabaseErrorMessage } from "./db"
 
 // Archive management utilities for blockchain explorer snapshots
 export interface Archive {
@@ -168,6 +168,11 @@ export async function saveArchive(
     "id" | "archivedAt" | "lastUpdated" | "status" | "chain" | "explorer" | "walletAddress" | "captureStatus"
   >,
 ): Promise<Archive> {
+  // Check database configuration first
+  if (!isDatabaseConfigured()) {
+    throw new Error("Database not configured. Please ensure DATABASE_URL or PGHOST/PGUSER/PGPASSWORD/PGDATABASE environment variables are set in production.")
+  }
+
   const { chain, explorer } = detectChainFromUrl(archive.url)
   const walletAddress = extractWalletAddress(archive.url)
   const id = crypto.randomUUID()
@@ -225,7 +230,7 @@ export async function saveArchive(
     }
   } catch (error) {
     console.error("Error saving archive:", error)
-    throw error
+    throw new Error(getDatabaseErrorMessage(error))
   }
 }
 

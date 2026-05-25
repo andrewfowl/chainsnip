@@ -769,15 +769,19 @@ export async function POST(request: NextRequest) {
   console.log("[v0] ========== CAPTURE API REQUEST START ==========")
   
   try {
-    const { url, archiveId } = await request.json()
-    console.log("[v0] Request payload:", JSON.stringify({ url, archiveId }, null, 2))
+    const { url, archiveId, userId } = await request.json()
+    console.log("[v0] Request payload:", JSON.stringify({ url, archiveId, userId }, null, 2))
     console.log("[v0] Archive ID:", archiveId)
+    console.log("[v0] User ID:", userId || "not provided")
     console.log("[v0] Target URL:", url)
 
     if (!url || !archiveId) {
       console.log("[v0] ERROR: Missing required fields - url:", !!url, "archiveId:", !!archiveId)
       return NextResponse.json({ error: "URL and archiveId are required" }, { status: 400 })
     }
+
+    // Use userId if provided, otherwise use "anonymous" for backwards compatibility
+    const userFolder = userId || "anonymous"
 
     let parsedUrl: URL
     try {
@@ -833,7 +837,7 @@ export async function POST(request: NextRequest) {
         finalScreenshot = screenshot
       }
 
-      const filename = `snapshots/${archiveId}/${safeHostname}_${dateStr}_${formattedTimestamp.replace(/[^a-zA-Z0-9]/g, "-")}_${archiveId.slice(0, 8)}.png`
+      const filename = `users/${userFolder}/snapshots/${archiveId}/${safeHostname}_${dateStr}_${formattedTimestamp.replace(/[^a-zA-Z0-9]/g, "-")}_${archiveId.slice(0, 8)}.png`
       console.log("[v0] Uploading screenshot to Blob storage, filename:", filename)
 
       try {
@@ -899,7 +903,7 @@ export async function POST(request: NextRequest) {
 </body>
 </html>`
 
-          const htmlFilename = `snapshots/${archiveId}/${safeHostname}-${dateStr}.html`
+          const htmlFilename = `users/${userFolder}/snapshots/${archiveId}/${safeHostname}-${dateStr}.html`
           console.log("[v0] Uploading HTML to Blob storage, filename:", htmlFilename)
           
           const uploadStartTime = Date.now()

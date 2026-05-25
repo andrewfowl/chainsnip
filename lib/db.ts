@@ -1,7 +1,45 @@
 import { Pool } from "@neondatabase/serverless"
 
+// Build connection string from available environment variables
+function getConnectionString(): string {
+  // First try DATABASE_URL directly
+  if (process.env.DATABASE_URL) {
+    return process.env.DATABASE_URL
+  }
+  
+  // Try POSTGRES_URL variants
+  if (process.env.POSTGRES_URL) {
+    return process.env.POSTGRES_URL
+  }
+  
+  if (process.env.POSTGRES_PRISMA_URL) {
+    return process.env.POSTGRES_PRISMA_URL
+  }
+  
+  // Build from individual Neon env vars
+  const host = process.env.PGHOST || process.env.POSTGRES_HOST
+  const user = process.env.PGUSER || process.env.POSTGRES_USER
+  const password = process.env.PGPASSWORD || process.env.POSTGRES_PASSWORD
+  const database = process.env.PGDATABASE || process.env.POSTGRES_DATABASE
+  
+  if (host && user && password && database) {
+    return `postgresql://${user}:${password}@${host}/${database}?sslmode=require`
+  }
+  
+  // Return empty string to trigger a clear error
+  return ""
+}
+
+const connectionString = getConnectionString()
+
+// Validate connection string at startup
+if (!connectionString) {
+  console.error("[v0] DATABASE CONNECTION ERROR: No database connection string available.")
+  console.error("[v0] Please set one of: DATABASE_URL, POSTGRES_URL, or individual PGHOST/PGUSER/PGPASSWORD/PGDATABASE vars")
+}
+
 // Create a connection pool for parameterized queries
-const pool = new Pool({ connectionString: process.env.DATABASE_URL! })
+const pool = new Pool({ connectionString: connectionString || undefined })
 
 // Helper to get a single row
 export async function queryOne<T>(query: string, params?: unknown[]): Promise<T | null> {
@@ -85,6 +123,34 @@ export async function getUserPlan(userId: string): Promise<"free" | "pro" | "ent
     console.error("[v0] DB getUserPlan - FAILED, defaulting to 'free':", error)
     return "free"
   }
+}
+
+// Check if database is properly configured
+export function isDatabaseConfigured(): boolean {
+  return !!connectionString
+}
+
+// Get a friendly error message for database issues
+export function getDatabaseErrorMessage(error: unknown): string {
+  if (!connectionString) {
+    return "Database not configured. Please ensure DATABASE_URL or individual PGHOST/PGUSER/PGPASSWORD/PGDATABASE environment variables are set."
+  }
+  
+  if (error instanceof Error) {
+    const message = error.message.toLowerCase()
+    if (message.includes("connection") || message.includes("host") || message.includes("localhost")) {
+      return "Unable to connect to database. Please check your database configuration and ensure the database server is accessible."
+    }
+    if (message.includes("authentication") || message.includes("password")) {
+      return "Database authentication failed. Please check your database credentials."
+    }
+    if (message.includes("does not exist") || message.includes("relation")) {
+      return "Database table not found. Please ensure the database schema has been initialized."
+    }
+    return error.message
+  }
+  
+  return "An unexpected database error occurred. Please try again later."
 }
 
 // Export the pool for direct usage if needed
