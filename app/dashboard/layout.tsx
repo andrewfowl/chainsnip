@@ -1,4 +1,4 @@
-import { Header } from "@/components/header"
+import Header from "@/components/header"
 
 // Prevent static prerendering of dashboard pages - they require authentication and dynamic data
 export const dynamic = "force-dynamic"
