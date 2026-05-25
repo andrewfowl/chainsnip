@@ -64,28 +64,63 @@ interface DbArchive {
 }
 
 function mapDbArchiveToArchive(db: DbArchive): Archive {
+  // Extract wallet address from URL if not stored
+  const extractedWallet = db.wallet_address || extractWalletAddressFromUrl(db.url)
+  
+  // Detect chain/explorer from URL if not stored
+  const detected = detectChainFromUrl(db.url)
+  
   return {
     id: db.id,
     userId: db.user_id,
     url: db.url,
-    walletAddress: db.wallet_address || "Unknown",
-    chain: db.chain || "Unknown",
-    explorer: db.explorer || "Unknown",
-    title: db.title || "",
+    walletAddress: extractedWallet || "Unknown wallet",
+    chain: db.chain || detected.chain || "Unknown chain",
+    explorer: db.explorer || detected.explorer || "Custom explorer",
+    title: db.title || `Snapshot from ${new URL(db.url).hostname}`,
     content: db.content || "",
-    clientName: db.client_name || undefined,
+    clientName: db.client_name || undefined, // Keep undefined for "no client" vs empty string
     thumbnail: db.thumbnail || undefined,
     screenshotUrl: db.screenshot_url || undefined,
     htmlUrl: db.html_url || undefined,
     proofHash: db.proof_hash || undefined,
-    captureStatus: db.capture_status as Archive["captureStatus"],
+    captureStatus: (db.capture_status || "pending") as Archive["captureStatus"],
     captureError: db.capture_error || undefined,
-    archivedAt: db.archived_at,
-    snapshotDate: db.snapshot_date || "",
-    lastUpdated: db.last_updated,
+    archivedAt: db.archived_at || new Date().toISOString(),
+    snapshotDate: db.snapshot_date || db.archived_at || new Date().toISOString(),
+    lastUpdated: db.last_updated || new Date().toISOString(),
     scheduleInterval: db.schedule_interval as Archive["scheduleInterval"],
     nextScheduledSave: db.next_scheduled_save || undefined,
-    status: db.status as Archive["status"],
+    status: (db.status || "active") as Archive["status"],
+  }
+}
+
+// Helper to extract wallet address from explorer URL
+function extractWalletAddressFromUrl(url: string): string | null {
+  if (!url) return null
+  try {
+    const urlObj = new URL(url)
+    const pathname = urlObj.pathname
+    
+    // Common patterns: /address/0x..., /account/0x..., /token/0x..., etc.
+    const patterns = [
+      /\/address\/(0x[a-fA-F0-9]{40})/i,
+      /\/account\/(0x[a-fA-F0-9]{40})/i,
+      /\/token\/(0x[a-fA-F0-9]{40})/i,
+      /\/(0x[a-fA-F0-9]{40})/i,
+      // Solana addresses (base58, 32-44 chars)
+      /\/address\/([1-9A-HJ-NP-Za-km-z]{32,44})/,
+      /\/account\/([1-9A-HJ-NP-Za-km-z]{32,44})/,
+    ]
+    
+    for (const pattern of patterns) {
+      const match = pathname.match(pattern)
+      if (match) return match[1]
+    }
+    
+    return null
+  } catch {
+    return null
   }
 }
 
@@ -619,4 +654,96 @@ export async function getAllExplorers(userId?: string) {
     isCustom: true,
   }))
   return [...SUPPORTED_EXPLORERS.map((e) => ({ ...e, isCustom: false })), ...custom]
+}
+
+// Portfolio grouping helper
+export interface Portfolio {
+  name: string
+  wallets: {
+    address: string
+    chain: string
+    explorer: string
+    addedAt: string
+    lastCapture: string | null
+    captureCount: number
+    hasSchedule: boolean
+    status: "active" | "capturing" | "failed"
+  }[]
+  totalCaptures: number
+  lastActivity: string
+  scheduledCount: number
+  activeCaptures: number
+}
+
+export function groupArchivesByPortfolio(archives: Archive[]): Portfolio[] {
+  const portfolioMap = new Map<string, Portfolio>()
+  
+  for (const archive of archives) {
+    const portfolioName = archive.clientName || "Uncategorized"
+    
+    if (!portfolioMap.has(portfolioName)) {
+      portfolioMap.set(portfolioName, {
+        name: portfolioName,
+        wallets: [],
+        totalCaptures: 0,
+        lastActivity: archive.archivedAt,
+        scheduledCount: 0,
+        activeCaptures: 0,
+      })
+    }
+    
+    const portfolio = portfolioMap.get(portfolioName)!
+    
+    // Find or create wallet entry
+    let wallet = portfolio.wallets.find(
+      w => w.address === archive.walletAddress && w.chain === archive.chain
+    )
+    
+    if (!wallet) {
+      wallet = {
+        address: archive.walletAddress,
+        chain: archive.chain,
+        explorer: archive.explorer,
+        addedAt: archive.archivedAt, // First capture = when added
+        lastCapture: null,
+        captureCount: 0,
+        hasSchedule: false,
+        status: "active",
+      }
+      portfolio.wallets.push(wallet)
+    }
+    
+    // Update wallet stats
+    wallet.captureCount++
+    if (!wallet.lastCapture || new Date(archive.archivedAt) > new Date(wallet.lastCapture)) {
+      wallet.lastCapture = archive.archivedAt
+    }
+    if (archive.scheduleInterval) {
+      wallet.hasSchedule = true
+    }
+    if (archive.captureStatus === "capturing") {
+      wallet.status = "capturing"
+    } else if (archive.captureStatus === "failed" && wallet.status !== "capturing") {
+      wallet.status = "failed"
+    }
+    
+    // Update portfolio stats
+    portfolio.totalCaptures++
+    if (new Date(archive.archivedAt) > new Date(portfolio.lastActivity)) {
+      portfolio.lastActivity = archive.archivedAt
+    }
+    if (archive.scheduleInterval) {
+      portfolio.scheduledCount++
+    }
+    if (archive.captureStatus === "capturing") {
+      portfolio.activeCaptures++
+    }
+  }
+  
+  // Sort portfolios by last activity (most recent first), with Uncategorized last
+  return Array.from(portfolioMap.values()).sort((a, b) => {
+    if (a.name === "Uncategorized") return 1
+    if (b.name === "Uncategorized") return -1
+    return new Date(b.lastActivity).getTime() - new Date(a.lastActivity).getTime()
+  })
 }
