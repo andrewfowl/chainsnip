@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -590,16 +591,33 @@ export default function DashboardPage() {
                       onChange={(e) => setNewArchiveSnapshotDate(e.target.value)}
                     />
                   </div>
-                  <div className="flex items-center justify-between rounded-lg border p-4">
+                  <div className={cn(
+                    "flex items-center justify-between rounded-lg border p-4",
+                    !limits.monthlyAutoSave && "opacity-60"
+                  )}>
                     <div className="space-y-0.5">
-                      <Label>Auto Month-End Capture</Label>
-                      <p className="text-xs text-muted-foreground">Automatically capture on the last day of each month</p>
+                      <Label className={!limits.monthlyAutoSave ? "text-muted-foreground" : ""}>
+                        Auto Month-End Capture
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        {limits.monthlyAutoSave 
+                          ? "Automatically capture on the last day of each month"
+                          : "Upgrade to Professional plan to enable scheduled captures"
+                        }
+                      </p>
                     </div>
-                    <Switch
-                      checked={enableMonthlyCapture}
-                      onCheckedChange={setEnableMonthlyCapture}
-                      disabled={!limits.monthlyAutoSave}
-                    />
+                    <div className="flex items-center gap-2">
+                      {!limits.monthlyAutoSave && (
+                        <Badge variant="outline" className="text-xs text-amber-600 border-amber-300 bg-amber-50">
+                          Pro
+                        </Badge>
+                      )}
+                      <Switch
+                        checked={enableMonthlyCapture}
+                        onCheckedChange={setEnableMonthlyCapture}
+                        disabled={!limits.monthlyAutoSave}
+                      />
+                    </div>
                   </div>
                 </div>
                 <DialogFooter>
@@ -730,23 +748,34 @@ export default function DashboardPage() {
                     onChange={(e) => setNewArchiveSnapshotDate(e.target.value)}
                   />
                 </div>
-                <div className="flex items-center justify-between rounded-lg border p-4">
+                <div className={cn(
+                  "flex items-center justify-between rounded-lg border p-4",
+                  !limits.monthlyAutoSave && "opacity-60"
+                )}>
                   <div className="space-y-0.5">
-                    <Label>Auto Month-End Capture</Label>
-                    <p className="text-xs text-muted-foreground">Automatically capture on the last day of each month</p>
+                    <Label className={!limits.monthlyAutoSave ? "text-muted-foreground" : ""}>
+                      Auto Month-End Capture
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      {limits.monthlyAutoSave 
+                        ? "Automatically capture on the last day of each month"
+                        : "Upgrade to Professional plan to enable scheduled captures"
+                      }
+                    </p>
                   </div>
-                  <Switch
-                    checked={enableMonthlyCapture}
-                    onCheckedChange={setEnableMonthlyCapture}
-                    disabled={!limits.monthlyAutoSave}
-                  />
+                  <div className="flex items-center gap-2">
+                    {!limits.monthlyAutoSave && (
+                      <Badge variant="outline" className="text-xs text-amber-600 border-amber-300 bg-amber-50">
+                        Pro
+                      </Badge>
+                    )}
+                    <Switch
+                      checked={enableMonthlyCapture}
+                      onCheckedChange={setEnableMonthlyCapture}
+                      disabled={!limits.monthlyAutoSave}
+                    />
+                  </div>
                 </div>
-                {!limits.monthlyAutoSave && (
-                  <p className="text-xs text-amber-500 flex items-center gap-1">
-                    <AlertCircle className="w-3 h-3" />
-                    Upgrade to Professional for auto month-end captures
-                  </p>
-                )}
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
