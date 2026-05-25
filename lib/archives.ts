@@ -90,13 +90,29 @@ function mapDbArchiveToArchive(db: DbArchive): Archive {
 }
 
 export async function getArchives(userId: string): Promise<Archive[]> {
+  console.log("[v0] getArchives - Starting for userId:", userId)
   try {
     const rows = await queryMany<DbArchive>(`SELECT * FROM archives WHERE user_id = $1 ORDER BY archived_at DESC`, [
       userId,
     ])
-    return rows.map(mapDbArchiveToArchive)
+    console.log("[v0] getArchives - Retrieved", rows.length, "archives from database")
+    
+    if (rows.length === 0) {
+      console.log("[v0] getArchives - No archives found for user (this is normal for new users)")
+    } else {
+      console.log("[v0] getArchives - First archive ID:", rows[0].id, "URL:", rows[0].url?.slice(0, 50))
+    }
+    
+    const mapped = rows.map(mapDbArchiveToArchive)
+    console.log("[v0] getArchives - Successfully mapped", mapped.length, "archives")
+    return mapped
   } catch (error) {
-    console.error("Error fetching archives:", error)
+    console.error("[v0] getArchives - DATABASE ERROR:")
+    console.error("[v0] getArchives - Error type:", error instanceof Error ? error.constructor.name : typeof error)
+    console.error("[v0] getArchives - Error message:", error instanceof Error ? error.message : String(error))
+    console.error("[v0] getArchives - Error code:", (error as { code?: string })?.code || "N/A")
+    console.error("[v0] getArchives - This may indicate: missing 'archives' table, connection issue, or malformed data")
+    // Return empty array but log the error clearly
     return []
   }
 }
@@ -247,11 +263,13 @@ interface DbCustomExplorer {
 }
 
 export async function getCustomExplorers(userId: string): Promise<CustomExplorer[]> {
+  console.log("[v0] getCustomExplorers - Starting for userId:", userId)
   try {
     const rows = await queryMany<DbCustomExplorer>(
       `SELECT * FROM custom_explorers WHERE user_id = $1 ORDER BY created_at DESC`,
       [userId],
     )
+    console.log("[v0] getCustomExplorers - Retrieved", rows.length, "custom explorers")
     return rows.map(row => ({
       id: row.id,
       userId: row.user_id,
@@ -259,7 +277,10 @@ export async function getCustomExplorers(userId: string): Promise<CustomExplorer
       domain: row.domain,
     }))
   } catch (error) {
-    console.error("Error fetching custom explorers:", error)
+    console.error("[v0] getCustomExplorers - DATABASE ERROR:")
+    console.error("[v0] getCustomExplorers - Error type:", error instanceof Error ? error.constructor.name : typeof error)
+    console.error("[v0] getCustomExplorers - Error message:", error instanceof Error ? error.message : String(error))
+    console.error("[v0] getCustomExplorers - This may indicate: missing 'custom_explorers' table or connection issue")
     return []
   }
 }
@@ -293,6 +314,7 @@ export async function deleteCustomExplorer(id: string): Promise<void> {
 
 // Usage Stats
 export async function getUserUsageStats(userId: string): Promise<UsageStats> {
+  console.log("[v0] getUserUsageStats - Starting for userId:", userId)
   try {
     const stats = await queryOne<{ user_id: string; total_captures_ever: number; last_reset_date: string | null }>(
       `SELECT * FROM usage_stats WHERE user_id = $1`,
@@ -300,16 +322,21 @@ export async function getUserUsageStats(userId: string): Promise<UsageStats> {
     )
 
     if (!stats) {
+      console.log("[v0] getUserUsageStats - No stats found for user (returning defaults)")
       return { userId, totalCapturesEver: 0 }
     }
 
+    console.log("[v0] getUserUsageStats - Found stats: totalCapturesEver =", stats.total_captures_ever)
     return {
       userId: stats.user_id,
       totalCapturesEver: stats.total_captures_ever,
       lastResetDate: stats.last_reset_date || undefined,
     }
   } catch (error) {
-    console.error("Error fetching usage stats:", error)
+    console.error("[v0] getUserUsageStats - DATABASE ERROR:")
+    console.error("[v0] getUserUsageStats - Error type:", error instanceof Error ? error.constructor.name : typeof error)
+    console.error("[v0] getUserUsageStats - Error message:", error instanceof Error ? error.message : String(error))
+    console.error("[v0] getUserUsageStats - This may indicate: missing 'usage_stats' table or connection issue")
     return { userId, totalCapturesEver: 0 }
   }
 }

@@ -84,17 +84,55 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const loadUser = async () => {
-      const currentUser = await getCurrentUser()
-      if (!currentUser) {
-        router.push("/auth/login")
-        return
-      }
-      setUser(currentUser)
-      setArchives(await getArchives(currentUser.id))
-      setCustomExplorers(await getCustomExplorers(currentUser.id))
-      setIsLoading(false)
+      console.log("[v0] Dashboard - Starting loadUser()")
+      const startTime = Date.now()
+      
+      try {
+        console.log("[v0] Dashboard - Calling getCurrentUser()...")
+        const currentUser = await getCurrentUser()
+        
+        if (!currentUser) {
+          console.log("[v0] Dashboard - No user found, redirecting to login")
+          router.push("/auth/login")
+          return
+        }
+        
+        console.log("[v0] Dashboard - User authenticated:", currentUser.id, "Plan:", currentUser.plan)
+        setUser(currentUser)
+        
+        console.log("[v0] Dashboard - Fetching archives...")
+        const archivesStartTime = Date.now()
+        const userArchives = await getArchives(currentUser.id)
+        console.log("[v0] Dashboard - Archives loaded in", Date.now() - archivesStartTime, "ms, count:", userArchives.length)
+        
+        if (userArchives.length === 0) {
+          console.log("[v0] Dashboard - No archives returned. This could mean:")
+          console.log("[v0] Dashboard - 1. User has no archives (normal for new users)")
+          console.log("[v0] Dashboard - 2. Database query failed silently")
+          console.log("[v0] Dashboard - 3. User ID mismatch between auth and database")
+        }
+        
+        setArchives(userArchives)
+        
+        console.log("[v0] Dashboard - Fetching custom explorers...")
+        const explorersStartTime = Date.now()
+        const userExplorers = await getCustomExplorers(currentUser.id)
+        console.log("[v0] Dashboard - Custom explorers loaded in", Date.now() - explorersStartTime, "ms, count:", userExplorers.length)
+        setCustomExplorers(userExplorers)
+        
+        setIsLoading(false)
+        console.log("[v0] Dashboard - Total load time:", Date.now() - startTime, "ms")
+        console.log("[v0] Dashboard - Data loaded successfully. Archives:", userArchives.length, "Explorers:", userExplorers.length)
 
-      setNewArchiveSnapshotDate(format(new Date(), "yyyy-MM-dd"))
+        setNewArchiveSnapshotDate(format(new Date(), "yyyy-MM-dd"))
+      } catch (error) {
+        console.error("[v0] Dashboard - CRITICAL ERROR during loadUser():")
+        console.error("[v0] Dashboard - Error type:", error instanceof Error ? error.constructor.name : typeof error)
+        console.error("[v0] Dashboard - Error message:", error instanceof Error ? error.message : String(error))
+        console.error("[v0] Dashboard - Error stack:", error instanceof Error ? error.stack : "N/A")
+        console.error("[v0] Dashboard - This error prevented the dashboard from loading")
+        setIsLoading(false)
+      }
     }
     loadUser()
   }, [router])
