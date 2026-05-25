@@ -16,6 +16,7 @@
     "@edge-runtime/vm": "latest",
     "@electric-sql/pglite": "latest",
     "@expo/dom-webview": "latest",
+    "@expo/log-box": "latest",
     "@expo/metro-runtime": "latest",
     "@hookform/resolvers": "^3.10.0",
     "@libsql/client": "latest",
