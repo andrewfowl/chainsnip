@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -604,15 +605,24 @@ export default function DashboardPage() {
                       <p className="text-xs text-muted-foreground">
                         {limits.monthlyAutoSave 
                           ? "Automatically capture on the last day of each month"
-                          : "Upgrade to Professional plan to enable scheduled captures"
+                          : (
+                            <>
+                              <Link href="/#pricing" className="text-amber-600 underline underline-offset-2 hover:text-amber-700">
+                                Upgrade to Professional
+                              </Link>
+                              {" to enable scheduled captures"}
+                            </>
+                          )
                         }
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
                       {!limits.monthlyAutoSave && (
-                        <Badge variant="outline" className="text-xs text-amber-600 border-amber-300 bg-amber-50">
-                          Pro
-                        </Badge>
+                        <Link href="/#pricing">
+                          <Badge variant="outline" className="text-xs text-amber-600 border-amber-300 bg-amber-50 cursor-pointer hover:bg-amber-100">
+                            Pro
+                          </Badge>
+                        </Link>
                       )}
                       <Switch
                         checked={enableMonthlyCapture}
@@ -761,15 +771,24 @@ export default function DashboardPage() {
                     <p className="text-xs text-muted-foreground">
                       {limits.monthlyAutoSave 
                         ? "Automatically capture on the last day of each month"
-                        : "Upgrade to Professional plan to enable scheduled captures"
+                        : (
+                          <>
+                            <Link href="/#pricing" className="text-amber-600 underline underline-offset-2 hover:text-amber-700">
+                              Upgrade to Professional
+                            </Link>
+                            {" to enable scheduled captures"}
+                          </>
+                        )
                       }
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
                     {!limits.monthlyAutoSave && (
-                      <Badge variant="outline" className="text-xs text-amber-600 border-amber-300 bg-amber-50">
-                        Pro
-                      </Badge>
+                      <Link href="/#pricing">
+                        <Badge variant="outline" className="text-xs text-amber-600 border-amber-300 bg-amber-50 cursor-pointer hover:bg-amber-100">
+                          Pro
+                        </Badge>
+                      </Link>
                     )}
                     <Switch
                       checked={enableMonthlyCapture}

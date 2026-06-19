@@ -7,12 +7,12 @@ import {
   FileCheck,
   Clock,
   Link2,
-  Check,
   ArrowRight,
   Building2,
   Scale,
 } from "lucide-react"
 import { SUPPORTED_EXPLORERS } from "@/lib/archives"
+import { StripePricingTable } from "@/components/stripe-pricing-table"
 
 export default function HomePage() {
   const features = [
@@ -45,75 +45,6 @@ export default function HomePage() {
       icon: Building2,
       title: "Client Management",
       description: "Organize snapshots by client, wallet, or chain. Export reports for easy client delivery.",
-    },
-  ]
-
-  const plans = [
-    {
-      id: "starter",
-      name: "Starter",
-      price: "$0",
-      period: "forever",
-      description: "For individual accountants getting started",
-      features: ["3 wallet addresses", "10 snapshots/month", "Manual captures only", "7-day retention", "Basic export"],
-      cta: "Get Started",
-      href: "/auth/signup",
-      popular: false,
-    },
-    {
-      id: "professional",
-      name: "Professional",
-      price: "$29",
-      period: "per month",
-      description: "For crypto accountants managing multiple clients",
-      features: [
-        "Up to 50 wallet addresses",
-        "Monthly auto-captures",
-        "Unlimited retention",
-        "PDF/CSV exports",
-        "Priority support",
-      ],
-      cta: "Start Free Trial",
-      href: "/auth/signup",
-      popular: true,
-    },
-    {
-      id: "firm",
-      name: "Firm",
-      price: "$99",
-      period: "per month",
-      description: "For accounting firms and teams",
-      features: [
-        "Unlimited wallets",
-        "Auto captures + API",
-        "Team collaboration (5 users)",
-        "API access",
-        "Custom branding on exports",
-        "Email support + Slack",
-      ],
-      cta: "Start Free Trial",
-      href: "/auth/signup",
-      popular: false,
-    },
-    {
-      id: "lifetime",
-      name: "Lifetime",
-      price: "$199",
-      period: "one-time",
-      description: "One payment, forever access",
-      features: [
-        "50 wallet addresses",
-        "Unlimited snapshots",
-        "Monthly auto-captures",
-        "Unlimited retention",
-        "All exports",
-        "All future features included",
-        "No subscription fees",
-      ],
-      cta: "Buy Lifetime",
-      href: "/auth/signup",
-      popular: false,
-      isLifetime: true,
     },
   ]
 
@@ -413,72 +344,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-            {plans.map((plan) => (
-              <div
-                key={plan.name}
-                className={`relative p-6 rounded-2xl transition-all duration-300 ${
-                  plan.popular 
-                    ? "bg-foreground text-background scale-[1.02] shadow-2xl shadow-primary/10" 
-                    : "bg-card border border-border hover:border-primary/30"
-                }`}
-              >
-                {plan.popular && (
-                  <div className="absolute -top-3 left-6">
-                    <span className="px-3 py-1 text-xs font-medium bg-primary text-primary-foreground rounded-full">
-                      Popular
-                    </span>
-                  </div>
-                )}
-                {plan.isLifetime && (
-                  <div className="absolute -top-3 left-6">
-                    <span className="px-3 py-1 text-xs font-medium bg-accent text-accent-foreground rounded-full">
-                      Best Value
-                    </span>
-                  </div>
-                )}
-                
-                <div className="mb-6">
-                  <h3 className={`text-lg font-semibold mb-1 ${plan.popular ? "text-background" : "text-foreground"}`}>
-                    {plan.name}
-                  </h3>
-                  <p className={`text-sm ${plan.popular ? "text-background/70" : "text-muted-foreground"}`}>
-                    {plan.description}
-                  </p>
-                </div>
-                
-                <div className="mb-6">
-                  <span className={`text-4xl font-semibold ${plan.popular ? "text-background" : "text-foreground"}`}>
-                    {plan.price}
-                  </span>
-                  <span className={`text-sm ${plan.popular ? "text-background/70" : "text-muted-foreground"}`}>
-                    {plan.period === "one-time" ? " once" : `/${plan.period.replace("per ", "")}`}
-                  </span>
-                </div>
-                
-                <ul className="space-y-3 mb-6">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-2 text-sm">
-                      <Check className={`w-4 h-4 mt-0.5 flex-shrink-0 ${plan.popular ? "text-background" : "text-accent"}`} />
-                      <span className={plan.popular ? "text-background/80" : "text-muted-foreground"}>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                
-                <Link href={plan.href} className="block">
-                  <Button
-                    className={`w-full h-11 font-medium ${
-                      plan.popular
-                        ? "bg-background text-foreground hover:bg-background/90"
-                        : "bg-secondary hover:bg-secondary/80 text-foreground"
-                    }`}
-                  >
-                    {plan.cta}
-                  </Button>
-                </Link>
-              </div>
-            ))}
-          </div>
+          <StripePricingTable />
         </div>
       </section>
 
