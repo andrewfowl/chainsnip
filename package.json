@@ -147,7 +147,7 @@
     "sass": "latest",
     "sass-embedded": "latest",
     "server-only": "0.0.1",
-    "sharp": "0.34.5",
+    "sharp": "0.35.0",
     "simplex-noise": "4.0.3",
     "snappy": "latest",
     "socks": "latest",
