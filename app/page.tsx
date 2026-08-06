@@ -11,7 +11,7 @@ import {
   Building2,
   Scale,
 } from "lucide-react"
-import { SUPPORTED_EXPLORERS } from "@/lib/archives"
+import { SUPPORTED_EXPLORERS } from "@/lib/chains"
 import { StripePricingTable } from "@/components/stripe-pricing-table"
 
 export default function HomePage() {

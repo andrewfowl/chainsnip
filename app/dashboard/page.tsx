@@ -35,19 +35,21 @@ import {
   saveArchive,
   deleteArchive,
   updateArchive,
-  PLAN_LIMITS,
   getAllExplorers,
   saveCustomExplorer,
   getCustomExplorers,
   deleteCustomExplorer,
+  getUserUsageStats,
+} from "@/app/actions/archives"
+import {
+  PLAN_LIMITS,
   detectChainFromUrl,
   groupArchivesByPortfolio,
+  getMonthEndDate,
   type Archive,
   type CustomExplorer,
   type Portfolio,
-  getUserUsageStats,
-  getMonthEndDate,
-} from "@/lib/archives"
+} from "@/lib/chains"
 import {
   Plus,
   Trash2,
@@ -731,12 +733,15 @@ export default function DashboardPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="client">Portfolio / Client Name</Label>
-                  <Select value={newArchiveClient} onValueChange={setNewArchiveClient}>
+                  <Select
+                    value={newArchiveClient}
+                    onValueChange={(v) => setNewArchiveClient(v === "__uncategorized__" ? "" : v)}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select or type new..." />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Uncategorized</SelectItem>
+                      <SelectItem value="__uncategorized__">Uncategorized</SelectItem>
                       {[...new Set(archives.map(a => a.clientName).filter(Boolean))].map((client) => (
                         <SelectItem key={client} value={client!}>
                           {client}

@@ -1,3 +1,4 @@
+import "server-only"
 import { Pool } from "@neondatabase/serverless"
 
 // Build connection string from available environment variables

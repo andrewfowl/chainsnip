@@ -9,7 +9,8 @@ import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { getCurrentUser } from "@/app/actions/auth"
-import { getArchives, type Archive } from "@/lib/archives"
+import { getArchives } from "@/app/actions/archives"
+import type { Archive } from "@/lib/chains"
 import {
   ArrowLeft,
   ExternalLink,
@@ -46,7 +47,7 @@ export default function ArchiveViewerPage() {
         return
       }
 
-      const archives = getArchives(user.id)
+      const archives = await getArchives(user.id)
       const found = archives.find((a) => a.id === id)
 
       if (!found) {
