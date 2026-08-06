@@ -1,5 +1,6 @@
 import { put } from "@vercel/blob"
 import { type NextRequest, NextResponse } from "next/server"
+import { getCurrentUserFromSession } from "@/lib/auth"
 
 export const runtime = "nodejs"
 export const maxDuration = 60
@@ -769,10 +770,9 @@ export async function POST(request: NextRequest) {
   console.log("[v0] ========== CAPTURE API REQUEST START ==========")
   
   try {
-    const { url, archiveId, userId } = await request.json()
-    console.log("[v0] Request payload:", JSON.stringify({ url, archiveId, userId }, null, 2))
+    const { url, archiveId } = await request.json()
+    console.log("[v0] Request payload:", JSON.stringify({ url, archiveId }, null, 2))
     console.log("[v0] Archive ID:", archiveId)
-    console.log("[v0] User ID:", userId || "not provided")
     console.log("[v0] Target URL:", url)
 
     if (!url || !archiveId) {
@@ -780,8 +780,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "URL and archiveId are required" }, { status: 400 })
     }
 
-    // Use userId if provided, otherwise use "anonymous" for backwards compatibility
-    const userFolder = userId || "anonymous"
+    // SECURITY: derive the user from the session cookie, never from the request
+    // body, so a client cannot write screenshots into another user's namespace.
+    const sessionUser = await getCurrentUserFromSession()
+    console.log("[v0] User ID:", sessionUser?.id || "not authenticated")
+    const userFolder = sessionUser?.id || "anonymous"
 
     let parsedUrl: URL
     try {
