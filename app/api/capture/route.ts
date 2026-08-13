@@ -520,10 +520,17 @@ async function captureWithScreenshotAPI(
 
   const watermarkText = `ChainShip | ${timestamp} (${timezone}) | ID: ${archiveId.slice(0, 8)}`
 
+  const apiflashKey = process.env.APIFLASH_ACCESS_KEY
+  const screenshotlayerKey = process.env.SCREENSHOTLAYER_ACCESS_KEY
+
   const screenshotServices = [
-    // apiflash - has native text overlay support
+    // apiflash - has native text overlay support (requires APIFLASH_ACCESS_KEY)
     async () => {
+      if (!apiflashKey) {
+        throw new Error("APIFLASH_ACCESS_KEY not set - skipping apiflash")
+      }
       const params = new URLSearchParams({
+        access_key: apiflashKey,
         url: url,
         format: "png",
         width: "1440",
@@ -558,9 +565,13 @@ async function captureWithScreenshotAPI(
       return Buffer.from(arrayBuffer)
     },
 
-    // screenshotlayer - good full page support
+    // screenshotlayer - good full page support (requires SCREENSHOTLAYER_ACCESS_KEY)
     async () => {
+      if (!screenshotlayerKey) {
+        throw new Error("SCREENSHOTLAYER_ACCESS_KEY not set - skipping screenshotlayer")
+      }
       const params = new URLSearchParams({
+        access_key: screenshotlayerKey,
         url: url,
         viewport: "1440x900",
         fullpage: "1",
@@ -687,10 +698,18 @@ async function captureWithScreenshotAPI(
   return { screenshot, html }
 }
 
-// Point CHROMIUM_REMOTE_PACK_URL at an @sparticuz/chromium pack tarball that
-// matches the installed @sparticuz/chromium-min version. When it is unset we
-// skip headless Chromium entirely and go straight to the screenshot API.
-const CHROMIUM_REMOTE_PACK_URL = process.env.CHROMIUM_REMOTE_PACK_URL
+// @sparticuz/chromium pack (must match the installed @sparticuz/chromium-min
+// major version, currently v133). Hosted on our own Vercel Blob CDN so headless
+// Chromium works without relying on an external mirror. Override via
+// CHROMIUM_REMOTE_PACK_URL if you upgrade the chromium-min version — the pack
+// version MUST match or extraction fails. Set it to "" to disable Puppeteer and
+// force the screenshot-API fallback.
+const DEFAULT_CHROMIUM_PACK_URL =
+  "https://duwfioskgvmdnb7l.public.blob.vercel-storage.com/chromium/chromium-v133.0.0-pack.tar"
+const CHROMIUM_REMOTE_PACK_URL =
+  process.env.CHROMIUM_REMOTE_PACK_URL !== undefined
+    ? process.env.CHROMIUM_REMOTE_PACK_URL
+    : DEFAULT_CHROMIUM_PACK_URL
 // Hard ceiling for the whole Puppeteer attempt (download + launch + capture).
 // Kept under maxDuration (60s) so a broken or slow pack download degrades to
 // the API fallback instead of hanging the request forever.
