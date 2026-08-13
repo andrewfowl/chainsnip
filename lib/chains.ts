@@ -16,7 +16,7 @@ export interface Archive {
   htmlUrl?: string
   proofHash?: string
   captureStatus: "pending" | "capturing" | "completed" | "failed"
-  captureError?: string
+  captureError?: string | null
   archivedAt: string
   snapshotDate: string
   lastUpdated: string

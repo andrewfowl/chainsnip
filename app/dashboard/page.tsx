@@ -225,6 +225,7 @@ export default function DashboardPage() {
           htmlUrl: captureResult.htmlUrl,
           proofHash: captureResult.proofHash,
           captureStatus: "completed",
+          captureError: null,
         })
 
         setArchives((prev) =>
@@ -331,7 +332,9 @@ export default function DashboardPage() {
           htmlUrl: captureResult.htmlUrl,
           proofHash: captureResult.proofHash,
           captureStatus: "completed",
-          captureError: undefined,
+          // null (not undefined) survives the server-action boundary so the DB
+          // clears any stale error from a previous failed attempt.
+          captureError: null,
         })
 
         setArchives((prev) =>

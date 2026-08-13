@@ -230,7 +230,11 @@ export async function updateArchive(id: string, updates: Partial<Archive>): Prom
     for (const [key, dbField] of Object.entries(fieldMap)) {
       if (key in updates) {
         setClauses.push(`${dbField} = $${paramIndex}`)
-        values.push((updates as Record<string, unknown>)[key])
+        // Coerce `undefined` to `null` so callers can explicitly clear a column
+        // (e.g. captureError on a successful retry) — the pg driver rejects
+        // `undefined` params, leaving stale values behind.
+        const value = (updates as Record<string, unknown>)[key]
+        values.push(value === undefined ? null : value)
         paramIndex++
       }
     }
