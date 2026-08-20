@@ -44,8 +44,46 @@ export default function HomePage() {
     { title: "Hand over proof", description: "Download timestamped, hashed snapshots whenever an audit or filing needs them." },
   ]
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://chainship.io/#organization",
+        name: "ChainShip",
+        url: "https://chainship.io",
+        logo: "https://chainship.io/icon-dark-32x32.png",
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://chainship.io/#website",
+        url: "https://chainship.io",
+        name: "ChainShip",
+        publisher: { "@id": "https://chainship.io/#organization" },
+      },
+      {
+        "@type": "SoftwareApplication",
+        name: "ChainShip",
+        applicationCategory: "FinanceApplication",
+        operatingSystem: "Web",
+        url: "https://chainship.io",
+        description:
+          "Automatically capture and archive blockchain explorer pages with wallet balances at month-end. Timestamped, verifiable proof for crypto accountants, auditors, and financial professionals.",
+        offers: {
+          "@type": "Offer",
+          priceCurrency: "USD",
+          price: "0",
+        },
+      },
+    ],
+  }
+
   return (
     <div className="relative min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Hero */}
       <section className="border-b border-border">
         <div className="container mx-auto px-4 pt-32 pb-16 lg:pt-40 lg:pb-24">
