@@ -13,7 +13,7 @@ export default function BlogListPage() {
       <div className="relative z-10 container mx-auto px-4 py-12 sm:py-16">
         <div className="text-center mb-12 sm:mb-16">
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold mb-4 drop-shadow-lg text-foreground leading-tight">
-            The Innovation Nexus: <span className="text-primary">Insights & Intel</span>
+            The Innovation Nexus: <span className="text-foreground">Insights & Intel</span>
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Dive into a curated stream of strategic knowledge. Explore emergent techniques, visionary concepts, and the
@@ -36,7 +36,7 @@ export default function BlogListPage() {
                 <CardContent className="p-6 sm:p-8">
                   {" "}
                   {/* Increased padding */}
-                  <CardTitle className="text-2xl sm:text-3xl text-primary group-hover:text-accent transition-colors mb-3">
+                  <CardTitle className="text-2xl sm:text-3xl text-foreground group-hover:text-foreground transition-colors mb-3">
                     {featuredPost.title}
                   </CardTitle>
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground mb-4">
@@ -57,7 +57,7 @@ export default function BlogListPage() {
                       </Badge>
                     ))}
                   </div>
-                  <span className="inline-flex items-center text-secondary group-hover:text-primary font-semibold transition-colors">
+                  <span className="inline-flex items-center text-secondary group-hover:text-foreground font-semibold transition-colors">
                     Access Full Briefing{" "}
                     <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
                   </span>
@@ -77,7 +77,7 @@ export default function BlogListPage() {
               <Link key={post.id} href={`/blog/${post.slug}`} className="block group">
                 <Card className="h-full bg-card/85 backdrop-blur-lg border shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col hover:border-secondary/50">
                   <CardContent className="p-6 flex-grow flex flex-col">
-                    <CardTitle className="text-xl text-primary group-hover:text-accent transition-colors mb-2">
+                    <CardTitle className="text-xl text-foreground group-hover:text-foreground transition-colors mb-2">
                       {post.title}
                     </CardTitle>
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground mb-3">

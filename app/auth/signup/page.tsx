@@ -75,7 +75,7 @@ export default function SignupPage() {
       footerContent={
         <p>
           Already have an account?{" "}
-          <Link href="/auth/login" className="font-semibold text-primary hover:underline">
+          <Link href="/auth/login" className="font-semibold text-foreground underline decoration-primary decoration-2 underline-offset-4 hover:decoration-foreground">
             Log In
           </Link>
         </p>
@@ -106,7 +106,7 @@ export default function SignupPage() {
               type="button"
               variant="ghost"
               size="icon"
-              className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 text-muted-foreground hover:text-primary"
+              className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 text-muted-foreground hover:text-foreground"
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -134,11 +134,11 @@ export default function SignupPage() {
           />
           <Label htmlFor="terms" className="text-sm font-normal text-muted-foreground leading-tight">
             I agree to the{" "}
-            <Link href="#" className="text-primary hover:underline">
+            <Link href="/terms" className="text-foreground underline decoration-primary decoration-2 underline-offset-4 hover:decoration-foreground">
               Terms of Service
             </Link>
             {" and "}
-            <Link href="#" className="text-primary hover:underline">
+            <Link href="/privacy" className="text-foreground underline decoration-primary decoration-2 underline-offset-4 hover:decoration-foreground">
               Privacy Policy
             </Link>
           </Label>

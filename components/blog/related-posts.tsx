@@ -20,7 +20,7 @@ export default function RelatedPosts({ posts }: RelatedPostsProps) {
           <Link key={post.id} href={`/blog/${post.slug}`} className="block group">
             <Card className="h-full bg-card/90 backdrop-blur-md border shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col hover:border-secondary/50">
               <CardContent className="p-5 flex-grow flex flex-col">
-                <CardTitle className="text-lg text-primary group-hover:text-accent transition-colors mb-2 leading-tight">
+                <CardTitle className="text-lg text-foreground group-hover:text-foreground transition-colors mb-2 leading-tight">
                   {post.title}
                 </CardTitle>
                 <p className="text-foreground/80 text-sm mb-3 leading-relaxed flex-grow line-clamp-3">{post.excerpt}</p>

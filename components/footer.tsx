@@ -1,42 +1,25 @@
-"use client"
-
 import Link from "next/link"
-import { Github, Twitter, Linkedin, Wallet } from "lucide-react"
-import { useState, useEffect } from "react"
+import { Wallet } from "lucide-react"
 
 export default function Footer() {
-  const [year, setYear] = useState<number | null>(null)
-  
-  useEffect(() => {
-    setYear(new Date().getFullYear())
-  }, [])
-  const socialLinks = [
-    { name: "GitHub", icon: Github, href: "#" },
-    { name: "Twitter", icon: Twitter, href: "#" },
-    { name: "LinkedIn", icon: Linkedin, href: "#" },
-  ]
+  const year = new Date().getFullYear()
 
   const footerNav = {
     product: [
       { name: "Features", href: "/#features" },
-      { name: "Pricing", href: "/#pricing" },
       { name: "How It Works", href: "/#how-it-works" },
-    ],
-    resources: [
-      { name: "Supported Explorers", href: "#" },
-      { name: "Documentation", href: "#" },
-      { name: "API", href: "#" },
+      { name: "Pricing", href: "/#pricing" },
     ],
     legal: [
-      { name: "Privacy", href: "#" },
-      { name: "Terms", href: "#" },
+      { name: "Privacy", href: "/privacy" },
+      { name: "Terms", href: "/terms" },
     ],
   }
 
   return (
     <footer className="relative z-10 border-t border-border bg-card mt-auto">
       <div className="container mx-auto px-4 py-16">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="col-span-2">
             <Link href="/" className="flex items-center gap-2 text-base font-semibold text-foreground mb-4">
               <Wallet className="w-5 h-5" />
@@ -51,22 +34,6 @@ export default function Footer() {
             <h4 className="text-sm font-medium text-foreground mb-4">Product</h4>
             <ul className="space-y-3">
               {footerNav.product.map((item) => (
-                <li key={item.name}>
-                  <Link
-                    href={item.href}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {item.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-sm font-medium text-foreground mb-4">Resources</h4>
-            <ul className="space-y-3">
-              {footerNav.resources.map((item) => (
                 <li key={item.name}>
                   <Link
                     href={item.href}
@@ -97,19 +64,13 @@ export default function Footer() {
         </div>
 
         <div className="mt-16 pt-8 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-muted-foreground">&copy; {year ?? "2026"} ChainShip. All rights reserved.</p>
-          <div className="flex gap-4">
-            {socialLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                aria-label={link.name}
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <link.icon className="w-4 h-4" />
-              </a>
-            ))}
-          </div>
+          <p className="text-sm text-muted-foreground">&copy; {year} ChainShip. All rights reserved.</p>
+          <a
+            href="mailto:hello@chainship.io"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            hello@chainship.io
+          </a>
         </div>
       </div>
     </footer>

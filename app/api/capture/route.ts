@@ -1,5 +1,6 @@
 import { put } from "@vercel/blob"
 import { type NextRequest, NextResponse } from "next/server"
+import { getCurrentUserFromSession } from "@/lib/auth"
 
 export const runtime = "nodejs"
 export const maxDuration = 60
@@ -519,10 +520,17 @@ async function captureWithScreenshotAPI(
 
   const watermarkText = `ChainShip | ${timestamp} (${timezone}) | ID: ${archiveId.slice(0, 8)}`
 
+  const apiflashKey = process.env.APIFLASH_ACCESS_KEY
+  const screenshotlayerKey = process.env.SCREENSHOTLAYER_ACCESS_KEY
+
   const screenshotServices = [
-    // apiflash - has native text overlay support
+    // apiflash - has native text overlay support (requires APIFLASH_ACCESS_KEY)
     async () => {
+      if (!apiflashKey) {
+        throw new Error("APIFLASH_ACCESS_KEY not set - skipping apiflash")
+      }
       const params = new URLSearchParams({
+        access_key: apiflashKey,
         url: url,
         format: "png",
         width: "1440",
@@ -557,9 +565,13 @@ async function captureWithScreenshotAPI(
       return Buffer.from(arrayBuffer)
     },
 
-    // screenshotlayer - good full page support
+    // screenshotlayer - good full page support (requires SCREENSHOTLAYER_ACCESS_KEY)
     async () => {
+      if (!screenshotlayerKey) {
+        throw new Error("SCREENSHOTLAYER_ACCESS_KEY not set - skipping screenshotlayer")
+      }
       const params = new URLSearchParams({
+        access_key: screenshotlayerKey,
         url: url,
         viewport: "1440x900",
         fullpage: "1",
@@ -686,13 +698,36 @@ async function captureWithScreenshotAPI(
   return { screenshot, html }
 }
 
+// @sparticuz/chromium pack (must match the installed @sparticuz/chromium-min
+// major version, currently v133). Hosted on our own Vercel Blob CDN so headless
+// Chromium works without relying on an external mirror. Override via
+// CHROMIUM_REMOTE_PACK_URL if you upgrade the chromium-min version — the pack
+// version MUST match or extraction fails. Set it to "" to disable Puppeteer and
+// force the screenshot-API fallback.
+const DEFAULT_CHROMIUM_PACK_URL =
+  "https://duwfioskgvmdnb7l.public.blob.vercel-storage.com/chromium/chromium-v133.0.0-pack.tar"
+const CHROMIUM_REMOTE_PACK_URL =
+  process.env.CHROMIUM_REMOTE_PACK_URL !== undefined
+    ? process.env.CHROMIUM_REMOTE_PACK_URL
+    : DEFAULT_CHROMIUM_PACK_URL
+// Hard ceiling for the whole Puppeteer attempt (download + launch + capture).
+// Kept under maxDuration (60s) so a broken or slow pack download degrades to
+// the API fallback instead of hanging the request forever.
+const PUPPETEER_BUDGET_MS = 50000
+
 async function captureWithPuppeteer(
   url: string,
   timestamp: string,
   timezone: string,
   archiveId: string,
 ): Promise<{ screenshot: Buffer | null; html: string | null; error?: string }> {
+  if (!CHROMIUM_REMOTE_PACK_URL) {
+    console.log("[v0] CHROMIUM_REMOTE_PACK_URL not set - skipping Puppeteer, using screenshot API")
+    return captureWithScreenshotAPI(url, timestamp, timezone, archiveId)
+  }
+
   let browser = null
+  let budgetTimer: ReturnType<typeof setTimeout> | undefined
 
   try {
     console.log("[v0] Starting Puppeteer capture for:", url)
@@ -700,66 +735,82 @@ async function captureWithPuppeteer(
     const chromium = await import("@sparticuz/chromium-min")
     const puppeteerCore = await import("puppeteer-core")
 
-    const executablePath = await chromium.default.executablePath(
-      "https://github.com/nicholasgriffintn/vercel-chromium/releases/download/v133.0.0/chromium-v133.0.0-pack.tar",
-    )
-
-    browser = await puppeteerCore.default.launch({
-      args: [...chromium.default.args, "--disable-blink-features=AutomationControlled", "--no-sandbox"],
-      defaultViewport: { width: 1440, height: 900 },
-      executablePath,
-      headless: true,
+    // Race the download+launch+capture against a hard budget so a corrupt or
+    // slow remote pack can never hang the request.
+    const budget = new Promise<never>((_, reject) => {
+      budgetTimer = setTimeout(
+        () => reject(new Error(`Puppeteer exceeded ${PUPPETEER_BUDGET_MS}ms budget`)),
+        PUPPETEER_BUDGET_MS,
+      )
     })
 
-    const page = await browser.newPage()
-    await page.setUserAgent(REALISTIC_UA)
+    const work = (async () => {
+      const executablePath = await chromium.default.executablePath(CHROMIUM_REMOTE_PACK_URL)
 
-    await page.goto(url, {
-      waitUntil: ["load", "networkidle0"],
-      timeout: 45000,
-    })
+      browser = await puppeteerCore.default.launch({
+        args: [...chromium.default.args, "--disable-blink-features=AutomationControlled", "--no-sandbox"],
+        defaultViewport: { width: 1440, height: 900 },
+        executablePath,
+        headless: true,
+      })
 
-    const waitTime = url.includes("mintscan") ? 12000 : 8000
-    await new Promise((resolve) => setTimeout(resolve, waitTime))
+      const page = await browser.newPage()
+      await page.setUserAgent(REALISTIC_UA)
 
-    // Scroll entire page to trigger lazy loading
-    await page.evaluate(async () => {
-      const scrollHeight = document.body.scrollHeight
-      const viewportHeight = window.innerHeight
-      let currentPosition = 0
+      await page.goto(url, {
+        waitUntil: ["load", "networkidle0"],
+        timeout: 45000,
+      })
 
-      while (currentPosition < scrollHeight) {
-        window.scrollTo(0, currentPosition)
-        currentPosition += viewportHeight / 2
-        await new Promise((r) => setTimeout(r, 200))
-      }
+      const waitTime = url.includes("mintscan") ? 12000 : 8000
+      await new Promise((resolve) => setTimeout(resolve, waitTime))
 
-      // Scroll to very bottom
-      window.scrollTo(0, document.body.scrollHeight)
-      await new Promise((r) => setTimeout(r, 2000))
+      // Scroll entire page to trigger lazy loading
+      await page.evaluate(async () => {
+        const scrollHeight = document.body.scrollHeight
+        const viewportHeight = window.innerHeight
+        let currentPosition = 0
 
-      // Back to top
-      window.scrollTo(0, 0)
-    })
+        while (currentPosition < scrollHeight) {
+          window.scrollTo(0, currentPosition)
+          currentPosition += viewportHeight / 2
+          await new Promise((r) => setTimeout(r, 200))
+        }
 
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+        // Scroll to very bottom
+        window.scrollTo(0, document.body.scrollHeight)
+        await new Promise((r) => setTimeout(r, 2000))
 
-    const screenshotBuffer = await page.screenshot({
-      fullPage: true,
-      type: "png",
-      captureBeyondViewport: true,
-    })
-    const screenshot = Buffer.isBuffer(screenshotBuffer) ? screenshotBuffer : Buffer.from(screenshotBuffer)
-    const html = await page.content()
+        // Back to top
+        window.scrollTo(0, 0)
+      })
 
-    console.log("[v0] Puppeteer capture successful, size:", screenshot.length)
-    return { screenshot, html }
+      await new Promise((resolve) => setTimeout(resolve, 2000))
+
+      const screenshotBuffer = await page.screenshot({
+        fullPage: true,
+        type: "png",
+        captureBeyondViewport: true,
+      })
+      const screenshot = Buffer.isBuffer(screenshotBuffer) ? screenshotBuffer : Buffer.from(screenshotBuffer)
+      const html = await page.content()
+
+      console.log("[v0] Puppeteer capture successful, size:", screenshot.length)
+      return { screenshot, html }
+    })()
+
+    return await Promise.race([work, budget])
   } catch (error) {
     console.log("[v0] Puppeteer failed:", error instanceof Error ? error.message : error)
     return captureWithScreenshotAPI(url, timestamp, timezone, archiveId)
   } finally {
+    if (budgetTimer) clearTimeout(budgetTimer)
     if (browser) {
-      await browser.close()
+      try {
+        await (browser as { close: () => Promise<void> }).close()
+      } catch (closeErr) {
+        console.log("[v0] Browser close failed:", closeErr instanceof Error ? closeErr.message : closeErr)
+      }
     }
   }
 }
@@ -778,6 +829,12 @@ export async function POST(request: NextRequest) {
       console.log("[v0] ERROR: Missing required fields - url:", !!url, "archiveId:", !!archiveId)
       return NextResponse.json({ error: "URL and archiveId are required" }, { status: 400 })
     }
+
+    // SECURITY: derive the user from the session cookie, never from the request
+    // body, so a client cannot write screenshots into another user's namespace.
+    const sessionUser = await getCurrentUserFromSession()
+    console.log("[v0] User ID:", sessionUser?.id || "not authenticated")
+    const userFolder = sessionUser?.id || "anonymous"
 
     let parsedUrl: URL
     try {
@@ -833,7 +890,7 @@ export async function POST(request: NextRequest) {
         finalScreenshot = screenshot
       }
 
-      const filename = `snapshots/${archiveId}/${safeHostname}_${dateStr}_${formattedTimestamp.replace(/[^a-zA-Z0-9]/g, "-")}_${archiveId.slice(0, 8)}.png`
+      const filename = `users/${userFolder}/snapshots/${archiveId}/${safeHostname}_${dateStr}_${formattedTimestamp.replace(/[^a-zA-Z0-9]/g, "-")}_${archiveId.slice(0, 8)}.png`
       console.log("[v0] Uploading screenshot to Blob storage, filename:", filename)
 
       try {
@@ -899,7 +956,7 @@ export async function POST(request: NextRequest) {
 </body>
 </html>`
 
-          const htmlFilename = `snapshots/${archiveId}/${safeHostname}-${dateStr}.html`
+          const htmlFilename = `users/${userFolder}/snapshots/${archiveId}/${safeHostname}-${dateStr}.html`
           console.log("[v0] Uploading HTML to Blob storage, filename:", htmlFilename)
           
           const uploadStartTime = Date.now()

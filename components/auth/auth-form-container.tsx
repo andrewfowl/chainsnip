@@ -16,7 +16,7 @@ export default function AuthFormContainer({ title, description, children, footer
       <Card className="w-full max-w-md bg-card/90 backdrop-blur-xl border-border shadow-2xl">
         <CardHeader className="text-center">
           <Link href="/" className="inline-flex items-center justify-center gap-2 mb-4" aria-label="Back to Homepage">
-            <Wallet className="w-8 h-8 text-primary" />
+            <Wallet className="w-8 h-8 text-foreground" />
             <span className="text-xl font-bold text-foreground">ChainShip</span>
           </Link>
           <CardTitle className="text-2xl font-bold text-foreground">{title}</CardTitle>

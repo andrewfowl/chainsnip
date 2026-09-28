@@ -45,7 +45,7 @@ export default function CheckoutPage() {
           <div className="mt-4">
             <span className="text-4xl font-bold text-foreground">${(product.priceInCents / 100).toFixed(0)}</span>
             {product.mode === "subscription" && <span className="text-muted-foreground">/{product.interval}</span>}
-            {product.mode === "payment" && <span className="text-sm text-accent ml-2">one-time</span>}
+            {product.mode === "payment" && <span className="text-sm text-foreground ml-2">one-time</span>}
           </div>
         </div>
 

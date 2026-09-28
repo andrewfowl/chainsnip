@@ -58,7 +58,7 @@ export default function BlogMerger() {
     <div className="space-y-8">
       <div className="text-center">
         <h2 className="text-4xl sm:text-5xl font-extrabold text-foreground mb-4 leading-tight">
-          Insight Synthesizer <Brain className="inline-block w-10 h-10 ml-2 text-primary" />
+          Insight Synthesizer <Brain className="inline-block w-10 h-10 ml-2 text-foreground" />
         </h2>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
           Forge new paradigms by fusing existing knowledge. Select multiple articles to synthesize their core insights
@@ -112,7 +112,7 @@ export default function BlogMerger() {
             >
               <CardHeader>
                 <Link href={`/blog/merged/${mergedPost.slug}`}>
-                  <CardTitle className="text-foreground font-semibold text-xl mb-2 hover:text-primary transition-colors">
+                  <CardTitle className="text-foreground font-semibold text-xl mb-2 hover:text-foreground transition-colors">
                     {mergedPost.title}
                   </CardTitle>
                 </Link>
@@ -144,7 +144,7 @@ export default function BlogMerger() {
                 {/* Link to view merged content */}
                 <Link
                   href={`/blog/merged/${mergedPost.slug}`}
-                  className="inline-flex items-center text-primary hover:text-accent transition-colors group"
+                  className="inline-flex items-center text-foreground hover:text-foreground transition-colors group"
                 >
                   <span className="transition-all duration-300 group-hover:underline">Access Synthesized Brief</span>
                   <ArrowRight className="w-4 h-4 ml-1 transition-transform duration-300 group-hover:translate-x-1" />
@@ -171,7 +171,7 @@ export default function BlogMerger() {
                 />
                 <div className="flex-1">
                   <Link href={`/blog/${post.slug}`} className="group">
-                    <CardTitle className="text-foreground font-semibold group-hover:text-primary text-lg mb-2 transition-colors">
+                    <CardTitle className="text-foreground font-semibold group-hover:text-foreground text-lg mb-2 transition-colors">
                       {post.title}
                     </CardTitle>
                   </Link>
@@ -202,7 +202,7 @@ export default function BlogMerger() {
                 ))}
               </div>
               {post.featured && (
-                <Badge className="bg-primary/10 text-primary border-primary/30 mt-2 self-start">Featured Intel</Badge>
+                <Badge className="bg-primary/10 text-foreground border-primary/30 mt-2 self-start">Featured Intel</Badge>
               )}
             </CardContent>
           </Card>

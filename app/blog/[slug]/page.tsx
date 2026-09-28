@@ -34,7 +34,7 @@ export default function BlogPage({ params }: BlogPageProps) {
         <article className="max-w-3xl mx-auto bg-card/85 backdrop-blur-lg p-6 sm:p-10 rounded-xl shadow-2xl border">
           <Link
             href="/blog"
-            className="inline-flex items-center text-secondary hover:text-primary transition-colors mb-8 group"
+            className="inline-flex items-center text-secondary hover:text-foreground transition-colors mb-8 group"
           >
             <ArrowLeft className="w-5 h-5 mr-2 transition-transform group-hover:-translate-x-1" />
             Return to Innovation Nexus
@@ -44,7 +44,7 @@ export default function BlogPage({ params }: BlogPageProps) {
             {post.title.split(":")[0]}
             {post.title.includes(":") && (
               <>
-                <span className="block text-primary text-2xl sm:text-3xl lg:text-4xl mt-2">
+                <span className="block text-foreground text-2xl sm:text-3xl lg:text-4xl mt-2">
                   {post.title.substring(post.title.indexOf(":") + 1).trim()}
                 </span>
               </>
@@ -73,7 +73,7 @@ export default function BlogPage({ params }: BlogPageProps) {
           </div>
 
           {post.featured && (
-            <Badge className="bg-primary/10 text-primary border-primary/30 mb-8 text-sm px-3 py-1">
+            <Badge className="bg-primary/10 text-foreground border-primary/30 mb-8 text-sm px-3 py-1">
               Priority Briefing
             </Badge>
           )}

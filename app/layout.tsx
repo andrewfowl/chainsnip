@@ -1,15 +1,17 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
-import { Inter } from "next/font/google"
+import { Anton, DM_Sans } from "next/font/google"
 import "./globals.css"
 import ClientRootLayout from "./ClientRootLayout"
 import { Toaster } from "@/components/ui/toaster"
 
-const inter = Inter({ subsets: ["latin"] })
+const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-sans" })
+const anton = Anton({ subsets: ["latin"], weight: "400", variable: "--font-display" })
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  themeColor: "#e2e2df",
 }
 
 export const metadata: Metadata = {
@@ -90,7 +92,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.className} bg-background text-foreground selection:bg-primary selection:text-primary-foreground`}
+        className={`${dmSans.variable} ${anton.variable} font-sans bg-background text-foreground selection:bg-primary selection:text-primary-foreground`}
       >
         <ClientRootLayout>{children}</ClientRootLayout>
         <Toaster />

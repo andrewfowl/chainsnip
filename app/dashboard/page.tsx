@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -33,19 +35,21 @@ import {
   saveArchive,
   deleteArchive,
   updateArchive,
-  PLAN_LIMITS,
   getAllExplorers,
   saveCustomExplorer,
   getCustomExplorers,
   deleteCustomExplorer,
+  getUserUsageStats,
+} from "@/app/actions/archives"
+import {
+  PLAN_LIMITS,
   detectChainFromUrl,
   groupArchivesByPortfolio,
+  getMonthEndDate,
   type Archive,
   type CustomExplorer,
   type Portfolio,
-  getUserUsageStats,
-  getMonthEndDate,
-} from "@/lib/archives"
+} from "@/lib/chains"
 import {
   Plus,
   Trash2,
@@ -221,6 +225,7 @@ export default function DashboardPage() {
           htmlUrl: captureResult.htmlUrl,
           proofHash: captureResult.proofHash,
           captureStatus: "completed",
+          captureError: null,
         })
 
         setArchives((prev) =>
@@ -327,7 +332,9 @@ export default function DashboardPage() {
           htmlUrl: captureResult.htmlUrl,
           proofHash: captureResult.proofHash,
           captureStatus: "completed",
-          captureError: undefined,
+          // null (not undefined) survives the server-action boundary so the DB
+          // clears any stale error from a previous failed attempt.
+          captureError: null,
         })
 
         setArchives((prev) =>
@@ -590,16 +597,42 @@ export default function DashboardPage() {
                       onChange={(e) => setNewArchiveSnapshotDate(e.target.value)}
                     />
                   </div>
-                  <div className="flex items-center justify-between rounded-lg border p-4">
+                  <div className={cn(
+                    "flex items-center justify-between rounded-lg border p-4",
+                    !limits.monthlyAutoSave && "opacity-60"
+                  )}>
                     <div className="space-y-0.5">
-                      <Label>Auto Month-End Capture</Label>
-                      <p className="text-xs text-muted-foreground">Automatically capture on the last day of each month</p>
+                      <Label className={!limits.monthlyAutoSave ? "text-muted-foreground" : ""}>
+                        Auto Month-End Capture
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        {limits.monthlyAutoSave 
+                          ? "Automatically capture on the last day of each month"
+                          : (
+                            <>
+                              <Link href="/#pricing" className="text-amber-600 underline underline-offset-2 hover:text-amber-700">
+                                Upgrade to Professional
+                              </Link>
+                              {" to enable scheduled captures"}
+                            </>
+                          )
+                        }
+                      </p>
                     </div>
-                    <Switch
-                      checked={enableMonthlyCapture}
-                      onCheckedChange={setEnableMonthlyCapture}
-                      disabled={!limits.monthlyAutoSave}
-                    />
+                    <div className="flex items-center gap-2">
+                      {!limits.monthlyAutoSave && (
+                        <Link href="/#pricing">
+                          <Badge variant="outline" className="text-xs text-amber-600 border-amber-300 bg-amber-50 cursor-pointer hover:bg-amber-100">
+                            Pro
+                          </Badge>
+                        </Link>
+                      )}
+                      <Switch
+                        checked={enableMonthlyCapture}
+                        onCheckedChange={setEnableMonthlyCapture}
+                        disabled={!limits.monthlyAutoSave}
+                      />
+                    </div>
                   </div>
                 </div>
                 <DialogFooter>
@@ -679,7 +712,7 @@ export default function DashboardPage() {
                           <span className="text-amber-600">Unknown explorer - </span>
                           <button
                             type="button"
-                            className="text-primary underline hover:no-underline text-xs"
+                            className="text-foreground underline hover:no-underline text-xs"
                             onClick={() => {
                               try {
                                 const url = new URL(newArchiveUrl)
@@ -701,12 +734,15 @@ export default function DashboardPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="client">Portfolio / Client Name</Label>
-                  <Select value={newArchiveClient} onValueChange={setNewArchiveClient}>
+                  <Select
+                    value={newArchiveClient}
+                    onValueChange={(v) => setNewArchiveClient(v === "__uncategorized__" ? "" : v)}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select or type new..." />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Uncategorized</SelectItem>
+                      <SelectItem value="__uncategorized__">Uncategorized</SelectItem>
                       {[...new Set(archives.map(a => a.clientName).filter(Boolean))].map((client) => (
                         <SelectItem key={client} value={client!}>
                           {client}
@@ -730,23 +766,43 @@ export default function DashboardPage() {
                     onChange={(e) => setNewArchiveSnapshotDate(e.target.value)}
                   />
                 </div>
-                <div className="flex items-center justify-between rounded-lg border p-4">
+                <div className={cn(
+                  "flex items-center justify-between rounded-lg border p-4",
+                  !limits.monthlyAutoSave && "opacity-60"
+                )}>
                   <div className="space-y-0.5">
-                    <Label>Auto Month-End Capture</Label>
-                    <p className="text-xs text-muted-foreground">Automatically capture on the last day of each month</p>
+                    <Label className={!limits.monthlyAutoSave ? "text-muted-foreground" : ""}>
+                      Auto Month-End Capture
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      {limits.monthlyAutoSave 
+                        ? "Automatically capture on the last day of each month"
+                        : (
+                          <>
+                            <Link href="/#pricing" className="text-amber-600 underline underline-offset-2 hover:text-amber-700">
+                              Upgrade to Professional
+                            </Link>
+                            {" to enable scheduled captures"}
+                          </>
+                        )
+                      }
+                    </p>
                   </div>
-                  <Switch
-                    checked={enableMonthlyCapture}
-                    onCheckedChange={setEnableMonthlyCapture}
-                    disabled={!limits.monthlyAutoSave}
-                  />
+                  <div className="flex items-center gap-2">
+                    {!limits.monthlyAutoSave && (
+                      <Link href="/#pricing">
+                        <Badge variant="outline" className="text-xs text-amber-600 border-amber-300 bg-amber-50 cursor-pointer hover:bg-amber-100">
+                          Pro
+                        </Badge>
+                      </Link>
+                    )}
+                    <Switch
+                      checked={enableMonthlyCapture}
+                      onCheckedChange={setEnableMonthlyCapture}
+                      disabled={!limits.monthlyAutoSave}
+                    />
+                  </div>
                 </div>
-                {!limits.monthlyAutoSave && (
-                  <p className="text-xs text-amber-500 flex items-center gap-1">
-                    <AlertCircle className="w-3 h-3" />
-                    Upgrade to Professional for auto month-end captures
-                  </p>
-                )}
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setIsDialogOpen(false)}>

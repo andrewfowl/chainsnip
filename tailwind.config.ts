@@ -20,7 +20,8 @@ const config: Config = {
     },
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        sans: ['var(--font-sans)', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        display: ['var(--font-display)', 'system-ui', 'sans-serif'],
       },
       letterSpacing: {
         tighter: '-0.03em',
@@ -65,7 +66,8 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Remove Stark specific colors, rely on the new theme variables
+        violet: "hsl(var(--violet))",
+        sulfur: "hsl(var(--sulfur))",
       },
       borderRadius: {
         lg: "var(--radius)",
