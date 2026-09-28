@@ -194,7 +194,7 @@ export default function ShowcasePage() {
       <main className="relative z-10 container mx-auto px-4 py-12 sm:py-16">
         <div className="text-center mb-10 sm:mb-12">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 drop-shadow-lg text-foreground">
-            The Cartographer's Compass: <span className="text-primary">Mapping Innovation</span>
+            The Cartographer's Compass: <span className="text-foreground">Mapping Innovation</span>
           </h1>
           <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto">
             Visualize the invisible threads of creation. Chart complex relationships, connect disparate concepts, and

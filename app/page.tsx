@@ -90,25 +90,22 @@ export default function HomePage() {
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center max-w-6xl mx-auto">
             {/* Left: copy */}
             <div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold text-foreground tracking-tight text-balance leading-[1.05]">
+              <h1 className="text-6xl sm:text-7xl lg:text-8xl text-foreground uppercase text-balance">
                 Prove what a wallet held, on any date.
               </h1>
-              <p className="mt-6 text-lg text-muted-foreground max-w-lg leading-relaxed text-pretty">
+              <p className="mt-8 text-lg text-muted-foreground max-w-lg leading-relaxed text-pretty">
                 ChainShip archives blockchain explorer pages at month-end and stamps each one with a timestamp and
                 cryptographic hash. Evidence your auditor cannot argue with.
               </p>
               <div className="mt-8 flex flex-col sm:flex-row gap-3">
                 <Link href="/auth/signup">
-                  <Button
-                    size="lg"
-                    className="text-base px-7 h-12 font-medium bg-foreground text-background hover:bg-foreground/90 group"
-                  >
+                  <Button size="lg" className="group w-full sm:w-auto">
                     Get started
                     <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
                   </Button>
                 </Link>
                 <Link href="#how-it-works">
-                  <Button size="lg" variant="outline" className="text-base px-7 h-12 font-medium border-border">
+                  <Button size="lg" variant="outline" className="w-full sm:w-auto">
                     How it works
                   </Button>
                 </Link>
@@ -120,17 +117,17 @@ export default function HomePage() {
 
             {/* Right: evidence specimen — the signature element */}
             <div className="relative">
-              <div className="rounded-lg border border-border bg-card overflow-hidden font-mono text-sm">
+              <div className="rounded-[2.5rem] bg-card overflow-hidden font-mono text-sm p-2">
                 {/* Record header */}
-                <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-secondary/40">
-                  <span className="text-[11px] uppercase tracking-widest text-muted-foreground">Snapshot Record</span>
-                  <span className="inline-flex items-center gap-1.5 text-accent text-xs">
-                    <Check className="h-3.5 w-3.5" strokeWidth={3} />
+                <div className="flex items-center justify-between px-5 py-4">
+                  <span className="text-xs uppercase tracking-widest text-muted-foreground">Snapshot Record</span>
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-sulfur px-3 py-1 text-foreground text-xs">
+                    <Check className="h-3.5 w-3.5" strokeWidth={3} aria-hidden="true" />
                     Verified
                   </span>
                 </div>
                 {/* Captured explorer content (stylized) */}
-                <div className="p-4 space-y-3 border-b border-border">
+                <div className="px-5 pb-5 space-y-3">
                   <div className="flex items-baseline justify-between gap-4">
                     <span className="text-muted-foreground text-xs">Address</span>
                     <span className="text-foreground truncate">0x742d35Cc6634C0532925a3b8D4a8fF</span>
@@ -149,14 +146,14 @@ export default function HomePage() {
                   </div>
                 </div>
                 {/* Proof footer */}
-                <div className="p-4 grid grid-cols-1 gap-2.5 text-xs bg-secondary/20">
+                <div className="rounded-[2rem] bg-foreground text-background p-5 grid grid-cols-1 gap-2.5 text-xs [&_.text-foreground]:text-background [&_.text-muted-foreground]:text-background/60">
                   <div className="flex items-baseline justify-between gap-4">
                     <span className="text-muted-foreground">Captured</span>
                     <span className="text-foreground">2025-05-31 23:59:00 UTC</span>
                   </div>
                   <div className="flex items-baseline justify-between gap-4">
                     <span className="text-muted-foreground">SHA-256</span>
-                    <span className="text-accent truncate">f8a9c2e4…7b31d0</span>
+                    <span className="text-foreground truncate">f8a9c2e4…7b31d0</span>
                   </div>
                 </div>
               </div>
@@ -183,7 +180,7 @@ export default function HomePage() {
         <div className="container mx-auto px-4 py-24">
           <div className="grid lg:grid-cols-3 gap-12 lg:gap-16 max-w-6xl mx-auto">
             <div className="lg:sticky lg:top-32 lg:self-start">
-              <h2 className="text-3xl sm:text-4xl font-semibold text-foreground tracking-tight text-balance">
+              <h2 className="text-3xl sm:text-4xl text-foreground uppercase text-balance">
                 Built for the way accountants defend a number
               </h2>
               <p className="mt-4 text-muted-foreground leading-relaxed">
@@ -191,7 +188,7 @@ export default function HomePage() {
                 defensible record.
               </p>
               <Link href="/auth/signup" className="inline-block mt-6">
-                <Button className="bg-foreground text-background hover:bg-foreground/90 group">
+                <Button className=" group">
                   Start free
                   <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
                 </Button>
@@ -213,7 +210,7 @@ export default function HomePage() {
                       {feature.description}
                     </dd>
                   </div>
-                  <feature.icon className="h-5 w-5 text-muted-foreground/60 group-hover:text-accent transition-colors mt-0.5" />
+                  <feature.icon className="h-5 w-5 text-muted-foreground/60 group-hover:text-foreground transition-colors mt-0.5" />
                 </div>
               ))}
             </dl>
@@ -225,7 +222,7 @@ export default function HomePage() {
       <section id="how-it-works" className="border-b border-border bg-secondary/20">
         <div className="container mx-auto px-4 py-24">
           <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl sm:text-4xl font-semibold text-foreground tracking-tight max-w-xl">
+            <h2 className="text-3xl sm:text-4xl text-foreground uppercase max-w-xl">
               From wallet link to audit evidence in three steps
             </h2>
             <div className="mt-12 grid md:grid-cols-3 border-t border-border">
@@ -234,7 +231,7 @@ export default function HomePage() {
                   key={item.title}
                   className="py-8 md:py-10 md:px-8 md:first:pl-0 border-b md:border-b-0 md:border-r last:border-r-0 border-border"
                 >
-                  <span className="font-mono text-sm text-accent tabular-nums">{String(i + 1).padStart(2, "0")}</span>
+                  <span className="font-mono text-sm text-foreground tabular-nums">{String(i + 1).padStart(2, "0")}</span>
                   <h3 className="mt-4 text-lg font-semibold text-foreground">{item.title}</h3>
                   <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{item.description}</p>
                 </div>
@@ -248,7 +245,7 @@ export default function HomePage() {
       <section className="border-b border-border">
         <div className="container mx-auto px-4 py-24">
           <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl sm:text-4xl font-semibold text-foreground tracking-tight max-w-xl">
+            <h2 className="text-3xl sm:text-4xl text-foreground uppercase max-w-xl">
               Accountants who care about evidence
             </h2>
             <div className="mt-12 grid md:grid-cols-2 gap-px bg-border border border-border rounded-lg overflow-hidden">
@@ -284,7 +281,7 @@ export default function HomePage() {
         <div className="container mx-auto px-4 py-24">
           <div className="max-w-6xl mx-auto">
             <div className="max-w-xl mb-12">
-              <h2 className="text-3xl sm:text-4xl font-semibold text-foreground tracking-tight">
+              <h2 className="text-3xl sm:text-4xl text-foreground uppercase">
                 Simple, transparent pricing
               </h2>
               <p className="mt-4 text-muted-foreground leading-relaxed">Start free, scale as your practice grows.</p>
@@ -299,7 +296,7 @@ export default function HomePage() {
         <div className="container mx-auto px-4 py-24">
           <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:items-end md:justify-between gap-8">
             <div className="max-w-xl">
-              <h2 className="text-3xl sm:text-4xl font-semibold text-foreground tracking-tight text-balance">
+              <h2 className="text-3xl sm:text-4xl text-foreground uppercase text-balance">
                 Start building the record before your next close.
               </h2>
               <p className="mt-4 text-muted-foreground leading-relaxed">
@@ -310,14 +307,14 @@ export default function HomePage() {
               <Link href="/auth/signup">
                 <Button
                   size="lg"
-                  className="text-base px-7 h-12 font-medium bg-foreground text-background hover:bg-foreground/90 group"
+                  className="group"
                 >
                   Get started free
                   <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
                 </Button>
               </Link>
               <Link href="#pricing">
-                <Button size="lg" variant="outline" className="text-base px-7 h-12 font-medium border-border">
+                <Button size="lg" variant="outline">
                   View pricing
                 </Button>
               </Link>

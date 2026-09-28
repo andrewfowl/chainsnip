@@ -48,14 +48,14 @@ export default function MergedBlogPage({ params }: MergedBlogPageProps) {
         <article className="max-w-3xl mx-auto bg-card/85 backdrop-blur-lg p-6 sm:p-10 rounded-xl shadow-2xl">
           <Link
             href="/blog"
-            className="inline-flex items-center text-secondary hover:text-primary transition-colors mb-6 group"
+            className="inline-flex items-center text-secondary hover:text-foreground transition-colors mb-6 group"
           >
             <ArrowLeft className="w-5 h-5 mr-2 transition-transform group-hover:-translate-x-1" />
             Back to Creative Insights
           </Link>
 
           <div className="mb-6">
-            <Badge className="bg-accent/10 text-accent border-accent/30 mb-4">
+            <Badge className="bg-primary/15 text-foreground border-primary/30 mb-4">
               <Merge className="w-3 h-3 mr-1" />
               Fused Insight
             </Badge>
@@ -92,7 +92,7 @@ export default function MergedBlogPage({ params }: MergedBlogPageProps) {
             ))}
           </div>
 
-          <div className="mt-10 pt-6 border-t border-accent/30">
+          <div className="mt-10 pt-6 border-t border-primary/30">
             <h3 className="text-foreground font-semibold mb-3 flex items-center">
               <Tag className="w-5 h-5 mr-2" />
               Topics
@@ -102,7 +102,7 @@ export default function MergedBlogPage({ params }: MergedBlogPageProps) {
                 <Badge
                   key={tag}
                   variant="outline"
-                  className="border-accent/50 text-muted-foreground hover:bg-accent/10 hover:border-accent transition-colors"
+                  className="border-primary/50 text-muted-foreground hover:bg-secondary hover:border-primary transition-colors"
                 >
                   {tag}
                 </Badge>
@@ -110,7 +110,7 @@ export default function MergedBlogPage({ params }: MergedBlogPageProps) {
             </div>
           </div>
 
-          <div className="mt-10 pt-6 border-t border-accent/30">
+          <div className="mt-10 pt-6 border-t border-primary/30">
             <h3 className="text-foreground font-semibold mb-4">Original Articles</h3>
             <div className="space-y-3">
               {mergedPost.originalPosts.map((post, index) => (

@@ -42,7 +42,7 @@ export default function CreatePage() {
       <main className="relative z-10 container mx-auto px-4 py-16 sm:py-24">
         <div className="text-center mb-16 sm:mb-20">
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold mb-6 drop-shadow-lg text-foreground leading-tight">
-            The Alchemist's Workshop: <span className="text-primary">Forge Your Creation</span>
+            The Alchemist's Workshop: <span className="text-foreground">Forge Your Creation</span>
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Select your crucible. Empower your vision with specialized toolsets designed to transform raw ideas into
@@ -62,9 +62,9 @@ export default function CreatePage() {
                   {" "}
                   {/* Increased padding top */}
                   <div className="p-4 bg-primary/10 rounded-full mb-4 group-hover:scale-110 transition-transform border-2 border-primary/20">
-                    <option.icon className="w-10 h-10 text-primary" />
+                    <option.icon className="w-10 h-10 text-foreground" />
                   </div>
-                  <CardTitle className="text-foreground font-semibold group-hover:text-primary transition-colors">
+                  <CardTitle className="text-foreground font-semibold group-hover:text-foreground transition-colors">
                     {option.title}
                   </CardTitle>
                 </CardHeader>
@@ -85,7 +85,7 @@ export default function CreatePage() {
           <Link href="/projects/new">
             <Button
               size="lg"
-              className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-12 py-6 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105 hover:shadow-accent/40 text-base" // Enhanced CTA
+              className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-12 py-6 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105 text-base" // Enhanced CTA
             >
               <Rocket className="w-6 h-6 mr-3" />
               Initiate Project Genesis

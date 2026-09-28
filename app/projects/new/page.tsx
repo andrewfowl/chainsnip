@@ -231,7 +231,7 @@ export default function NewProjectPage() {
         <div className="container mx-auto px-2 sm:px-4 py-8 sm:py-12">
           <div className="text-center mb-10 sm:mb-12">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 drop-shadow-lg text-foreground">
-              Project Genesis: <span className="text-primary">Select Your Blueprint</span>
+              Project Genesis: <span className="text-foreground">Select Your Blueprint</span>
             </h1>
             <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
               Choose your starting point. Each blueprint is a launchpad for innovation, designed to accelerate your
@@ -282,7 +282,7 @@ export default function NewProjectPage() {
         {selectedAsset && (
           <div className="fixed inset-0 z-40 flex items-center justify-center p-4">
             <div
-              className="relative bg-popover/95 backdrop-blur-xl p-4 sm:p-6 rounded-xl shadow-2xl max-w-2xl w-full border border-accent/50 max-h-[90vh] overflow-y-auto flex flex-col transform transition-all duration-300 ease-out scale-100 opacity-100"
+              className="relative bg-popover/95 backdrop-blur-xl p-4 sm:p-6 rounded-xl shadow-2xl max-w-2xl w-full border border-primary/50 max-h-[90vh] overflow-y-auto flex flex-col transform transition-all duration-300 ease-out scale-100 opacity-100"
               onClick={(e) => e.stopPropagation()}
               style={{ animation: "modal-appear 0.3s ease-out" }}
             >
@@ -293,7 +293,7 @@ export default function NewProjectPage() {
                 </div>
                 <button
                   onClick={() => setSelectedAsset(null)}
-                  className="p-2 text-muted-foreground hover:text-accent transition-colors rounded-full hover:bg-accent/20"
+                  className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-secondary"
                   aria-label="Close project details"
                 >
                   <X size={24} />
@@ -316,7 +316,7 @@ export default function NewProjectPage() {
               </div>
               <Button
                 size="lg"
-                className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-semibold mt-auto shrink-0 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold mt-auto shrink-0 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg"
               >
                 <Rocket className="w-5 h-5 mr-2" />
                 Launch with This Blueprint

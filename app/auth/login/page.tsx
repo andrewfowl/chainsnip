@@ -53,7 +53,7 @@ export default function LoginPage() {
       footerContent={
         <p>
           {"Don't have an account? "}
-          <Link href="/auth/signup" className="font-semibold text-primary hover:underline">
+          <Link href="/auth/signup" className="font-semibold text-foreground underline decoration-primary decoration-2 underline-offset-4 hover:decoration-foreground">
             Sign Up
           </Link>
         </p>
@@ -79,7 +79,7 @@ export default function LoginPage() {
               type="button"
               variant="ghost"
               size="icon"
-              className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 text-muted-foreground hover:text-primary"
+              className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 text-muted-foreground hover:text-foreground"
               onClick={() => setShowPassword(!showPassword)}
               aria-label={showPassword ? "Hide password" : "Show password"}
             >

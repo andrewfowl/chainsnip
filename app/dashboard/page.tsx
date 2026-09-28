@@ -712,7 +712,7 @@ export default function DashboardPage() {
                           <span className="text-amber-600">Unknown explorer - </span>
                           <button
                             type="button"
-                            className="text-primary underline hover:no-underline text-xs"
+                            className="text-foreground underline hover:no-underline text-xs"
                             onClick={() => {
                               try {
                                 const url = new URL(newArchiveUrl)

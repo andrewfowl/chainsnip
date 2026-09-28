@@ -211,7 +211,7 @@ export default function ArchiveViewerPage() {
                 href={archive.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-primary hover:underline truncate block max-w-[200px]"
+                className="text-sm text-foreground hover:underline truncate block max-w-[200px]"
               >
                 {archive.url}
               </a>
