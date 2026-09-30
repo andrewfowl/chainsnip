@@ -7,7 +7,8 @@ import { hasProcessedEvent, markEventProcessed } from "@/lib/billing"
 export const runtime = "nodejs"
 
 export async function POST(request: NextRequest) {
-  const secret = process.env.STRIPE_WEBHOOK_SECRET
+  const secret =
+    process.env.STRIPE_WEBHOOK_SIGNING_SECRET ?? process.env.STRIPE_WEBHOOK_SECRET
   const signature = request.headers.get("stripe-signature")
   if (!secret || !signature) {
     return NextResponse.json({ error: "Missing webhook signature" }, { status: 400 })
