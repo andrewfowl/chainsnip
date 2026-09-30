@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight, Check, CalendarCheck, FileCheck, Shield, Link2, Clock, Building2 } from "lucide-react"
 import { SUPPORTED_EXPLORERS } from "@/lib/chains"
 import { StripePricingTable } from "@/components/stripe-pricing-table"
+import { ProductHuntCard } from "@/components/product-hunt-card"
 
 export default function HomePage() {
   const features = [
@@ -113,6 +114,7 @@ export default function HomePage() {
               <p className="mt-8 font-mono text-xs text-muted-foreground">
                 Etherscan · BscScan · Solscan · {SUPPORTED_EXPLORERS.length - 3}+ more explorers
               </p>
+              <ProductHuntCard className="mt-8" />
             </div>
 
             {/* Right: evidence specimen — the signature element */}
