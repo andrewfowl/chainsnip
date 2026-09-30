@@ -1,6 +1,7 @@
 import { queryOne, queryMany, execute } from "./db"
 import bcrypt from "bcryptjs"
 import { cookies } from "next/headers"
+import { claimPendingPurchases } from "./stripe-sync"
 
 // User type matching public.users table
 export interface User {
@@ -56,6 +57,12 @@ export async function createUser(
        VALUES ($1, $2, $3, $4, 'free', NOW(), NOW())`,
       [id, email.toLowerCase(), passwordHash, name]
     )
+
+    try {
+      await claimPendingPurchases(id, email)
+    } catch (error) {
+      console.error("Failed to link earlier Stripe purchases to new user:", error)
+    }
 
     return await getUserById(id)
   } catch (error: any) {

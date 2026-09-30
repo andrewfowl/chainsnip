@@ -109,19 +109,12 @@ export async function execute(query: string, params?: unknown[]): Promise<void> 
   }
 }
 
-// Get user plan from usage_stats
 export async function getUserPlan(userId: string): Promise<"free" | "pro" | "enterprise" | "lifetime"> {
-  console.log("[v0] DB getUserPlan - userId:", userId)
   try {
-    const result = await queryOne<{ plan: string }>(
-      `SELECT plan FROM usage_stats WHERE user_id = $1`,
-      [userId],
-    )
-    const plan = (result?.plan || "free") as "free" | "pro" | "enterprise" | "lifetime"
-    console.log("[v0] DB getUserPlan - Result:", plan)
-    return plan
+    const result = await queryOne<{ plan: string }>(`SELECT plan FROM users WHERE id = $1`, [userId])
+    return (result?.plan || "free") as "free" | "pro" | "enterprise" | "lifetime"
   } catch (error) {
-    console.error("[v0] DB getUserPlan - FAILED, defaulting to 'free':", error)
+    console.error("getUserPlan failed, defaulting to 'free':", error)
     return "free"
   }
 }
