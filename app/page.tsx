@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight, Check, CalendarCheck, FileCheck, Shield, Link2, Clock, Building2 } from "lucide-react"
 import { SUPPORTED_EXPLORERS } from "@/lib/chains"
 import { StripePricingTable } from "@/components/stripe-pricing-table"
-import { BalanceQueryTool } from "@/components/balance/balance-query-tool"
 
 export default function HomePage() {
   const features = [
@@ -179,33 +178,70 @@ export default function HomePage() {
       {/* Historical balance lookup */}
       <section id="balance-lookup" className="border-b border-border scroll-mt-20">
         <div className="container mx-auto px-4 py-24">
-          <div className="max-w-6xl mx-auto">
-            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
-              <div className="max-w-xl">
-                <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
-                  Try it now
-                </span>
-                <h2 className="mt-3 text-3xl sm:text-4xl text-foreground uppercase text-balance">
-                  Look up a balance on any past date
-                </h2>
-                <p className="mt-4 text-muted-foreground leading-relaxed">
-                  Pick a network, paste a wallet and choose a date. ChainSnip reads the balance straight from archive
-                  nodes at that block, including rebasing tokens like stETH. Tag results by client to keep each
-                  engagement separate.
-                </p>
-              </div>
-              <p className="font-mono text-xs text-muted-foreground md:text-right md:max-w-56">
-                Ethereum · Polygon · Arbitrum · Optimism · Base · BSC · Avalanche
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center max-w-6xl mx-auto">
+            <div>
+              <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+                Historical balances
+              </span>
+              <h2 className="mt-3 text-3xl sm:text-4xl text-foreground uppercase text-balance">
+                Missed a month-end? Look it up.
+              </h2>
+              <p className="mt-4 text-muted-foreground leading-relaxed text-pretty">
+                Pick a network, a wallet and a date. ChainSnip reads the exact balance from archive nodes at that block,
+                so you can rebuild a period-end figure long after the fact.
               </p>
+              <ul className="mt-8 space-y-3">
+                {[
+                  "Any past date or block height, on seven EVM networks",
+                  "Rebasing tokens like stETH, where balances move without transactions",
+                  "Results filed by client, ready to export as CSV",
+                ].map((point) => (
+                  <li key={point} className="flex items-start gap-3 text-sm text-foreground">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={3} aria-hidden="true" />
+                    {point}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/auth/signup" className="mt-8 inline-block">
+                <Button variant="outline" className="group">
+                  Start looking up balances
+                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+                </Button>
+              </Link>
             </div>
-            <BalanceQueryTool />
-            <p className="mt-4 text-xs text-muted-foreground">
-              Results are saved in this browser.{" "}
-              <Link href="/auth/signup" className="underline underline-offset-4 hover:text-foreground">
-                Create an account
-              </Link>{" "}
-              to schedule month-end captures with hashed proof.
-            </p>
+
+            <div className="rounded-[2.5rem] bg-card font-mono text-sm p-2" aria-hidden="true">
+              <div className="grid grid-cols-3 gap-3 px-5 py-4 text-xs">
+                <div>
+                  <p className="text-muted-foreground">Network</p>
+                  <p className="mt-1 text-foreground">Ethereum</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Date</p>
+                  <p className="mt-1 text-foreground">2025-12-31</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Client</p>
+                  <p className="mt-1 text-foreground truncate">Acme Holdings</p>
+                </div>
+              </div>
+              <div className="rounded-[2rem] bg-background px-5 py-4 space-y-3">
+                {[
+                  ["ETH", "412.0837"],
+                  ["stETH", "1,029.4412"],
+                  ["USDC", "880,120.55"],
+                ].map(([token, amount]) => (
+                  <div key={token} className="flex items-baseline justify-between gap-4">
+                    <span className="text-muted-foreground text-xs">{token}</span>
+                    <span className="text-foreground">{amount}</span>
+                  </div>
+                ))}
+                <div className="flex items-baseline justify-between gap-4 border-t border-border pt-3 text-xs">
+                  <span className="text-muted-foreground">Block</span>
+                  <span className="text-foreground">#24,136,902</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

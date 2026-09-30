@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { ArrowLeft, Loader2 } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { ChevronDown, Loader2 } from "lucide-react"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { getCurrentUser } from "@/app/actions/auth"
 import type { User } from "@/lib/auth"
 import { BalanceQueryTool } from "@/components/balance/balance-query-tool"
@@ -38,24 +37,38 @@ export default function HistoricalBalancePage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="mb-6">
-        <Link href="/dashboard" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-4">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Dashboard
-        </Link>
-        <h1 className="text-2xl font-bold tracking-tight">Historical Balance Reports</h1>
-        <p className="text-muted-foreground">
-          Query wallet balances at specific dates or block heights for accounting records.
-          Useful for rebasing tokens where balances change without transactions.
+        <h1 className="text-xl font-semibold tracking-tight">Balance Lookup</h1>
+        <p className="text-sm text-muted-foreground">
+          Find out exactly what a wallet held on any past date, and file the result under a client.
         </p>
       </div>
 
+      <ol className="mb-6 grid gap-3 sm:grid-cols-3">
+        {[
+          { title: "Choose network and wallet", body: "Paste the wallet address and pick the chain it lives on." },
+          { title: "Pick a date or block", body: "Month-end, quarter-end, or any day you need a figure for." },
+          { title: "Tag a client and run", body: "Previously used clients appear as you type. Results are saved to your account." },
+        ].map((step, i) => (
+          <li key={step.title} className="flex gap-3 rounded-lg border border-border p-4">
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-foreground text-xs font-medium text-background">
+              {i + 1}
+            </span>
+            <div>
+              <p className="text-sm font-medium text-foreground">{step.title}</p>
+              <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{step.body}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+
       <BalanceQueryTool />
 
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle>About Historical Balance Queries</CardTitle>
-        </CardHeader>
-        <CardContent className="prose prose-sm dark:prose-invert max-w-none">
+      <Collapsible className="mt-6 rounded-lg border border-border">
+        <CollapsibleTrigger className="group flex w-full items-center justify-between px-4 py-3 text-sm font-medium">
+          When should I use a historical lookup?
+          <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]:rotate-180" aria-hidden="true" />
+        </CollapsibleTrigger>
+        <CollapsibleContent className="prose prose-sm dark:prose-invert max-w-none px-4 pb-4">
           <p>
             Historical balance queries allow you to retrieve the exact token balance of a wallet
             at a specific point in time. This is particularly useful for:
@@ -82,8 +95,8 @@ export default function HistoricalBalancePage() {
             function at a specific block height, returning the exact balance that would have been
             shown in the wallet at that time.
           </p>
-        </CardContent>
-      </Card>
+        </CollapsibleContent>
+      </Collapsible>
     </div>
   )
 }
