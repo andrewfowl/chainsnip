@@ -3,7 +3,7 @@ import { LegalPage, LegalSection } from "@/components/legal-page"
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
-  description: "How ChainShip collects, uses, and protects your data.",
+  description: "How ChainSnip collects, uses, and protects your data.",
   alternates: { canonical: "https://chainsnip.com/privacy" },
 }
 
@@ -12,7 +12,7 @@ export default function PrivacyPage() {
     <LegalPage title="Privacy Policy" updated="August 20, 2026">
       <LegalSection heading="1. Who we are">
         <p>
-          ChainShip provides audit-ready blockchain balance snapshots for accountants and financial professionals. This
+          ChainSnip provides audit-ready blockchain balance snapshots for accountants and financial professionals. This
           policy explains what we collect, how we use it, and the choices you have. Contact us at{" "}
           <a href="mailto:privacy@chainsnip.com">privacy@chainsnip.com</a>.
         </p>

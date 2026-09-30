@@ -23,7 +23,7 @@ export default function Footer() {
           <div className="col-span-2">
             <Link href="/" className="flex items-center gap-2 text-base font-semibold text-foreground mb-4">
               <Wallet className="w-5 h-5" />
-              <span className="tracking-tight">ChainShip</span>
+              <span className="tracking-tight">ChainSnip</span>
             </Link>
             <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
               Audit-ready balance snapshots from blockchain explorers for crypto accountants.
@@ -64,7 +64,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-16 pt-8 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-muted-foreground">&copy; {year} ChainShip. All rights reserved.</p>
+          <p className="text-sm text-muted-foreground">&copy; {year} ChainSnip. All rights reserved.</p>
           <a
             href="mailto:hello@chainsnip.com"
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"

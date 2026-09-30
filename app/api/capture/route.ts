@@ -484,7 +484,7 @@ async function addWatermarkToScreenshot(
     }
 
     // Format the watermark text
-    const line1 = `CHAINSHIP | ${timestamp} (${timezone})`
+    const line1 = `CHAINSNIP | ${timestamp} (${timezone})`
     const line2 = `URL: ${sourceUrl.substring(0, 80)}${sourceUrl.length > 80 ? "..." : ""}`
     const line3 = `ID: ${archiveId}`
 
@@ -493,7 +493,7 @@ async function addWatermarkToScreenshot(
     const blueColor = 0x0079daff
     const grayColor = 0xa1a1aaff
 
-    drawText("CHAINSHIP", 20, height + 10, blueColor, 2)
+    drawText("CHAINSNIP", 20, height + 10, blueColor, 2)
     drawText(`| ${timestamp} (${timezone})`, 20 + 10 * 12, height + 10, whiteColor, 2)
     drawText(line2, 20, height + 30, grayColor, 1)
     drawText(`ID: ${archiveId.substring(0, 36)}`, 20, height + 42, grayColor, 1)
@@ -518,7 +518,7 @@ async function captureWithScreenshotAPI(
   let screenshot: Buffer | null = null
   let html: string | null = null
 
-  const watermarkText = `ChainShip | ${timestamp} (${timezone}) | ID: ${archiveId.slice(0, 8)}`
+  const watermarkText = `ChainSnip | ${timestamp} (${timezone}) | ID: ${archiveId.slice(0, 8)}`
 
   const apiflashKey = process.env.APIFLASH_ACCESS_KEY
   const screenshotlayerKey = process.env.SCREENSHOTLAYER_ACCESS_KEY
@@ -921,7 +921,7 @@ export async function POST(request: NextRequest) {
 
       if (hasBalanceContent) {
         try {
-          console.log("[v0] Wrapping HTML with ChainShip banner...")
+          console.log("[v0] Wrapping HTML with ChainSnip banner...")
           const archivedHtml = `<!DOCTYPE html>
 <html>
 <head>
@@ -930,10 +930,10 @@ export async function POST(request: NextRequest) {
   <meta name="archived-timestamp" content="${timestamp}">
   <meta name="archived-timezone" content="${timezone}">
   <meta name="archive-id" content="${archiveId}">
-  <title>ChainShip Archive - ${parsedUrl.hostname}</title>
+  <title>ChainSnip Archive - ${parsedUrl.hostname}</title>
   <base href="${parsedUrl.origin}">
   <style>
-    .chainship-banner {
+    .chainsnip-banner {
       position: fixed; bottom: 0; left: 0; right: 0;
       background: linear-gradient(90deg, #09090b, #18181b);
       color: white; padding: 14px 24px;
@@ -942,15 +942,15 @@ export async function POST(request: NextRequest) {
       border-top: 3px solid #0079da;
       display: flex; justify-content: space-between;
     }
-    .chainship-banner strong { color: #0079da; }
-    .chainship-banner code { background: #27272a; padding: 4px 8px; border-radius: 4px; font-size: 12px; color: #a1a1aa; }
+    .chainsnip-banner strong { color: #0079da; }
+    .chainsnip-banner code { background: #27272a; padding: 4px 8px; border-radius: 4px; font-size: 12px; color: #a1a1aa; }
     body { padding-bottom: 58px; }
   </style>
 </head>
 <body>
   ${html}
-  <div class="chainship-banner">
-    <span><strong>ChainShip</strong> | Captured: <strong>${formattedTimestamp}</strong> (${timezone})</span>
+  <div class="chainsnip-banner">
+    <span><strong>ChainSnip</strong> | Captured: <strong>${formattedTimestamp}</strong> (${timezone})</span>
     <span>Source: <code>${url}</code> | ID: <code>${archiveId.slice(0, 8)}</code></span>
   </div>
 </body>

@@ -17,8 +17,8 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL("https://chainsnip.com"),
   title: {
-    default: "ChainShip - Audit-Ready Crypto Balance Snapshots",
-    template: "%s | ChainShip",
+    default: "ChainSnip - Audit-Ready Crypto Balance Snapshots",
+    template: "%s | ChainSnip",
   },
   description:
     "Automatically capture and archive blockchain explorer pages with wallet balances at month-end. Timestamped, verifiable proof for crypto accountants, auditors, and financial professionals.",
@@ -34,9 +34,9 @@ export const metadata: Metadata = {
     "Web3 accounting",
     "DeFi auditing",
   ],
-  authors: [{ name: "ChainShip" }],
-  creator: "ChainShip",
-  publisher: "ChainShip",
+  authors: [{ name: "ChainSnip" }],
+  creator: "ChainSnip",
+  publisher: "ChainSnip",
   robots: {
     index: true,
     follow: true,
@@ -59,24 +59,24 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "https://chainsnip.com",
-    siteName: "ChainShip",
-    title: "ChainShip - Audit-Ready Crypto Balance Snapshots",
+    siteName: "ChainSnip",
+    title: "ChainSnip - Audit-Ready Crypto Balance Snapshots",
     description: "Automatically capture and archive blockchain explorer pages. Timestamped, verifiable proof for crypto accountants.",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "ChainShip - Audit-Ready Crypto Balance Snapshots",
+        alt: "ChainSnip - Audit-Ready Crypto Balance Snapshots",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "ChainShip - Audit-Ready Crypto Balance Snapshots",
+    title: "ChainSnip - Audit-Ready Crypto Balance Snapshots",
     description: "Automatically capture and archive blockchain explorer pages. Timestamped, verifiable proof for crypto accountants.",
     images: ["/og-image.png"],
-    creator: "@chainship",
+    creator: "@chainsnip",
   },
   alternates: {
     canonical: "https://chainsnip.com",

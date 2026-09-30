@@ -76,7 +76,7 @@ export default function ArchiveViewerPage() {
     if (archive?.screenshotUrl) {
       const link = document.createElement("a")
       link.href = archive.screenshotUrl
-      link.download = `chainship-${archive.id.slice(0, 8)}-${format(new Date(archive.archivedAt), "yyyy-MM-dd")}.png`
+      link.download = `chainsnip-${archive.id.slice(0, 8)}-${format(new Date(archive.archivedAt), "yyyy-MM-dd")}.png`
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
@@ -87,7 +87,7 @@ export default function ArchiveViewerPage() {
     if (archive?.htmlUrl) {
       const link = document.createElement("a")
       link.href = archive.htmlUrl
-      link.download = `chainship-${archive.id.slice(0, 8)}-${format(new Date(archive.archivedAt), "yyyy-MM-dd")}.html`
+      link.download = `chainsnip-${archive.id.slice(0, 8)}-${format(new Date(archive.archivedAt), "yyyy-MM-dd")}.html`
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
@@ -327,7 +327,7 @@ export default function ArchiveViewerPage() {
                 </div>
                 <span className="flex items-center gap-1">
                   <Shield className="h-3 w-3" />
-                  ChainShip Verified
+                  ChainSnip Verified
                 </span>
               </div>
             </div>
