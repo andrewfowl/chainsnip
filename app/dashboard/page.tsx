@@ -74,7 +74,6 @@ import {
   RefreshCw,
   Pause,
   XCircle,
-  History,
   CalendarClock,
 } from "lucide-react"
 import { format, formatDistanceToNow } from "date-fns"
@@ -673,10 +672,6 @@ export default function DashboardPage() {
         </div>
         <div className="flex flex-wrap gap-2">
           {user.plan !== "free" && <ManageBillingButton />}
-          <Button variant="outline" size="sm" onClick={() => router.push("/dashboard/historical-balance")}>
-            <History className="mr-2 h-4 w-4" />
-            Historical Balances
-          </Button>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button size="sm">
