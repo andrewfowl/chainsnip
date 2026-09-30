@@ -1,68 +1,99 @@
 import { NextRequest, NextResponse } from "next/server"
 
-// Chainstack node URL - provides full archive access for historical queries
 const CHAINSTACK_NODE_URL = process.env.CHAINSTACK_NODE_URL
+const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY
 
-// Network configurations with RPC endpoints
-// Chainstack node is used as primary for Ethereum when available
-const NETWORK_CONFIGS: Record<string, {
+interface NetworkConfig {
   name: string
   chainId: number
   rpcUrl: string
   blockExplorerApi?: string
   isArchive: boolean
-}> = {
+  provider: "chainstack" | "alchemy" | "public"
+}
+
+interface NetworkDefinition {
+  name: string
+  chainId: number
+  alchemyHost: string
+  publicRpcUrl: string
+  blockExplorerApi?: string
+  chainstackUrl?: string
+}
+
+const NETWORK_DEFINITIONS: Record<string, NetworkDefinition> = {
   ethereum: {
     name: "Ethereum Mainnet",
     chainId: 1,
-    // Use Chainstack archive node if available, fallback to public RPC
-    rpcUrl: CHAINSTACK_NODE_URL || "https://eth.llamarpc.com",
+    alchemyHost: "eth-mainnet",
+    publicRpcUrl: "https://eth.llamarpc.com",
     blockExplorerApi: "https://api.etherscan.io/api",
-    isArchive: !!CHAINSTACK_NODE_URL, // True archive access only with Chainstack
+    chainstackUrl: CHAINSTACK_NODE_URL,
   },
   polygon: {
     name: "Polygon",
     chainId: 137,
-    rpcUrl: "https://polygon.llamarpc.com",
+    alchemyHost: "polygon-mainnet",
+    publicRpcUrl: "https://polygon.llamarpc.com",
     blockExplorerApi: "https://api.polygonscan.com/api",
-    isArchive: false,
   },
   bsc: {
     name: "BNB Smart Chain",
     chainId: 56,
-    rpcUrl: "https://bsc.llamarpc.com",
+    alchemyHost: "bnb-mainnet",
+    publicRpcUrl: "https://bsc.llamarpc.com",
     blockExplorerApi: "https://api.bscscan.com/api",
-    isArchive: false,
   },
   arbitrum: {
     name: "Arbitrum One",
     chainId: 42161,
-    rpcUrl: "https://arbitrum.llamarpc.com",
+    alchemyHost: "arb-mainnet",
+    publicRpcUrl: "https://arbitrum.llamarpc.com",
     blockExplorerApi: "https://api.arbiscan.io/api",
-    isArchive: false,
   },
   optimism: {
     name: "Optimism",
     chainId: 10,
-    rpcUrl: "https://optimism.llamarpc.com",
+    alchemyHost: "opt-mainnet",
+    publicRpcUrl: "https://optimism.llamarpc.com",
     blockExplorerApi: "https://api-optimistic.etherscan.io/api",
-    isArchive: false,
   },
   base: {
     name: "Base",
     chainId: 8453,
-    rpcUrl: "https://base.llamarpc.com",
+    alchemyHost: "base-mainnet",
+    publicRpcUrl: "https://base.llamarpc.com",
     blockExplorerApi: "https://api.basescan.org/api",
-    isArchive: false,
   },
   avalanche: {
     name: "Avalanche C-Chain",
     chainId: 43114,
-    rpcUrl: "https://avalanche.llamarpc.com",
+    alchemyHost: "avax-mainnet",
+    publicRpcUrl: "https://avalanche.llamarpc.com",
     blockExplorerApi: "https://api.snowtrace.io/api",
-    isArchive: false,
   },
 }
+
+// Priority: dedicated Chainstack node > Alchemy archive > public (non-archive) RPC
+function resolveNetworkConfig(def: NetworkDefinition): NetworkConfig {
+  const base = { name: def.name, chainId: def.chainId, blockExplorerApi: def.blockExplorerApi }
+  if (def.chainstackUrl) {
+    return { ...base, rpcUrl: def.chainstackUrl, isArchive: true, provider: "chainstack" }
+  }
+  if (ALCHEMY_API_KEY) {
+    return {
+      ...base,
+      rpcUrl: `https://${def.alchemyHost}.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
+      isArchive: true,
+      provider: "alchemy",
+    }
+  }
+  return { ...base, rpcUrl: def.publicRpcUrl, isArchive: false, provider: "public" }
+}
+
+const NETWORK_CONFIGS: Record<string, NetworkConfig> = Object.fromEntries(
+  Object.entries(NETWORK_DEFINITIONS).map(([id, def]) => [id, resolveNetworkConfig(def)])
+)
 
 // Standard ERC20 balanceOf ABI
 const BALANCE_OF_ABI = {
@@ -310,9 +341,6 @@ export async function POST(request: NextRequest) {
       blockNumber, // Optional: directly specify block number
     } = body
 
-    console.log("[v0] Historical balance query:", { network, walletAddress, contractAddress, date, blockNumber })
-    console.log("[v0] Using Chainstack:", !!CHAINSTACK_NODE_URL)
-
     if (!network || !walletAddress) {
       return NextResponse.json(
         { error: "Missing required fields: network and walletAddress" },
@@ -392,8 +420,6 @@ export async function POST(request: NextRequest) {
     const fractionalPart = balanceBigInt % divisor
     const formattedBalance = `${integerPart}.${fractionalPart.toString().padStart(decimals, "0")}`
 
-    console.log("[v0] Historical balance result:", { formattedBalance, symbol, blockNumber: targetBlock })
-
     return NextResponse.json({
       success: true,
       data: {
@@ -430,7 +456,8 @@ export async function GET() {
       name: config.name,
       chainId: config.chainId,
       isArchive: config.isArchive,
+      provider: config.provider,
     })),
-    hasArchiveNode: !!CHAINSTACK_NODE_URL,
+    hasArchiveNode: Object.values(NETWORK_CONFIGS).some((config) => config.isArchive),
   })
 }
