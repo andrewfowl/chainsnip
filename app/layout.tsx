@@ -76,7 +76,6 @@ export const metadata: Metadata = {
     title: "ChainSnip - Audit-Ready Crypto Balance Snapshots",
     description: "Automatically capture and archive blockchain explorer pages. Timestamped, verifiable proof for crypto accountants.",
     images: ["/og-image.png"],
-    creator: "@chainsnip",
   },
   alternates: {
     canonical: "https://chainsnip.com",

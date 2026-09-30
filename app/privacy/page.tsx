@@ -14,7 +14,7 @@ export default function PrivacyPage() {
         <p>
           ChainSnip provides audit-ready blockchain balance snapshots for accountants and financial professionals. This
           policy explains what we collect, how we use it, and the choices you have. Contact us at{" "}
-          <a href="mailto:privacy@chainsnip.com">privacy@chainsnip.com</a>.
+          <a href="mailto:hello@chainsnip.com">hello@chainsnip.com</a>.
         </p>
       </LegalSection>
 
@@ -85,7 +85,7 @@ export default function PrivacyPage() {
         <p>
           Depending on where you live, you may have the right to access, correct, export, or delete your personal data,
           and to object to or restrict certain processing. To exercise these rights, contact{" "}
-          <a href="mailto:privacy@chainsnip.com">privacy@chainsnip.com</a>. EEA and UK users may lodge a complaint with
+          <a href="mailto:hello@chainsnip.com">hello@chainsnip.com</a>. EEA and UK users may lodge a complaint with
           their local supervisory authority. California residents may request disclosure or deletion and will not be
           discriminated against for exercising these rights.
         </p>
@@ -123,7 +123,7 @@ export default function PrivacyPage() {
       <LegalSection heading="11. Contact">
         <p>
           For any privacy question or request, email{" "}
-          <a href="mailto:privacy@chainsnip.com">privacy@chainsnip.com</a>. We aim to respond within 30 days.
+          <a href="mailto:hello@chainsnip.com">hello@chainsnip.com</a>. We aim to respond within 30 days.
         </p>
       </LegalSection>
     </LegalPage>

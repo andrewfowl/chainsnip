@@ -137,7 +137,7 @@ export default function TermsPage() {
       <LegalSection heading="16. Contact">
         <p>
           Questions about these terms, or copyright and takedown requests, can be sent to{" "}
-          <a href="mailto:legal@chainsnip.com">legal@chainsnip.com</a>.
+          <a href="mailto:hello@chainsnip.com">hello@chainsnip.com</a>.
         </p>
       </LegalSection>
     </LegalPage>
