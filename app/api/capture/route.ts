@@ -27,6 +27,72 @@ function getTimezone(request?: NextRequest): string {
   }
 }
 
+// Pages that scroll inside an inner container (e.g. Mintscan) ignore full_page, so
+// we capture with a tall viewport. Those layouts stretch to fill it, leaving a
+// large empty band between content and footer; collapse any such band.
+const TALL_VIEWPORT_HEIGHT = 6000
+const MIN_BLANK_BAND_PX = 240
+const COLLAPSED_BAND_PX = 48
+
+async function collapseBlankBands(imageBuffer: Buffer): Promise<Buffer> {
+  try {
+    const { Jimp } = await import("jimp")
+    const image = await Jimp.read(imageBuffer)
+    const { width, height, data } = image.bitmap
+
+    const pixel = (x: number, y: number) => data.readUInt32BE((y * width + x) * 4)
+    const differs = (a: number, b: number) =>
+      Math.abs((a >>> 24) - (b >>> 24)) +
+        Math.abs(((a >>> 16) & 255) - ((b >>> 16) & 255)) +
+        Math.abs(((a >>> 8) & 255) - ((b >>> 8) & 255)) >
+      12
+    const isBlankRow = (y: number) => {
+      const reference = pixel(0, y)
+      for (let x = 0; x < width; x += 2) {
+        if (differs(pixel(x, y), reference)) return false
+      }
+      return true
+    }
+
+    const bands: Array<[number, number]> = []
+    let start = -1
+    for (let y = 0; y <= height; y++) {
+      const blank = y < height && isBlankRow(y)
+      if (blank && start < 0) start = y
+      if (!blank && start >= 0) {
+        if (y - start >= MIN_BLANK_BAND_PX) bands.push([start, y])
+        start = -1
+      }
+    }
+    if (bands.length === 0) return imageBuffer
+
+    const keptRows = (band: [number, number]) =>
+      band[1] === height ? 0 : Math.min(COLLAPSED_BAND_PX, band[1] - band[0])
+    const removed = bands.reduce((sum, band) => sum + (band[1] - band[0] - keptRows(band)), 0)
+    const output = new Jimp({ width, height: height - removed, color: 0x00000000 })
+
+    let sourceY = 0
+    let targetY = 0
+    for (const band of bands) {
+      const segmentEnd = band[0] + keptRows(band)
+      if (segmentEnd > sourceY) {
+        output.composite(image.clone().crop({ x: 0, y: sourceY, w: width, h: segmentEnd - sourceY }), 0, targetY)
+        targetY += segmentEnd - sourceY
+      }
+      sourceY = band[1]
+    }
+    if (sourceY < height) {
+      output.composite(image.clone().crop({ x: 0, y: sourceY, w: width, h: height - sourceY }), 0, targetY)
+    }
+
+    console.log(`[v0] Collapsed ${bands.length} blank band(s): ${height}px -> ${height - removed}px`)
+    return await output.getBuffer("image/png")
+  } catch (error) {
+    console.error("[v0] Failed to collapse blank bands, using original screenshot:", error)
+    return imageBuffer
+  }
+}
+
 async function addWatermarkToScreenshot(
   imageBuffer: Buffer,
   timestamp: string,
@@ -543,6 +609,7 @@ async function captureWithScreenshotAPI(
         url: url,
         format: "png",
         width: "1440",
+        height: String(TALL_VIEWPORT_HEIGHT),
         fresh: "true",
         full_page: "true",
         scroll_page: "true",
@@ -566,7 +633,7 @@ async function captureWithScreenshotAPI(
       }
 
       const arrayBuffer = await response.arrayBuffer()
-      return Buffer.from(arrayBuffer)
+      return collapseBlankBands(Buffer.from(arrayBuffer))
     },
 
     // screenshotlayer - good full page support (requires SCREENSHOTLAYER_ACCESS_KEY)
