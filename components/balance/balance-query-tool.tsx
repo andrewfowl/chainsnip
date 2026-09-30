@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
+import Link from "next/link"
 import useSWR from "swr"
 import { format } from "date-fns"
 import { AlertCircle, Coins, Loader2, Plus } from "lucide-react"
@@ -18,12 +19,22 @@ const STORAGE_KEY = "chainship-balance-queries"
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
+interface SavedQueries {
+  signedIn: boolean
+  queries: BalanceQuery[]
+}
+
 export function BalanceQueryTool() {
   const { toast } = useToast()
   const { data: networkData } = useSWR<{ networks: BalanceNetwork[] }>("/api/historical-balance", fetcher)
   const networks = networkData?.networks ?? []
 
-  const [queries, setQueries] = useState<BalanceQuery[]>([])
+  const { data: savedData, mutate: mutateSaved } = useSWR<SavedQueries>("/api/balance-queries", fetcher)
+  const signedIn = savedData?.signedIn === true
+
+  const [localQueries, setLocalQueries] = useState<BalanceQuery[]>([])
+  const queries = signedIn ? savedData.queries : localQueries
+  const importStarted = useRef(false)
   const [activeClient, setActiveClient] = useState(ALL_CLIENTS)
 
   const [selectedNetwork, setSelectedNetwork] = useState("")
@@ -38,14 +49,38 @@ export function BalanceQueryTool() {
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY)
-      if (saved) setQueries(JSON.parse(saved))
+      if (saved) setLocalQueries(JSON.parse(saved))
     } catch {}
   }, [])
 
+  // After a guest signs in, move anything they saved in this browser into their account.
+  useEffect(() => {
+    if (!signedIn || importStarted.current || localQueries.length === 0) return
+    importStarted.current = true
+    fetch("/api/balance-queries", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ queries: localQueries }),
+    })
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Import failed")
+        const { imported } = (await res.json()) as { imported: number }
+        localStorage.removeItem(STORAGE_KEY)
+        setLocalQueries([])
+        await mutateSaved()
+        if (imported > 0) {
+          toast({ title: "Results moved to your account", description: `${imported} saved balance(s) imported.` })
+        }
+      })
+      .catch(() => {
+        importStarted.current = false
+      })
+  }, [signedIn, localQueries, mutateSaved, toast])
+
   const clients = uniqueClients(queries)
 
-  const saveQueries = (next: BalanceQuery[]) => {
-    setQueries(next)
+  const saveLocalQueries = (next: BalanceQuery[]) => {
+    setLocalQueries(next)
     localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
   }
 
@@ -69,12 +104,14 @@ export function BalanceQueryTool() {
           contractAddress: contractAddress.trim() || null,
           date: useBlockNumber ? undefined : selectedDate,
           blockNumber: useBlockNumber ? Number.parseInt(blockNumber, 10) : undefined,
+          clientName: normalizedClient,
         }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || "Query failed")
 
-      const result: BalanceQuery = {
+      const saved = data.saved as BalanceQuery | null
+      const result: BalanceQuery = saved ?? {
         id: crypto.randomUUID(),
         network: selectedNetwork,
         networkName: data.data.network,
@@ -90,9 +127,16 @@ export function BalanceQueryTool() {
         clientName: normalizedClient,
       }
 
-      saveQueries([result, ...queries])
-      setClientName(normalizedClient ?? "")
-      if (normalizedClient) setActiveClient(normalizedClient)
+      if (saved) {
+        await mutateSaved((current) => ({ signedIn: true, queries: [saved, ...(current?.queries ?? [])] }), {
+          revalidate: false,
+        })
+      } else {
+        saveLocalQueries([result, ...localQueries])
+      }
+      const resultClient = result.clientName
+      setClientName(resultClient ?? "")
+      if (resultClient) setActiveClient(resultClient)
       else if (activeClient !== ALL_CLIENTS) setActiveClient(ALL_CLIENTS)
 
       toast({
@@ -110,9 +154,25 @@ export function BalanceQueryTool() {
     }
   }
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     const next = queries.filter((q) => q.id !== id)
-    saveQueries(next)
+    if (signedIn) {
+      try {
+        await mutateSaved(
+          async () => {
+            const res = await fetch(`/api/balance-queries?id=${encodeURIComponent(id)}`, { method: "DELETE" })
+            if (!res.ok) throw new Error("Delete failed")
+            return { signedIn: true, queries: next }
+          },
+          { optimisticData: { signedIn: true, queries: next }, rollbackOnError: true, revalidate: false },
+        )
+      } catch {
+        toast({ title: "Could not delete result", variant: "destructive" })
+        return
+      }
+    } else {
+      saveLocalQueries(next)
+    }
     if (activeClient !== ALL_CLIENTS && !uniqueClients(next).some((c) => c === activeClient)) {
       setActiveClient(ALL_CLIENTS)
     }
@@ -269,6 +329,22 @@ export function BalanceQueryTool() {
               Reads the balance from archive nodes at the last block on or before the chosen date. Works for rebasing
               tokens like stETH.
             </p>
+
+            {savedData && (
+              <p className="text-xs leading-relaxed text-muted-foreground">
+                {signedIn ? (
+                  "Results and clients are saved to your account."
+                ) : (
+                  <>
+                    Results are saved in this browser only.{" "}
+                    <Link href="/auth/login" className="font-medium text-foreground underline underline-offset-4">
+                      Sign in
+                    </Link>{" "}
+                    to keep them in your account.
+                  </>
+                )}
+              </p>
+            )}
           </form>
         </CardContent>
       </Card>
