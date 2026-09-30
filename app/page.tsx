@@ -115,6 +115,20 @@ export default function HomePage() {
                 Etherscan · BscScan · Solscan · {SUPPORTED_EXPLORERS.length - 3}+ more explorers
               </p>
               <ProductHuntCard className="mt-8" />
+              <a
+                href="https://www.producthunt.com/products/chainsnip?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-chainsnip"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 inline-block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  alt="ChainSnip - Accountant's Proof of the Wallet's Balance | Product Hunt"
+                  width={250}
+                  height={54}
+                  src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1265615&theme=light&t=1790770572520"
+                />
+              </a>
             </div>
 
             {/* Right: evidence specimen — the signature element */}
