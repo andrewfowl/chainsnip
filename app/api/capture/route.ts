@@ -1,6 +1,7 @@
 import { put } from "@vercel/blob"
 import { type NextRequest, NextResponse } from "next/server"
 import { getCurrentUserFromSession } from "@/lib/auth"
+import { getCaptureUrl } from "@/lib/explorer-fallbacks"
 
 export const runtime = "nodejs"
 export const maxDuration = 300
@@ -927,6 +928,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid URL provided" }, { status: 400 })
     }
 
+    const captureUrl = getCaptureUrl(url)
+    const captureHost = new URL(captureUrl).hostname
+    const usedMirror = captureUrl !== url
+    if (usedMirror) console.log("[v0] Capturing via mirror explorer:", captureUrl)
+
     const timezone = getTimezone(request)
     const now = new Date()
     const timestamp = now.toISOString()
@@ -948,7 +954,7 @@ export async function POST(request: NextRequest) {
     console.log("[v0] ---------- STARTING CAPTURE PROCESS ----------")
     const captureStartTime = Date.now()
     const { screenshot, html, error } = await captureWithPuppeteer(
-      url,
+      captureUrl,
       formattedTimestamp,
       timezone,
       archiveId,
@@ -971,7 +977,13 @@ export async function POST(request: NextRequest) {
       try {
         console.log("[v0] Adding watermark to screenshot...")
         const watermarkStartTime = Date.now()
-        finalScreenshot = await addWatermarkToScreenshot(screenshot, formattedTimestamp, timezone, url, archiveId)
+        finalScreenshot = await addWatermarkToScreenshot(
+          screenshot,
+          formattedTimestamp,
+          timezone,
+          usedMirror ? captureUrl : url,
+          archiveId,
+        )
         console.log("[v0] Watermark added successfully in", Date.now() - watermarkStartTime, "ms, new size:", finalScreenshot.length, "bytes")
       } catch (wmErr) {
         console.log("[v0] WARNING: Watermark failed, using original screenshot. Error:", wmErr)
@@ -1015,11 +1027,12 @@ export async function POST(request: NextRequest) {
 <head>
   <meta charset="UTF-8">
   <meta name="archived-url" content="${url}">
+  <meta name="captured-from" content="${captureUrl}">
   <meta name="archived-timestamp" content="${timestamp}">
   <meta name="archived-timezone" content="${timezone}">
   <meta name="archive-id" content="${archiveId}">
   <title>ChainSnip Archive - ${parsedUrl.hostname}</title>
-  <base href="${parsedUrl.origin}">
+  <base href="https://${captureHost}">
   <style>
     .chainsnip-banner {
       position: fixed; bottom: 0; left: 0; right: 0;
@@ -1039,7 +1052,7 @@ export async function POST(request: NextRequest) {
   ${html}
   <div class="chainsnip-banner">
     <span><strong>ChainSnip</strong> | Captured: <strong>${formattedTimestamp}</strong> (${timezone})</span>
-    <span>Source: <code>${url}</code> | ID: <code>${archiveId.slice(0, 8)}</code></span>
+    <span>Source: <code>${url}</code>${usedMirror ? ` via <code>${captureHost}</code>` : ""} | ID: <code>${archiveId.slice(0, 8)}</code></span>
   </div>
 </body>
 </html>`
@@ -1077,7 +1090,7 @@ export async function POST(request: NextRequest) {
     }
 
     console.log("[v0] ---------- GENERATING PROOF HASH ----------")
-    const proofData = `${archiveId}|${url}|${timestamp}|${timezone}|${screenshotUrl || "none"}|${htmlUrl || "none"}`
+    const proofData = `${archiveId}|${url}${usedMirror ? `|via:${captureUrl}` : ""}|${timestamp}|${timezone}|${screenshotUrl || "none"}|${htmlUrl || "none"}`
     const encoder = new TextEncoder()
     const hashBuffer = await crypto.subtle.digest("SHA-256", encoder.encode(proofData))
     const proofHash = Array.from(new Uint8Array(hashBuffer))
@@ -1102,6 +1115,7 @@ export async function POST(request: NextRequest) {
       capturedAt: timestamp,
       timezone,
       sourceUrl: url,
+      capturedFrom: captureUrl,
       proofHash,
     })
   } catch (error) {
