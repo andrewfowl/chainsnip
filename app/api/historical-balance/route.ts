@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
+import { getCurrentUserFromSession } from "@/lib/auth"
+import { insertBalanceQuery } from "@/lib/balance-queries"
+import type { BalanceQuery } from "@/lib/balance-tokens"
 
 const CHAINSTACK_NODE_URL = process.env.CHAINSTACK_NODE_URL
 const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY
@@ -420,8 +423,35 @@ export async function POST(request: NextRequest) {
     const fractionalPart = balanceBigInt % divisor
     const formattedBalance = `${integerPart}.${fractionalPart.toString().padStart(decimals, "0")}`
 
+    const blockDate = new Date(blockTimestamp * 1000).toISOString()
+    const queriedAt = new Date().toISOString()
+
+    let saved: BalanceQuery | null = null
+    const user = await getCurrentUserFromSession()
+    if (user) {
+      try {
+        saved = await insertBalanceQuery(user.id, {
+          network,
+          networkName: NETWORK_CONFIGS[network].name,
+          walletAddress,
+          contractAddress: contractAddress || null,
+          symbol,
+          balance: formattedBalance,
+          balanceRaw: balance,
+          decimals,
+          blockNumber: targetBlock,
+          blockDate,
+          queriedAt,
+          clientName: body.clientName,
+        })
+      } catch (error) {
+        console.error("Failed to save balance query:", error)
+      }
+    }
+
     return NextResponse.json({
       success: true,
+      saved,
       data: {
         network: NETWORK_CONFIGS[network].name,
         walletAddress,
@@ -432,8 +462,8 @@ export async function POST(request: NextRequest) {
         decimals,
         blockNumber: targetBlock,
         blockTimestamp,
-        blockDate: new Date(blockTimestamp * 1000).toISOString(),
-        queriedAt: new Date().toISOString(),
+        blockDate,
+        queriedAt,
       },
     })
   } catch (error) {
