@@ -49,7 +49,7 @@ export default function Header() {
             className="flex items-center gap-2 text-base font-semibold text-foreground hover:opacity-80 transition-opacity"
           >
             <Wallet className="w-5 h-5" />
-            <span className="tracking-tight">ChainShip</span>
+            <span className="tracking-tight">ChainSnip</span>
           </Link>
 
           <nav className="hidden lg:flex items-center gap-8">

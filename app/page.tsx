@@ -49,24 +49,24 @@ export default function HomePage() {
     "@graph": [
       {
         "@type": "Organization",
-        "@id": "https://chainship.io/#organization",
-        name: "ChainShip",
-        url: "https://chainship.io",
-        logo: "https://chainship.io/icon-dark-32x32.png",
+        "@id": "https://chainsnip.com/#organization",
+        name: "ChainSnip",
+        url: "https://chainsnip.com",
+        logo: "https://chainsnip.com/icon-dark-32x32.png",
       },
       {
         "@type": "WebSite",
-        "@id": "https://chainship.io/#website",
-        url: "https://chainship.io",
-        name: "ChainShip",
-        publisher: { "@id": "https://chainship.io/#organization" },
+        "@id": "https://chainsnip.com/#website",
+        url: "https://chainsnip.com",
+        name: "ChainSnip",
+        publisher: { "@id": "https://chainsnip.com/#organization" },
       },
       {
         "@type": "SoftwareApplication",
-        name: "ChainShip",
+        name: "ChainSnip",
         applicationCategory: "FinanceApplication",
         operatingSystem: "Web",
-        url: "https://chainship.io",
+        url: "https://chainsnip.com",
         description:
           "Automatically capture and archive blockchain explorer pages with wallet balances at month-end. Timestamped, verifiable proof for crypto accountants, auditors, and financial professionals.",
         offers: {
@@ -94,7 +94,7 @@ export default function HomePage() {
                 Prove what a wallet held, on any date.
               </h1>
               <p className="mt-8 text-lg text-muted-foreground max-w-lg leading-relaxed text-pretty">
-                ChainShip archives blockchain explorer pages at month-end and stamps each one with a timestamp and
+                ChainSnip archives blockchain explorer pages at month-end and stamps each one with a timestamp and
                 cryptographic hash. Evidence your auditor cannot argue with.
               </p>
               <div className="mt-8 flex flex-col sm:flex-row gap-3">
@@ -184,7 +184,7 @@ export default function HomePage() {
                 Built for the way accountants defend a number
               </h2>
               <p className="mt-4 text-muted-foreground leading-relaxed">
-                Stop screenshotting explorer pages by hand. ChainShip turns balance verification into a repeatable,
+                Stop screenshotting explorer pages by hand. ChainSnip turns balance verification into a repeatable,
                 defensible record.
               </p>
               <Link href="/auth/signup" className="inline-block mt-6">

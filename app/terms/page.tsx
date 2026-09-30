@@ -3,8 +3,8 @@ import { LegalPage, LegalSection } from "@/components/legal-page"
 
 export const metadata: Metadata = {
   title: "Terms of Service",
-  description: "The terms governing your use of ChainShip's blockchain snapshot and archiving service.",
-  alternates: { canonical: "https://chainship.io/terms" },
+  description: "The terms governing your use of ChainSnip's blockchain snapshot and archiving service.",
+  alternates: { canonical: "https://chainsnip.com/terms" },
 }
 
 export default function TermsPage() {
@@ -12,7 +12,7 @@ export default function TermsPage() {
     <LegalPage title="Terms of Service" updated="August 20, 2026">
       <LegalSection heading="1. Agreement to terms">
         <p>
-          These Terms of Service govern your access to and use of ChainShip (the &quot;Service&quot;). By creating an
+          These Terms of Service govern your access to and use of ChainSnip (the &quot;Service&quot;). By creating an
           account or using the Service, you agree to be bound by these terms. If you do not agree, do not use the
           Service.
         </p>
@@ -20,7 +20,7 @@ export default function TermsPage() {
 
       <LegalSection heading="2. The service">
         <p>
-          ChainShip captures and archives publicly available blockchain explorer pages on a schedule you configure,
+          ChainSnip captures and archives publicly available blockchain explorer pages on a schedule you configure,
           producing timestamped, hashed snapshots intended as records of what a wallet displayed at a point in time. The
           Service records public on-chain data as rendered by third-party explorers; it does not custody funds, execute
           transactions, or provide financial, tax, legal, or investment advice.
@@ -56,7 +56,7 @@ export default function TermsPage() {
       <LegalSection heading="6. Snapshots and accuracy">
         <p>
           Snapshots reflect what third-party explorers rendered at capture time. Explorers may be unavailable, rate-limit
-          requests, present bot-detection screens, or display data that is delayed or incorrect. ChainShip captures what
+          requests, present bot-detection screens, or display data that is delayed or incorrect. ChainSnip captures what
           is shown and does not independently verify the accuracy of on-chain data or explorer output. You are
           responsible for reviewing snapshots before relying on them for audit, filing, or compliance purposes.
         </p>
@@ -72,7 +72,7 @@ export default function TermsPage() {
 
       <LegalSection heading="8. Your content">
         <p>
-          You retain ownership of the wallet addresses, explorer URLs, and other inputs you provide. You grant ChainShip
+          You retain ownership of the wallet addresses, explorer URLs, and other inputs you provide. You grant ChainSnip
           a limited license to process this content solely to operate and provide the Service, including capturing,
           storing, and delivering snapshots to you.
         </p>
@@ -105,7 +105,7 @@ export default function TermsPage() {
 
       <LegalSection heading="12. Limitation of liability">
         <p>
-          To the maximum extent permitted by law, ChainShip&apos;s total liability arising out of or relating to the
+          To the maximum extent permitted by law, ChainSnip&apos;s total liability arising out of or relating to the
           Service will not exceed the amount you paid us in the twelve months before the event giving rise to the claim.
           We are not liable for indirect, incidental, or consequential damages. Some jurisdictions do not allow these
           limitations, so they may not apply to you.
@@ -114,7 +114,7 @@ export default function TermsPage() {
 
       <LegalSection heading="13. Indemnity">
         <p>
-          You agree to indemnify and hold ChainShip harmless from claims, damages, and expenses arising from your use of
+          You agree to indemnify and hold ChainSnip harmless from claims, damages, and expenses arising from your use of
           the Service or your breach of these terms.
         </p>
       </LegalSection>
@@ -137,7 +137,7 @@ export default function TermsPage() {
       <LegalSection heading="16. Contact">
         <p>
           Questions about these terms, or copyright and takedown requests, can be sent to{" "}
-          <a href="mailto:legal@chainship.io">legal@chainship.io</a>.
+          <a href="mailto:hello@chainsnip.com">hello@chainsnip.com</a>.
         </p>
       </LegalSection>
     </LegalPage>
