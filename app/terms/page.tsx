@@ -4,7 +4,7 @@ import { LegalPage, LegalSection } from "@/components/legal-page"
 export const metadata: Metadata = {
   title: "Terms of Service",
   description: "The terms governing your use of ChainShip's blockchain snapshot and archiving service.",
-  alternates: { canonical: "https://chainship.io/terms" },
+  alternates: { canonical: "https://chainsnip.com/terms" },
 }
 
 export default function TermsPage() {
@@ -137,7 +137,7 @@ export default function TermsPage() {
       <LegalSection heading="16. Contact">
         <p>
           Questions about these terms, or copyright and takedown requests, can be sent to{" "}
-          <a href="mailto:legal@chainship.io">legal@chainship.io</a>.
+          <a href="mailto:legal@chainsnip.com">legal@chainsnip.com</a>.
         </p>
       </LegalSection>
     </LegalPage>

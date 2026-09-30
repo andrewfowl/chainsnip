@@ -7,7 +7,7 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/dashboard", "/dashboard/", "/api/"],
     },
-    sitemap: "https://chainship.io/sitemap.xml",
-    host: "https://chainship.io",
+    sitemap: "https://chainsnip.com/sitemap.xml",
+    host: "https://chainsnip.com",
   }
 }

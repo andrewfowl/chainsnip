@@ -49,24 +49,24 @@ export default function HomePage() {
     "@graph": [
       {
         "@type": "Organization",
-        "@id": "https://chainship.io/#organization",
+        "@id": "https://chainsnip.com/#organization",
         name: "ChainShip",
-        url: "https://chainship.io",
-        logo: "https://chainship.io/icon-dark-32x32.png",
+        url: "https://chainsnip.com",
+        logo: "https://chainsnip.com/icon-dark-32x32.png",
       },
       {
         "@type": "WebSite",
-        "@id": "https://chainship.io/#website",
-        url: "https://chainship.io",
+        "@id": "https://chainsnip.com/#website",
+        url: "https://chainsnip.com",
         name: "ChainShip",
-        publisher: { "@id": "https://chainship.io/#organization" },
+        publisher: { "@id": "https://chainsnip.com/#organization" },
       },
       {
         "@type": "SoftwareApplication",
         name: "ChainShip",
         applicationCategory: "FinanceApplication",
         operatingSystem: "Web",
-        url: "https://chainship.io",
+        url: "https://chainsnip.com",
         description:
           "Automatically capture and archive blockchain explorer pages with wallet balances at month-end. Timestamped, verifiable proof for crypto accountants, auditors, and financial professionals.",
         offers: {

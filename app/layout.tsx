@@ -15,7 +15,7 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://chainship.io"),
+  metadataBase: new URL("https://chainsnip.com"),
   title: {
     default: "ChainShip - Audit-Ready Crypto Balance Snapshots",
     template: "%s | ChainShip",
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://chainship.io",
+    url: "https://chainsnip.com",
     siteName: "ChainShip",
     title: "ChainShip - Audit-Ready Crypto Balance Snapshots",
     description: "Automatically capture and archive blockchain explorer pages. Timestamped, verifiable proof for crypto accountants.",
@@ -79,7 +79,7 @@ export const metadata: Metadata = {
     creator: "@chainship",
   },
   alternates: {
-    canonical: "https://chainship.io",
+    canonical: "https://chainsnip.com",
   },
     generator: 'v0.app'
 }

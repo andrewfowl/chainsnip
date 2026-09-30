@@ -66,10 +66,10 @@ export default function Footer() {
         <div className="mt-16 pt-8 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">&copy; {year} ChainShip. All rights reserved.</p>
           <a
-            href="mailto:hello@chainship.io"
+            href="mailto:hello@chainsnip.com"
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
-            hello@chainship.io
+            hello@chainsnip.com
           </a>
         </div>
       </div>
