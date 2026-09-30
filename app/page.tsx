@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight, Check, CalendarCheck, FileCheck, Shield, Link2, Clock, Building2 } from "lucide-react"
 import { SUPPORTED_EXPLORERS } from "@/lib/chains"
 import { StripePricingTable } from "@/components/stripe-pricing-table"
+import { BalanceQueryTool } from "@/components/balance/balance-query-tool"
 
 export default function HomePage() {
   const features = [
@@ -171,6 +172,40 @@ export default function HomePage() {
                 {explorer.name}
               </span>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Historical balance lookup */}
+      <section id="balance-lookup" className="border-b border-border scroll-mt-20">
+        <div className="container mx-auto px-4 py-24">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
+              <div className="max-w-xl">
+                <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+                  Try it now
+                </span>
+                <h2 className="mt-3 text-3xl sm:text-4xl text-foreground uppercase text-balance">
+                  Look up a balance on any past date
+                </h2>
+                <p className="mt-4 text-muted-foreground leading-relaxed">
+                  Pick a network, paste a wallet and choose a date. ChainSnip reads the balance straight from archive
+                  nodes at that block, including rebasing tokens like stETH. Tag results by client to keep each
+                  engagement separate.
+                </p>
+              </div>
+              <p className="font-mono text-xs text-muted-foreground md:text-right md:max-w-56">
+                Ethereum · Polygon · Arbitrum · Optimism · Base · BSC · Avalanche
+              </p>
+            </div>
+            <BalanceQueryTool />
+            <p className="mt-4 text-xs text-muted-foreground">
+              Results are saved in this browser.{" "}
+              <Link href="/auth/signup" className="underline underline-offset-4 hover:text-foreground">
+                Create an account
+              </Link>{" "}
+              to schedule month-end captures with hashed proof.
+            </p>
           </div>
         </div>
       </section>
