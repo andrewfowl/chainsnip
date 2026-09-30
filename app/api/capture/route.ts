@@ -3,7 +3,16 @@ import { type NextRequest, NextResponse } from "next/server"
 import { getCurrentUserFromSession } from "@/lib/auth"
 
 export const runtime = "nodejs"
-export const maxDuration = 60
+export const maxDuration = 300
+
+// Capture work must finish by this point so there is still time to upload to
+// Blob and write the archive row before maxDuration kills the function.
+const CAPTURE_BUDGET_MS = 230000
+const MIN_SERVICE_TIME_MS = 15000
+
+function timeLeft(deadline: number) {
+  return deadline - Date.now()
+}
 
 const REALISTIC_UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
@@ -512,19 +521,19 @@ async function captureWithScreenshotAPI(
   timestamp: string,
   timezone: string,
   archiveId: string,
+  deadline: number,
 ): Promise<{ screenshot: Buffer | null; html: string | null; error?: string }> {
   console.log("[v0] Attempting screenshot API capture for:", url)
+  const serviceSignal = (maxMs: number) => AbortSignal.timeout(Math.min(maxMs, Math.max(timeLeft(deadline), 1000)))
 
   let screenshot: Buffer | null = null
   let html: string | null = null
-
-  const watermarkText = `ChainSnip | ${timestamp} (${timezone}) | ID: ${archiveId.slice(0, 8)}`
 
   const apiflashKey = process.env.APIFLASH_ACCESS_KEY
   const screenshotlayerKey = process.env.SCREENSHOTLAYER_ACCESS_KEY
 
   const screenshotServices = [
-    // apiflash - has native text overlay support (requires APIFLASH_ACCESS_KEY)
+    // apiflash (requires APIFLASH_ACCESS_KEY); the ChainSnip watermark is applied afterwards by addWatermarkToScreenshot
     async () => {
       if (!apiflashKey) {
         throw new Error("APIFLASH_ACCESS_KEY not set - skipping apiflash")
@@ -539,22 +548,14 @@ async function captureWithScreenshotAPI(
         delay: "5",
         wait_until: "network_idle",
         fresh: "true",
-        // Watermark overlay
-        watermark_text: watermarkText,
-        watermark_size: "14",
-        watermark_font: "Arial",
-        watermark_color: "#FFFFFF",
-        watermark_opacity: "100",
-        watermark_position: "bottom",
-        watermark_background: "#09090b",
       })
 
       const apiUrl = `https://api.apiflash.com/v1/urltoimage?${params.toString()}`
-      console.log("[v0] Calling apiflash.com with watermark...")
+      console.log("[v0] Calling apiflash.com...")
 
       const response = await fetch(apiUrl, {
         headers: { "User-Agent": REALISTIC_UA },
-        signal: AbortSignal.timeout(90000),
+        signal: serviceSignal(90000),
       })
 
       if (!response.ok) {
@@ -586,7 +587,7 @@ async function captureWithScreenshotAPI(
 
       const response = await fetch(apiUrl, {
         headers: { "User-Agent": REALISTIC_UA },
-        signal: AbortSignal.timeout(90000),
+        signal: serviceSignal(90000),
       })
 
       if (!response.ok) {
@@ -605,7 +606,7 @@ async function captureWithScreenshotAPI(
 
       const response = await fetch(apiUrl, {
         headers: { "User-Agent": REALISTIC_UA },
-        signal: AbortSignal.timeout(120000),
+        signal: serviceSignal(120000),
       })
 
       if (!response.ok) {
@@ -631,7 +632,7 @@ async function captureWithScreenshotAPI(
 
       const response = await fetch(apiUrl, {
         headers: { "User-Agent": REALISTIC_UA },
-        signal: AbortSignal.timeout(60000),
+        signal: serviceSignal(60000),
       })
 
       if (!response.ok) {
@@ -643,13 +644,17 @@ async function captureWithScreenshotAPI(
         throw new Error("No screenshot URL in response")
       }
 
-      const imgResponse = await fetch(data.data.screenshot.url)
+      const imgResponse = await fetch(data.data.screenshot.url, { signal: serviceSignal(20000) })
       const arrayBuffer = await imgResponse.arrayBuffer()
       return Buffer.from(arrayBuffer)
     },
   ]
 
   for (const service of screenshotServices) {
+    if (timeLeft(deadline) < MIN_SERVICE_TIME_MS) {
+      console.log("[v0] Capture time budget exhausted, skipping remaining screenshot services")
+      break
+    }
     try {
       screenshot = await service()
       if (screenshot && screenshot.length > 10000) {
@@ -668,14 +673,14 @@ async function captureWithScreenshotAPI(
   const knownSPAs = ["mintscan", "monad", "solscan", "uniswap", "opensea", "dexscreener"]
   const isSPA = knownSPAs.some((spa) => url.toLowerCase().includes(spa))
 
-  if (!isSPA) {
+  if (!isSPA && timeLeft(deadline) > 5000) {
     try {
       const htmlResponse = await fetch(url, {
         headers: {
           "User-Agent": REALISTIC_UA,
           Accept: "text/html,application/xhtml+xml",
         },
-        signal: AbortSignal.timeout(15000),
+        signal: serviceSignal(15000),
       })
 
       if (htmlResponse.ok) {
@@ -711,20 +716,21 @@ const CHROMIUM_REMOTE_PACK_URL =
     ? process.env.CHROMIUM_REMOTE_PACK_URL
     : DEFAULT_CHROMIUM_PACK_URL
 // Hard ceiling for the whole Puppeteer attempt (download + launch + capture).
-// Kept under maxDuration (60s) so a broken or slow pack download degrades to
-// the API fallback instead of hanging the request forever.
-const PUPPETEER_BUDGET_MS = 50000
+// Leaves the rest of the capture budget for the screenshot-API fallback.
+const PUPPETEER_BUDGET_MS = 90000
 
 async function captureWithPuppeteer(
   url: string,
   timestamp: string,
   timezone: string,
   archiveId: string,
+  deadline: number,
 ): Promise<{ screenshot: Buffer | null; html: string | null; error?: string }> {
   if (!CHROMIUM_REMOTE_PACK_URL) {
     console.log("[v0] CHROMIUM_REMOTE_PACK_URL not set - skipping Puppeteer, using screenshot API")
-    return captureWithScreenshotAPI(url, timestamp, timezone, archiveId)
+    return captureWithScreenshotAPI(url, timestamp, timezone, archiveId, deadline)
   }
+  const puppeteerBudget = Math.min(PUPPETEER_BUDGET_MS, timeLeft(deadline) - 60000)
 
   let browser = null
   let budgetTimer: ReturnType<typeof setTimeout> | undefined
@@ -739,8 +745,8 @@ async function captureWithPuppeteer(
     // slow remote pack can never hang the request.
     const budget = new Promise<never>((_, reject) => {
       budgetTimer = setTimeout(
-        () => reject(new Error(`Puppeteer exceeded ${PUPPETEER_BUDGET_MS}ms budget`)),
-        PUPPETEER_BUDGET_MS,
+        () => reject(new Error(`Puppeteer exceeded ${puppeteerBudget}ms budget`)),
+        puppeteerBudget,
       )
     })
 
@@ -757,9 +763,15 @@ async function captureWithPuppeteer(
       const page = await browser.newPage()
       await page.setUserAgent(REALISTIC_UA)
 
+      // Explorer SPAs (Mintscan etc.) hold websockets/polling open, so strict
+      // network idle never fires. Wait for the DOM, then give the network a
+      // bounded chance to settle before capturing whatever has rendered.
       await page.goto(url, {
-        waitUntil: ["load", "networkidle0"],
-        timeout: 45000,
+        waitUntil: "domcontentloaded",
+        timeout: 30000,
+      })
+      await page.waitForNetworkIdle({ idleTime: 1500, concurrency: 2, timeout: 15000 }).catch(() => {
+        console.log("[v0] Network never went idle, capturing anyway")
       })
 
       const waitTime = url.includes("mintscan") ? 12000 : 8000
@@ -802,7 +814,7 @@ async function captureWithPuppeteer(
     return await Promise.race([work, budget])
   } catch (error) {
     console.log("[v0] Puppeteer failed:", error instanceof Error ? error.message : error)
-    return captureWithScreenshotAPI(url, timestamp, timezone, archiveId)
+    return captureWithScreenshotAPI(url, timestamp, timezone, archiveId, deadline)
   } finally {
     if (budgetTimer) clearTimeout(budgetTimer)
     if (browser) {
@@ -865,7 +877,13 @@ export async function POST(request: NextRequest) {
 
     console.log("[v0] ---------- STARTING CAPTURE PROCESS ----------")
     const captureStartTime = Date.now()
-    const { screenshot, html, error } = await captureWithPuppeteer(url, formattedTimestamp, timezone, archiveId)
+    const { screenshot, html, error } = await captureWithPuppeteer(
+      url,
+      formattedTimestamp,
+      timezone,
+      archiveId,
+      startTime + CAPTURE_BUDGET_MS,
+    )
     const captureElapsed = Date.now() - captureStartTime
     console.log("[v0] Capture process completed in", captureElapsed, "ms")
     console.log("[v0] Capture results - screenshot:", screenshot ? `${screenshot.length} bytes` : "null", "html:", html ? `${html.length} chars` : "null", "error:", error || "none")
