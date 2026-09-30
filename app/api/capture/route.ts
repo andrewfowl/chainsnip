@@ -543,11 +543,14 @@ async function captureWithScreenshotAPI(
         url: url,
         format: "png",
         width: "1440",
+        fresh: "true",
         full_page: "true",
         scroll_page: "true",
-        delay: "5",
+        response_type: "image",
+        no_cookie_banners: "true",
+        no_ads: "true",
+        no_tracking: "true",
         wait_until: "network_idle",
-        fresh: "true",
       })
 
       const apiUrl = `https://api.apiflash.com/v1/urltoimage?${params.toString()}`
