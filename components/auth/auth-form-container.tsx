@@ -1,7 +1,7 @@
 import type React from "react"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import Link from "next/link"
-import { Wallet } from "lucide-react"
+import Image from "next/image"
 
 interface AuthFormContainerProps {
   title: string
@@ -16,7 +16,7 @@ export default function AuthFormContainer({ title, description, children, footer
       <Card className="w-full max-w-md bg-card/90 backdrop-blur-xl border-border shadow-2xl">
         <CardHeader className="text-center">
           <Link href="/" className="inline-flex items-center justify-center gap-2 mb-4" aria-label="Back to Homepage">
-            <Wallet className="w-8 h-8 text-foreground" />
+            <Image src="/icon-512.png" alt="" width={36} height={36} className="h-9 w-9 rounded-lg" />
             <span className="text-xl font-bold text-foreground">ChainSnip</span>
           </Link>
           <CardTitle className="text-2xl font-bold text-foreground">{title}</CardTitle>
