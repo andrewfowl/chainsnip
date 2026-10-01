@@ -1,7 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { Wallet, Menu, X, LayoutDashboard, LogOut } from "lucide-react"
+import Image from "next/image"
+import { Menu, X, LayoutDashboard, LogOut } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
@@ -48,7 +49,7 @@ export default function Header() {
             href="/"
             className="flex items-center gap-2 text-base font-semibold text-foreground hover:opacity-80 transition-opacity"
           >
-            <Wallet className="w-5 h-5" />
+            <Image src="/icon-512.png" alt="" width={28} height={28} className="h-7 w-7 rounded-md" priority />
             <span className="tracking-tight">ChainSnip</span>
           </Link>
 

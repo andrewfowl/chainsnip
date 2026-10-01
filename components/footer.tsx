@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Wallet } from "lucide-react"
+import Image from "next/image"
 
 export default function Footer() {
   const year = new Date().getFullYear()
@@ -22,7 +22,7 @@ export default function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="col-span-2">
             <Link href="/" className="flex items-center gap-2 text-base font-semibold text-foreground mb-4">
-              <Wallet className="w-5 h-5" />
+              <Image src="/icon-512.png" alt="" width={28} height={28} className="h-7 w-7 rounded-md" />
               <span className="tracking-tight">ChainSnip</span>
             </Link>
             <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
