@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
+import { historicalBalancesCSV } from "@/lib/balance-csv"
 import { formatBalance, type BalanceQuery } from "@/lib/balance-tokens"
 
 export const ALL_CLIENTS = "__all__"
@@ -26,10 +27,6 @@ function matchesClient(q: BalanceQuery, client: string) {
   const name = q.clientName?.trim()
   if (client === NO_CLIENT) return !name
   return name?.toLowerCase() === client.toLowerCase()
-}
-
-function csvCell(value: string | number) {
-  return `"${String(value).replace(/"/g, '""')}"`
 }
 
 export function BalanceResults({
@@ -54,20 +51,7 @@ export function BalanceResults({
   const activeLabel = tabs.find((t) => t.value === activeClient)?.label ?? "All clients"
 
   const exportToCSV = () => {
-    const headers = ["Client", "Network", "Wallet Address", "Token", "Contract Address", "Balance", "Decimals", "Block Number", "Block Date", "Queried At"]
-    const rows = visible.map((q) => [
-      q.clientName || "",
-      q.networkName,
-      q.walletAddress,
-      q.symbol,
-      q.contractAddress || "Native",
-      q.balance,
-      q.decimals,
-      q.blockNumber,
-      q.blockDate,
-      q.queriedAt,
-    ])
-    const csv = [headers.map(csvCell).join(","), ...rows.map((r) => r.map(csvCell).join(","))].join("\n")
+    const csv = historicalBalancesCSV(visible)
     const slug =
       activeClient === ALL_CLIENTS ? "all-clients" : activeLabel.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
     const link = document.createElement("a")
