@@ -28,6 +28,7 @@ import {
   Download,
 } from "lucide-react"
 import { format } from "date-fns"
+import { safeHref } from "@/lib/safe-url"
 
 export default function ArchiveViewerPage() {
   const params = useParams()
@@ -131,7 +132,7 @@ export default function ArchiveViewerPage() {
             </Button>
           )}
           <Button variant="outline" asChild>
-            <a href={archive.url} target="_blank" rel="noopener noreferrer">
+            <a href={safeHref(archive.url)} target="_blank" rel="noopener noreferrer">
               <ExternalLink className="mr-2 h-4 w-4" />
               View Original
             </a>
@@ -208,7 +209,7 @@ export default function ArchiveViewerPage() {
                 <FileText className="h-3 w-3" /> Source URL
               </p>
               <a
-                href={archive.url}
+                href={safeHref(archive.url)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm text-foreground hover:underline truncate block max-w-[200px]"
@@ -285,16 +286,17 @@ export default function ArchiveViewerPage() {
                     <Download className="h-4 w-4 mr-1" />
                     Download
                   </Button>
-                  <Button variant="secondary" size="sm" onClick={() => window.open(archive.htmlUrl!, "_blank")}>
+                  <Button variant="secondary" size="sm" onClick={() => window.open(safeHref(archive.htmlUrl), "_blank", "noopener,noreferrer")}>
                     <ExternalLink className="h-4 w-4 mr-1" />
                     Open in New Tab
                   </Button>
                 </div>
                 <iframe
-                  src={archive.htmlUrl}
+                  src={safeHref(archive.htmlUrl)}
                   className="w-full h-[800px] border-0"
                   title={`Archived HTML of ${archive.explorer}`}
-                  sandbox="allow-same-origin allow-scripts"
+                  sandbox=""
+                  referrerPolicy="no-referrer"
                 />
               </div>
             )}

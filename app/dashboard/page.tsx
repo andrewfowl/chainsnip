@@ -79,6 +79,7 @@ import {
 import { format, formatDistanceToNow } from "date-fns"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { ManageBillingButton } from "@/components/manage-billing-button"
+import { safeHref } from "@/lib/safe-url"
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -1150,7 +1151,7 @@ export default function DashboardPage() {
                                 </Button>
                               )}
                               <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-                                <a href={archive.url} target="_blank" rel="noopener noreferrer" title="Open Explorer">
+                                <a href={safeHref(archive.url)} target="_blank" rel="noopener noreferrer" title="Open Explorer">
                                   <ExternalLink className="h-4 w-4" />
                                 </a>
                               </Button>

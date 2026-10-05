@@ -14,6 +14,7 @@ import {
 } from "@/lib/archives"
 import type { Archive, CustomExplorer } from "@/lib/chains"
 import { getCurrentUserFromSession } from "@/lib/auth"
+import { isSafeHttpUrl, isValidHostname, sanitizeText } from "@/lib/safe-url"
 
 // Server Action wrappers so Client Components can invoke database logic
 // without bundling the Postgres driver into the browser.
@@ -59,8 +60,21 @@ export async function saveArchive(
   >,
 ): Promise<Archive> {
   const userId = await requireUserId()
+  assertSafeArchiveUrls(archive)
   // Force ownership to the session user regardless of what the client sent.
   return dbSaveArchive({ ...archive, userId })
+}
+
+function assertSafeArchiveUrls(fields: Partial<Archive>) {
+  if ("url" in fields && !isSafeHttpUrl(fields.url)) {
+    throw new Error("Invalid URL: only http(s) links are allowed")
+  }
+  for (const key of ["screenshotUrl", "htmlUrl"] as const) {
+    const value = fields[key]
+    if (value != null && value !== "" && !isSafeHttpUrl(value, { httpsOnly: true })) {
+      throw new Error(`Invalid ${key}`)
+    }
+  }
 }
 
 export async function updateArchive(id: string, updates: Partial<Archive>): Promise<void> {
@@ -71,6 +85,7 @@ export async function updateArchive(id: string, updates: Partial<Archive>): Prom
   }
   // Never let the client reassign ownership through an update.
   const { userId: _ignoredUserId, ...safeUpdates } = updates
+  assertSafeArchiveUrls(safeUpdates)
   return dbUpdateArchive(id, safeUpdates)
 }
 
@@ -91,8 +106,15 @@ export async function getCustomExplorers(_userId?: string): Promise<CustomExplor
 
 export async function saveCustomExplorer(explorer: Omit<CustomExplorer, "id">): Promise<CustomExplorer> {
   const userId = await requireUserId()
+  const name = sanitizeText(explorer.name, 80)
+  const domain = sanitizeText(explorer.domain, 253)
+    .toLowerCase()
+    .replace(/^https?:\/\//, "")
+    .replace(/\/.*$/, "")
+  if (!name) throw new Error("Explorer name is required")
+  if (!isValidHostname(domain)) throw new Error("Invalid explorer domain")
   // Force ownership to the session user regardless of what the client sent.
-  return dbSaveCustomExplorer({ ...explorer, userId })
+  return dbSaveCustomExplorer({ name, domain, userId })
 }
 
 export async function deleteCustomExplorer(id: string): Promise<void> {
