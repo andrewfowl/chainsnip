@@ -4,6 +4,7 @@ import { ArrowRight, Check, CalendarCheck, FileCheck, Shield, Link2, Clock, Buil
 import { SUPPORTED_EXPLORERS } from "@/lib/chains"
 import { StripePricingTable } from "@/components/stripe-pricing-table"
 import { ProductHuntCard } from "@/components/product-hunt-card"
+import { serializeJsonForScript } from "@/lib/safe-url"
 
 export default function HomePage() {
   const features = [
@@ -83,7 +84,7 @@ export default function HomePage() {
     <div className="relative min-h-screen">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonForScript(jsonLd) }}
       />
       {/* Hero */}
       <section className="border-b border-border">

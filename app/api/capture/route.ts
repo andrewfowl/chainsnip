@@ -2,6 +2,7 @@ import { put } from "@vercel/blob"
 import { type NextRequest, NextResponse } from "next/server"
 import { getCurrentUserFromSession } from "@/lib/auth"
 import { getCaptureUrl } from "@/lib/explorer-fallbacks"
+import { isSafeHttpUrl } from "@/lib/safe-url"
 
 export const runtime = "nodejs"
 export const maxDuration = 300
@@ -926,6 +927,10 @@ export async function POST(request: NextRequest) {
     } catch {
       console.log("[v0] ERROR: Invalid URL format:", url)
       return NextResponse.json({ error: "Invalid URL provided" }, { status: 400 })
+    }
+
+    if (!isSafeHttpUrl(url)) {
+      return NextResponse.json({ error: "Only http(s) URLs can be captured" }, { status: 400 })
     }
 
     const captureUrl = getCaptureUrl(url)
