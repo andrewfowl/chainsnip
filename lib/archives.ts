@@ -75,6 +75,12 @@ function extractWalletAddressFromUrl(url: string): string | null {
   try {
     const urlObj = new URL(url)
     const pathname = urlObj.pathname
+
+    // /token/{contract}?a={wallet} is a wallet-specific token view
+    const holder = urlObj.searchParams.get("a")
+    if (/^\/token\//i.test(pathname) && holder && /^0x[a-fA-F0-9]{40}$/.test(holder)) {
+      return holder
+    }
     
     // Common patterns: /address/0x..., /account/0x..., /token/0x..., etc.
     const patterns = [

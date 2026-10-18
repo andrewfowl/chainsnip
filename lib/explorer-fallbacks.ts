@@ -14,6 +14,8 @@ const BLOCKSCOUT_MIRRORS: Record<string, string> = {
   "era.zksync.network": "zksync.blockscout.com",
 }
 
+const EVM_ADDRESS = /^0x[a-f0-9]{40}$/i
+
 const SHARED_PATH = /^\/(address|tx|token|block)\/[^/]+\/?$/i
 
 const TAB_BY_FRAGMENT: Record<string, string> = {
@@ -36,6 +38,18 @@ export function getCaptureUrl(sourceUrl: string): string {
   const host = url.hostname.toLowerCase().replace(/^www\./, "")
   const mirror = BLOCKSCOUT_MIRRORS[host]
   if (!mirror || !SHARED_PATH.test(url.pathname)) return sourceUrl
+
+  // Etherscan's /token/{contract}?a={wallet} shows one wallet's activity for a
+  // token. Blockscout has no such token view, so use the wallet's address page
+  // filtered to that token instead.
+  const tokenMatch = url.pathname.match(/^\/token\/(0x[a-f0-9]{40})\/?$/i)
+  const holder = url.searchParams.get("a")
+  if (tokenMatch && holder && EVM_ADDRESS.test(holder)) {
+    const holderUrl = new URL(`https://${mirror}/address/${holder}`)
+    holderUrl.searchParams.set("tab", "token_transfers")
+    holderUrl.searchParams.set("token", tokenMatch[1])
+    return holderUrl.toString()
+  }
 
   const captureUrl = new URL(`https://${mirror}${url.pathname.replace(/\/$/, "")}`)
   const tab = TAB_BY_FRAGMENT[url.hash.slice(1)]
