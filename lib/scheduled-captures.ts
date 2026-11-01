@@ -9,6 +9,18 @@ const LEAD_WINDOW = "2 hours"
 
 type Plan = keyof typeof PLAN_LIMITS
 
+const PAID_PLANS = (Object.keys(PLAN_LIMITS) as Plan[]).filter((plan) => PLAN_LIMITS[plan].monthlyAutoSave)
+
+/** A schedule missing its stored date falls back to the current month end so it is never silently skipped. */
+const DUE_AT_SQL = `COALESCE(
+  a.next_scheduled_save,
+  (date_trunc('month', NOW() AT TIME ZONE 'UTC') + INTERVAL '1 month' - INTERVAL '1 day' + INTERVAL '${SCHEDULED_CAPTURE_HOUR_UTC} hours') AT TIME ZONE 'UTC'
+)`
+
+const DUE_FILTER_SQL = `a.schedule_interval = 'monthly'
+  AND u.plan = ANY($PLANS::text[])
+  AND ${DUE_AT_SQL} <= NOW() + INTERVAL '${LEAD_WINDOW}'`
+
 interface ClaimedSchedule {
   id: string
   user_id: string
@@ -31,13 +43,11 @@ export function isAuthorizedCron(headers: Headers): boolean {
 export async function claimDueSchedules(limit: number): Promise<ClaimedSchedule[]> {
   return queryMany<ClaimedSchedule>(
     `WITH due AS (
-       SELECT a.id, a.next_scheduled_save AS due_at, u.plan
+       SELECT a.id, ${DUE_AT_SQL} AS due_at, u.plan
        FROM archives a
        JOIN users u ON u.id = a.user_id
-       WHERE a.schedule_interval = 'monthly'
-         AND a.next_scheduled_save IS NOT NULL
-         AND a.next_scheduled_save <= NOW() + INTERVAL '${LEAD_WINDOW}'
-       ORDER BY a.next_scheduled_save
+       WHERE ${DUE_FILTER_SQL.replace("$PLANS", "$2")}
+       ORDER BY due_at
        LIMIT $1
        FOR UPDATE OF a SKIP LOCKED
      ),
@@ -55,18 +65,17 @@ export async function claimDueSchedules(limit: number): Promise<ClaimedSchedule[
      FROM due, bounds b
      WHERE a.id = due.id
      RETURNING a.id, a.user_id, a.url, a.title, a.client_name, due.due_at, due.plan`,
-    [limit],
+    [limit, PAID_PLANS],
   )
 }
 
 export async function listDueSchedules(): Promise<Pick<ClaimedSchedule, "id" | "url" | "due_at" | "plan">[]> {
   return queryMany(
-    `SELECT a.id, a.url, a.next_scheduled_save AS due_at, u.plan
+    `SELECT a.id, a.url, ${DUE_AT_SQL} AS due_at, u.plan
      FROM archives a JOIN users u ON u.id = a.user_id
-     WHERE a.schedule_interval = 'monthly'
-       AND a.next_scheduled_save IS NOT NULL
-       AND a.next_scheduled_save <= NOW() + INTERVAL '${LEAD_WINDOW}'
-     ORDER BY a.next_scheduled_save`,
+     WHERE ${DUE_FILTER_SQL.replace("$PLANS", "$1")}
+     ORDER BY due_at`,
+    [PAID_PLANS],
   )
 }
 
