@@ -13,6 +13,7 @@ import {
   clearSessionCookie,
   type User,
 } from "@/lib/auth"
+import { checkEmailDeliverable, checkSignupRateLimit, recordSignupAttempt } from "@/lib/signup-guard"
 
 // Validate email format
 function isValidEmail(email: string): boolean {
@@ -79,9 +80,22 @@ export async function signIn(
 export async function signUp(
   email: string,
   password: string,
-  name: string
+  name: string,
+  honeypot = ""
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    email = email.trim().toLowerCase()
+
+    if (honeypot) {
+      return { success: false, error: "An error occurred during sign up" }
+    }
+
+    const rateLimit = await checkSignupRateLimit()
+    if (!rateLimit.ok) {
+      return { success: false, error: rateLimit.error }
+    }
+    await recordSignupAttempt(rateLimit.ipHash, false)
+
     if (!isValidEmail(email)) {
       return { success: false, error: "Invalid email format" }
     }
@@ -98,6 +112,11 @@ export async function signUp(
       return { success: false, error: "Name must be less than 100 characters" }
     }
 
+    const deliverable = await checkEmailDeliverable(email)
+    if (!deliverable.ok) {
+      return { success: false, error: deliverable.error }
+    }
+
     // Check if user already exists
     const existingUser = await getUserByEmail(email)
     if (existingUser) {
@@ -108,6 +127,7 @@ export async function signUp(
     if (!user) {
       return { success: false, error: "Failed to create account" }
     }
+    await recordSignupAttempt(rateLimit.ipHash, true)
 
     const session = await createSession(user.id)
     await setSessionCookie(session.token)

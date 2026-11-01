@@ -95,6 +95,7 @@
     "cmdk": "1.0.4",
     "core-js": "latest",
     "date-fns": "4.1.0",
+    "disposable-email-domains": "1.0.62",
     "drizzle-kit": "latest",
     "drizzle-orm": "latest",
     "embla-carousel-react": "8.5.1",
