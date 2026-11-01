@@ -9,9 +9,17 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
-import { COMMON_TOKENS, formatBalance, uniqueClients, type BalanceNetwork, type BalanceQuery } from "@/lib/balance-tokens"
+import { COMMON_TOKENS, NETWORK_ADDRESS_HINTS, formatBalance, uniqueClients, type BalanceNetwork, type BalanceQuery } from "@/lib/balance-tokens"
 import { ClientCombobox } from "./client-combobox"
 import { ALL_CLIENTS, BalanceResults } from "./balance-results"
 
@@ -180,6 +188,13 @@ export function BalanceQueryTool() {
 
   const networkTokens = COMMON_TOKENS[selectedNetwork] ?? []
   const presetToken = networkTokens.find((t) => t.address === contractAddress)
+  const family = networks.find((n) => n.id === selectedNetwork)?.family ?? "evm"
+  const hints = NETWORK_ADDRESS_HINTS[family]
+  const networkGroups = [
+    { label: "EVM", items: networks.filter((n) => (n.family ?? "evm") === "evm") },
+    { label: "Solana", items: networks.filter((n) => n.family === "solana") },
+    { label: "Cosmos", items: networks.filter((n) => n.family === "cosmos") },
+  ].filter((g) => g.items.length > 0)
 
   return (
     <div className="grid items-start gap-6 lg:grid-cols-3">
@@ -206,10 +221,15 @@ export function BalanceQueryTool() {
                   <SelectValue placeholder={networks.length ? "Select network" : "Loading networks..."} />
                 </SelectTrigger>
                 <SelectContent>
-                  {networks.map((n) => (
-                    <SelectItem key={n.id} value={n.id}>
-                      {n.name}
-                    </SelectItem>
+                  {networkGroups.map((g) => (
+                    <SelectGroup key={g.label}>
+                      <SelectLabel>{g.label}</SelectLabel>
+                      {g.items.map((n) => (
+                        <SelectItem key={n.id} value={n.id}>
+                          {n.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
                   ))}
                 </SelectContent>
               </Select>
@@ -219,7 +239,7 @@ export function BalanceQueryTool() {
               <Label htmlFor="bq-wallet">Wallet address</Label>
               <Input
                 id="bq-wallet"
-                placeholder="0x..."
+                placeholder={hints.wallet}
                 className="font-mono"
                 spellCheck={false}
                 autoComplete="off"
@@ -253,7 +273,7 @@ export function BalanceQueryTool() {
               </Select>
               <Input
                 aria-label="Custom token contract address"
-                placeholder="Or paste a token contract address"
+                placeholder={hints.token}
                 className="font-mono text-xs"
                 spellCheck={false}
                 autoComplete="off"
@@ -264,7 +284,7 @@ export function BalanceQueryTool() {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="bq-when">{useBlockNumber ? "Block number" : "Date"}</Label>
+                <Label htmlFor="bq-when">{useBlockNumber ? hints.block : "Date"}</Label>
                 <Button
                   type="button"
                   variant="link"
@@ -272,7 +292,7 @@ export function BalanceQueryTool() {
                   className="h-auto p-0 text-xs"
                   onClick={() => setUseBlockNumber((v) => !v)}
                 >
-                  {useBlockNumber ? "Use date instead" : "Use block number instead"}
+                  {useBlockNumber ? "Use date instead" : `Use ${hints.block.toLowerCase()} instead`}
                 </Button>
               </div>
               {useBlockNumber ? (
@@ -280,7 +300,7 @@ export function BalanceQueryTool() {
                   id="bq-when"
                   type="number"
                   min={0}
-                  placeholder="Block number"
+                  placeholder={hints.block}
                   value={blockNumber}
                   onChange={(e) => setBlockNumber(e.target.value)}
                 />
@@ -326,8 +346,11 @@ export function BalanceQueryTool() {
 
             <p className="flex gap-2 rounded-lg bg-muted p-3 text-xs leading-relaxed text-muted-foreground">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-              Reads the balance from archive nodes at the last block on or before the chosen date. Works for rebasing
-              tokens like stETH.
+              {family === "solana"
+                ? "Reads the balance after the wallet's last transaction on or before the chosen date."
+                : family === "cosmos"
+                  ? "Reads the balance at the last block on or before the chosen date. Public Cosmos nodes keep recent history only, so older dates may be unavailable."
+                  : "Reads the balance from archive nodes at the last block on or before the chosen date. Works for rebasing tokens like stETH."}
             </p>
 
             {savedData && (

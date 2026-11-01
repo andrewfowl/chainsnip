@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Check, CalendarCheck, FileCheck, Shield, Link2, Clock, Building2 } from "lucide-react"
-import { SUPPORTED_EXPLORERS } from "@/lib/chains"
+import { NetworkCoverage, NETWORK_COUNT } from "@/components/network-coverage"
 import { StripePricingTable } from "@/components/stripe-pricing-table"
 import { ProductHuntCard } from "@/components/product-hunt-card"
 import { serializeJsonForScript } from "@/lib/safe-url"
@@ -26,7 +26,8 @@ export default function HomePage() {
     {
       icon: Link2,
       title: "Multi-chain coverage",
-      description: "Etherscan, BscScan, Solscan, and 15+ other explorers across EVM, Solana, Bitcoin, and Cosmos.",
+      description:
+        "Ethereum, Arc, Monad, Solana, the main Cosmos chains and more, from Etherscan, Solscan, Mintscan and other explorers.",
     },
     {
       icon: Clock,
@@ -112,9 +113,12 @@ export default function HomePage() {
                   </Button>
                 </Link>
               </div>
-              <p className="mt-8 font-mono text-xs text-muted-foreground">
-                Etherscan · BscScan · Solscan · {SUPPORTED_EXPLORERS.length - 3}+ more explorers
-              </p>
+              <Link
+                href="#networks"
+                className="mt-8 inline-block font-mono text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {NETWORK_COUNT} networks · EVM · Solana · Cosmos · Bitcoin
+              </Link>
               <ProductHuntCard className="mt-8" />
               <a
                 href="https://www.producthunt.com/products/chainsnip?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-chainsnip"
@@ -179,18 +183,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Explorer support strip */}
-      <section className="border-b border-border bg-secondary/20">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 max-w-4xl mx-auto">
-            {SUPPORTED_EXPLORERS.slice(0, 9).map((explorer) => (
-              <span key={explorer.name} className="font-mono text-xs text-muted-foreground">
-                {explorer.name}
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
+      <NetworkCoverage />
 
       {/* Historical balance lookup */}
       <section id="balance-lookup" className="border-b border-border scroll-mt-20">
@@ -209,7 +202,7 @@ export default function HomePage() {
               </p>
               <ul className="mt-8 space-y-3">
                 {[
-                  "Any past date or block height, on seven EVM networks",
+                  "Any past date or block height, on EVM networks (including Arc and Monad), Solana and the main Cosmos chains",
                   "Rebasing tokens like stETH, where balances move without transactions",
                   "Results filed by client, ready to export as CSV",
                 ].map((point) => (

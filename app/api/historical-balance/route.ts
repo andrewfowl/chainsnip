@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getCurrentUserFromSession } from "@/lib/auth"
 import { insertBalanceQuery } from "@/lib/balance-queries"
 import type { BalanceQuery } from "@/lib/balance-tokens"
+import { NON_EVM_NETWORKS, UserFacingError, queryNonEvmBalance, validateNonEvmInput } from "@/lib/non-evm-balance"
 
 const CHAINSTACK_NODE_URL = process.env.CHAINSTACK_NODE_URL
 const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY
@@ -18,8 +19,9 @@ interface NetworkConfig {
 interface NetworkDefinition {
   name: string
   chainId: number
-  alchemyHost: string
+  alchemyHost?: string
   publicRpcUrl: string
+  publicRpcIsArchive?: boolean
   blockExplorerApi?: string
   chainstackUrl?: string
 }
@@ -75,6 +77,24 @@ const NETWORK_DEFINITIONS: Record<string, NetworkDefinition> = {
     publicRpcUrl: "https://avalanche.llamarpc.com",
     blockExplorerApi: "https://api.snowtrace.io/api",
   },
+  arc: {
+    name: "Arc",
+    chainId: 5042,
+    publicRpcUrl: "https://rpc.mainnet.arc.io",
+    publicRpcIsArchive: true,
+  },
+  "arc-testnet": {
+    name: "Arc Testnet",
+    chainId: 5042002,
+    publicRpcUrl: "https://rpc.testnet.arc.io",
+    publicRpcIsArchive: true,
+  },
+  monad: {
+    name: "Monad",
+    chainId: 143,
+    alchemyHost: "monad-mainnet",
+    publicRpcUrl: "https://rpc1.monad.xyz",
+  },
 }
 
 // Priority: dedicated Chainstack node > Alchemy archive > public (non-archive) RPC
@@ -83,7 +103,11 @@ function resolveNetworkConfig(def: NetworkDefinition): NetworkConfig {
   if (def.chainstackUrl) {
     return { ...base, rpcUrl: def.chainstackUrl, isArchive: true, provider: "chainstack" }
   }
-  if (ALCHEMY_API_KEY) {
+  // Arc's public RPC serves full history, and Alchemy has no Arc endpoint.
+  if (def.publicRpcIsArchive) {
+    return { ...base, rpcUrl: def.publicRpcUrl, isArchive: true, provider: "public" }
+  }
+  if (ALCHEMY_API_KEY && def.alchemyHost) {
     return {
       ...base,
       rpcUrl: `https://${def.alchemyHost}.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
@@ -266,6 +290,9 @@ async function queryBalanceAtBlock(
       arbitrum: "ETH",
       optimism: "ETH",
       base: "ETH",
+      arc: "USDC",
+      "arc-testnet": "USDC",
+      monad: "MON",
       avalanche: "AVAX",
     }
 
@@ -333,6 +360,74 @@ async function queryBalanceAtBlock(
   }
 }
 
+interface BalanceResponseInput {
+  network: string
+  networkName: string
+  walletAddress: string
+  contractAddress: string | null
+  clientName?: string
+  balance: string
+  decimals: number
+  symbol: string
+  blockNumber: number
+  blockTimestamp: number
+}
+
+async function respondWithBalance(input: BalanceResponseInput) {
+  const { network, networkName, walletAddress, contractAddress, balance, decimals, symbol, blockNumber, blockTimestamp } =
+    input
+
+  const balanceBigInt = BigInt(balance)
+  const divisor = BigInt(`1${"0".repeat(decimals)}`)
+  const integerPart = balanceBigInt / divisor
+  const fractionalPart = balanceBigInt % divisor
+  const formattedBalance = `${integerPart}.${fractionalPart.toString().padStart(decimals, "0")}`
+
+  const blockDate = new Date(blockTimestamp * 1000).toISOString()
+  const queriedAt = new Date().toISOString()
+
+  let saved: BalanceQuery | null = null
+  const user = await getCurrentUserFromSession()
+  if (user) {
+    try {
+      saved = await insertBalanceQuery(user.id, {
+        network,
+        networkName,
+        walletAddress,
+        contractAddress,
+        symbol,
+        balance: formattedBalance,
+        balanceRaw: balance,
+        decimals,
+        blockNumber,
+        blockDate,
+        queriedAt,
+        clientName: input.clientName,
+      })
+    } catch (error) {
+      console.error("Failed to save balance query:", error)
+    }
+  }
+
+  return NextResponse.json({
+    success: true,
+    saved,
+    data: {
+      network: networkName,
+      walletAddress,
+      contractAddress: contractAddress || "native",
+      symbol,
+      balance: formattedBalance,
+      balanceRaw: balance,
+      decimals,
+      blockNumber,
+      blockTimestamp,
+      blockDate,
+      queriedAt,
+    },
+  })
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -351,11 +446,48 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!NETWORK_CONFIGS[network]) {
+    const nonEvm = NON_EVM_NETWORKS[network]
+    if (!NETWORK_CONFIGS[network] && !nonEvm) {
       return NextResponse.json(
-        { error: `Unsupported network: ${network}. Supported: ${Object.keys(NETWORK_CONFIGS).join(", ")}` },
+        {
+          error: `Unsupported network: ${network}. Supported: ${[...Object.keys(NETWORK_CONFIGS), ...Object.keys(NON_EVM_NETWORKS)].join(", ")}`,
+        },
         { status: 400 }
       )
+    }
+
+    if (nonEvm) {
+      if (typeof walletAddress !== "string" || (contractAddress && typeof contractAddress !== "string")) {
+        return NextResponse.json({ error: "Invalid address" }, { status: 400 })
+      }
+      const wallet = walletAddress.trim()
+      const token = contractAddress ? String(contractAddress).trim() : null
+      const invalid = validateNonEvmInput(network, wallet, token)
+      if (invalid) return NextResponse.json({ error: invalid }, { status: 400 })
+
+      const height = blockNumber ? Number.parseInt(String(blockNumber), 10) : null
+      if (height !== null && (!Number.isSafeInteger(height) || height <= 0)) {
+        return NextResponse.json({ error: "Invalid block number" }, { status: 400 })
+      }
+      // A bare YYYY-MM-DD means "balance as of that day", so use 23:59:59 UTC.
+      const timestamp = date
+        ? typeof date === "number"
+          ? date
+          : Math.floor(new Date(/^\d{4}-\d{2}-\d{2}$/.test(date) ? `${date}T23:59:59Z` : date).getTime() / 1000)
+        : null
+      if (!height && (timestamp === null || Number.isNaN(timestamp))) {
+        return NextResponse.json({ error: "Either date or blockNumber must be provided" }, { status: 400 })
+      }
+
+      const result = await queryNonEvmBalance(network, wallet, token, timestamp, height)
+      return respondWithBalance({
+        network,
+        networkName: nonEvm.name,
+        walletAddress: wallet,
+        contractAddress: token,
+        clientName: body.clientName,
+        ...result,
+      })
     }
 
     // Validate wallet address
@@ -416,64 +548,31 @@ export async function POST(request: NextRequest) {
       targetBlock
     )
 
-    // Format balance with decimals
-    const balanceBigInt = BigInt(balance)
-    const divisor = BigInt(10 ** decimals)
-    const integerPart = balanceBigInt / divisor
-    const fractionalPart = balanceBigInt % divisor
-    const formattedBalance = `${integerPart}.${fractionalPart.toString().padStart(decimals, "0")}`
-
-    const blockDate = new Date(blockTimestamp * 1000).toISOString()
-    const queriedAt = new Date().toISOString()
-
-    let saved: BalanceQuery | null = null
-    const user = await getCurrentUserFromSession()
-    if (user) {
-      try {
-        saved = await insertBalanceQuery(user.id, {
-          network,
-          networkName: NETWORK_CONFIGS[network].name,
-          walletAddress,
-          contractAddress: contractAddress || null,
-          symbol,
-          balance: formattedBalance,
-          balanceRaw: balance,
-          decimals,
-          blockNumber: targetBlock,
-          blockDate,
-          queriedAt,
-          clientName: body.clientName,
-        })
-      } catch (error) {
-        console.error("Failed to save balance query:", error)
-      }
-    }
-
-    return NextResponse.json({
-      success: true,
-      saved,
-      data: {
-        network: NETWORK_CONFIGS[network].name,
-        walletAddress,
-        contractAddress: contractAddress || "native",
-        symbol,
-        balance: formattedBalance,
-        balanceRaw: balance,
-        decimals,
-        blockNumber: targetBlock,
-        blockTimestamp,
-        blockDate,
-        queriedAt,
-      },
+    return respondWithBalance({
+      network,
+      networkName: NETWORK_CONFIGS[network].name,
+      walletAddress,
+      contractAddress: contractAddress || null,
+      clientName: body.clientName,
+      balance,
+      decimals,
+      symbol,
+      blockNumber: targetBlock,
+      blockTimestamp,
     })
   } catch (error) {
     console.error("[v0] Historical balance query error:", error)
     return NextResponse.json(
       {
         error: error instanceof Error ? error.message : "Failed to query historical balance",
-        details: "This may be due to the RPC node not having archival data for the requested block. Try using a dedicated archive node endpoint.",
+        ...(error instanceof UserFacingError
+          ? {}
+          : {
+              details:
+                "This may be due to the RPC node not having archival data for the requested block. Try using a dedicated archive node endpoint.",
+            }),
       },
-      { status: 500 }
+      { status: error instanceof UserFacingError ? 422 : 500 }
     )
   }
 }
@@ -481,13 +580,24 @@ export async function POST(request: NextRequest) {
 // GET endpoint to return supported networks
 export async function GET() {
   return NextResponse.json({
-    networks: Object.entries(NETWORK_CONFIGS).map(([id, config]) => ({
-      id,
-      name: config.name,
-      chainId: config.chainId,
-      isArchive: config.isArchive,
-      provider: config.provider,
-    })),
+    networks: [
+      ...Object.entries(NETWORK_CONFIGS).map(([id, config]) => ({
+        id,
+        name: config.name,
+        chainId: config.chainId,
+        isArchive: config.isArchive,
+        provider: config.provider,
+        family: "evm" as const,
+      })),
+      ...Object.entries(NON_EVM_NETWORKS).map(([id, config]) => ({
+        id,
+        name: config.name,
+        chainId: config.chainId,
+        isArchive: config.isArchive,
+        provider: config.provider,
+        family: config.family,
+      })),
+    ],
     hasArchiveNode: Object.values(NETWORK_CONFIGS).some((config) => config.isArchive),
   })
 }

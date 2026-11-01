@@ -1,8 +1,9 @@
 export interface BalanceNetwork {
   id: string
   name: string
-  chainId: number
+  chainId: number | string
   isArchive: boolean
+  family?: "evm" | "cosmos" | "solana"
 }
 
 export interface BalanceQuery {
@@ -49,6 +50,33 @@ export const COMMON_TOKENS: Record<string, { address: string; symbol: string; na
     { address: "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7", symbol: "USDT", name: "Tether USD" },
     { address: "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E", symbol: "USDC", name: "USD Coin" },
   ],
+  arc: [{ address: "0x3600000000000000000000000000000000000000", symbol: "USDC", name: "USD Coin" }],
+  monad: [
+    { address: "0x754704Bc059F8C67012fEd69BC8A327a5aafb603", symbol: "USDC", name: "USD Coin" },
+    { address: "0xe7cd86e13AC4309349F30B3435a9d337750fC82D", symbol: "USDT0", name: "Tether USD" },
+    { address: "0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A", symbol: "WMON", name: "Wrapped MON" },
+  ],
+  "arc-testnet": [
+    { address: "0x3600000000000000000000000000000000000000", symbol: "USDC", name: "USD Coin" },
+    { address: "0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a", symbol: "EURC", name: "Euro Coin" },
+  ],
+  solana: [
+    { address: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", symbol: "USDC", name: "USD Coin" },
+    { address: "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB", symbol: "USDT", name: "Tether USD" },
+    { address: "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn", symbol: "JitoSOL", name: "Jito Staked SOL" },
+  ],
+  osmosis: [
+    { address: "ibc/498A0751C798A0D9A389AA3691123DADA57DAA4FE165D5C75894505B876BA6E4", symbol: "USDC", name: "USD Coin (Noble)" },
+  ],
+  cosmoshub: [
+    { address: "ibc/F663521BF1836B00F5F177680F74BFB9A8B5654A694D0D2BC249E03CF2509013", symbol: "USDC", name: "USD Coin (Noble)" },
+  ],
+}
+
+export const NETWORK_ADDRESS_HINTS: Record<string, { wallet: string; token: string; block: string }> = {
+  evm: { wallet: "0x...", token: "Or paste a token contract address", block: "Block number" },
+  solana: { wallet: "Solana address (base58)", token: "Or paste an SPL token mint address", block: "Slot" },
+  cosmos: { wallet: "e.g. cosmos1..., osmo1...", token: "Or paste a denom (e.g. ibc/...)", block: "Block height" },
 }
 
 export function formatBalance(balance: string, maxFractionDigits = 6): string {

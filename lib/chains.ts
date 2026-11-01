@@ -52,9 +52,12 @@ export function detectChainFromUrl(url: string): { chain: string; explorer: stri
   if (urlLower.includes("ftmscan.com")) return { chain: "Fantom", explorer: "FTMScan" }
   if (urlLower.includes("basescan.org")) return { chain: "Base", explorer: "BaseScan" }
   if (urlLower.includes("lineascan.build")) return { chain: "Linea", explorer: "LineaScan" }
+  if (urlLower.includes("explorer.testnet.arc.io")) return { chain: "Arc Testnet", explorer: "Arc Explorer" }
+  if (urlLower.includes("explorer.arc.io")) return { chain: "Arc", explorer: "Arc Explorer" }
   if (urlLower.includes("zksync.blockscout.com") || urlLower.includes("era.zksync.network"))
     return { chain: "zkSync Era", explorer: "zkSync Explorer" }
 
+  if (urlLower.includes("monadscan.com")) return { chain: "Monad", explorer: "MonadScan" }
   if (urlLower.includes("monadexplorer.com") || urlLower.includes("monadvision.com")) {
     return { chain: "Monad", explorer: "MonadVision" }
   }
@@ -236,7 +239,10 @@ export const SUPPORTED_EXPLORERS = [
   { name: "Snowtrace", chain: "Avalanche", url: "snowtrace.io" },
   { name: "LineaScan", chain: "Linea", url: "lineascan.build" },
   { name: "zkSync Explorer", chain: "zkSync Era", url: "era.zksync.network" },
+  { name: "Arc Explorer", chain: "Arc", url: "explorer.arc.io" },
+  { name: "Arc Explorer", chain: "Arc Testnet", url: "explorer.testnet.arc.io" },
   // Monad
+  { name: "MonadScan", chain: "Monad", url: "monadscan.com" },
   { name: "MonadVision", chain: "Monad", url: "monadvision.com" },
   { name: "Monad Explorer", chain: "Monad", url: "monadexplorer.com" },
   // Solana
