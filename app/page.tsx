@@ -209,7 +209,7 @@ export default function HomePage() {
               </p>
               <ul className="mt-8 space-y-3">
                 {[
-                  "Any past date or block height, on nine EVM networks, including Arc",
+                  "Any past date or block height, on EVM networks (including Arc), Solana and the main Cosmos chains",
                   "Rebasing tokens like stETH, where balances move without transactions",
                   "Results filed by client, ready to export as CSV",
                 ].map((point) => (

@@ -107,7 +107,8 @@ export async function deleteBalanceQuery(userId: string, id: string): Promise<bo
   return !!row
 }
 
-const ADDRESS = /^0x[a-fA-F0-9]{40}$/
+// EVM hex, Solana base58, Cosmos bech32 addresses, or Cosmos denoms (ibc/..., factory/...).
+const ADDRESS = /^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44}|[a-z]{1,20}1[02-9ac-hj-np-z]{38,58}|[a-zA-Z][a-zA-Z0-9/:._-]{1,127})$/
 
 // Validates results saved in the browser before a guest signed in, so they can be moved to the account.
 export function parseImportedQuery(value: unknown): Omit<BalanceQuery, "id"> | null {
@@ -117,11 +118,11 @@ export function parseImportedQuery(value: unknown): Omit<BalanceQuery, "id"> | n
 
   const network = str(q.network, 50)
   const networkName = str(q.networkName, 100)
-  const walletAddress = str(q.walletAddress, 42)
+  const walletAddress = str(q.walletAddress, 80)
   const symbol = str(q.symbol, 30)
   const balance = str(q.balance, 100)
   const balanceRaw = str(q.balanceRaw, 100)
-  const contractAddress = q.contractAddress == null ? null : str(q.contractAddress, 42)
+  const contractAddress = q.contractAddress == null ? null : str(q.contractAddress, 128)
   const decimals = Number(q.decimals)
   const blockNumber = Number(q.blockNumber)
   const blockDate = new Date(String(q.blockDate))
