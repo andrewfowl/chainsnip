@@ -27,6 +27,20 @@ const TAB_BY_FRAGMENT: Record<string, string> = {
   asset_multichain: "tokens",
 }
 
+// Explorers without a Blockscout instance that also sit behind Cloudflare.
+// Each maps the source path onto an equivalent page on an unwalled explorer.
+const OTHER_MIRRORS: Record<string, (path: string) => string | null> = {
+  "bscscan.com": (path) => (SHARED_PATH.test(path) ? `https://bsctrace.com${path}` : null),
+  "lineascan.build": (path) => (SHARED_PATH.test(path) ? `https://www.oklink.com/linea${path}` : null),
+  "monadscan.com": (path) => (SHARED_PATH.test(path) ? `https://monadvision.com${path}` : null),
+  "xrpscan.com": (path) => {
+    const match = path.match(/^\/(account|tx|ledger)\/([^/]+)\/?$/i)
+    if (!match) return null
+    const section = { account: "accounts", tx: "transactions", ledger: "ledgers" }[match[1].toLowerCase()]
+    return `https://livenet.xrpl.org/${section}/${match[2]}`
+  },
+}
+
 export function getCaptureUrl(sourceUrl: string): string {
   let url: URL
   try {
@@ -36,6 +50,9 @@ export function getCaptureUrl(sourceUrl: string): string {
   }
 
   const host = url.hostname.toLowerCase().replace(/^www\./, "")
+  const otherMirror = OTHER_MIRRORS[host]?.(url.pathname.replace(/\/$/, ""))
+  if (otherMirror) return otherMirror
+
   const mirror = BLOCKSCOUT_MIRRORS[host]
   if (!mirror || !SHARED_PATH.test(url.pathname)) return sourceUrl
 
