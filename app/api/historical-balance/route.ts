@@ -18,8 +18,9 @@ interface NetworkConfig {
 interface NetworkDefinition {
   name: string
   chainId: number
-  alchemyHost: string
+  alchemyHost?: string
   publicRpcUrl: string
+  publicRpcIsArchive?: boolean
   blockExplorerApi?: string
   chainstackUrl?: string
 }
@@ -75,6 +76,18 @@ const NETWORK_DEFINITIONS: Record<string, NetworkDefinition> = {
     publicRpcUrl: "https://avalanche.llamarpc.com",
     blockExplorerApi: "https://api.snowtrace.io/api",
   },
+  arc: {
+    name: "Arc",
+    chainId: 5042,
+    publicRpcUrl: "https://rpc.mainnet.arc.io",
+    publicRpcIsArchive: true,
+  },
+  "arc-testnet": {
+    name: "Arc Testnet",
+    chainId: 5042002,
+    publicRpcUrl: "https://rpc.testnet.arc.io",
+    publicRpcIsArchive: true,
+  },
 }
 
 // Priority: dedicated Chainstack node > Alchemy archive > public (non-archive) RPC
@@ -83,7 +96,11 @@ function resolveNetworkConfig(def: NetworkDefinition): NetworkConfig {
   if (def.chainstackUrl) {
     return { ...base, rpcUrl: def.chainstackUrl, isArchive: true, provider: "chainstack" }
   }
-  if (ALCHEMY_API_KEY) {
+  // Arc's public RPC serves full history, and Alchemy has no Arc endpoint.
+  if (def.publicRpcIsArchive) {
+    return { ...base, rpcUrl: def.publicRpcUrl, isArchive: true, provider: "public" }
+  }
+  if (ALCHEMY_API_KEY && def.alchemyHost) {
     return {
       ...base,
       rpcUrl: `https://${def.alchemyHost}.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
@@ -266,6 +283,8 @@ async function queryBalanceAtBlock(
       arbitrum: "ETH",
       optimism: "ETH",
       base: "ETH",
+      arc: "USDC",
+      "arc-testnet": "USDC",
       avalanche: "AVAX",
     }
 

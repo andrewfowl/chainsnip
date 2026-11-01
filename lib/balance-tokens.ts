@@ -49,6 +49,11 @@ export const COMMON_TOKENS: Record<string, { address: string; symbol: string; na
     { address: "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7", symbol: "USDT", name: "Tether USD" },
     { address: "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E", symbol: "USDC", name: "USD Coin" },
   ],
+  arc: [{ address: "0x3600000000000000000000000000000000000000", symbol: "USDC", name: "USD Coin" }],
+  "arc-testnet": [
+    { address: "0x3600000000000000000000000000000000000000", symbol: "USDC", name: "USD Coin" },
+    { address: "0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a", symbol: "EURC", name: "Euro Coin" },
+  ],
 }
 
 export function formatBalance(balance: string, maxFractionDigits = 6): string {
