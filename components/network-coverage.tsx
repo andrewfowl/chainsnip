@@ -2,63 +2,35 @@ import Image from "next/image"
 
 type Network = { name: string; logo?: string }
 
-type NetworkGroup = {
-  family: string
-  capabilities: string
-  networks: Network[]
-}
-
-const GROUPS: NetworkGroup[] = [
-  {
-    family: "EVM",
-    capabilities: "Snapshots + historical balances from archive nodes",
-    networks: [
-      { name: "Ethereum", logo: "ethereum" },
-      { name: "Polygon", logo: "polygon" },
-      { name: "BNB Chain", logo: "bnb-chain" },
-      { name: "Arbitrum", logo: "arbitrum" },
-      { name: "Optimism", logo: "optimism" },
-      { name: "Base", logo: "base" },
-      { name: "Avalanche", logo: "avalanche" },
-      { name: "Arc" },
-      { name: "Monad" },
-    ],
-  },
-  {
-    family: "Solana",
-    capabilities: "Snapshots + balances for SOL and SPL tokens",
-    networks: [{ name: "Solana", logo: "solana" }],
-  },
-  {
-    family: "Cosmos",
-    capabilities: "Snapshots + balances on the main IBC chains",
-    networks: [
-      { name: "Cosmos Hub", logo: "cosmos" },
-      { name: "Osmosis" },
-      { name: "Celestia" },
-      { name: "Injective" },
-      { name: "dYdX" },
-      { name: "Noble" },
-      { name: "Neutron" },
-      { name: "Akash" },
-      { name: "Axelar" },
-      { name: "Stargaze" },
-    ],
-  },
-  {
-    family: "More explorers",
-    capabilities: "Month-end explorer snapshots",
-    networks: [
-      { name: "Bitcoin", logo: "bitcoin" },
-      { name: "XRP Ledger", logo: "xrp" },
-      { name: "Hedera", logo: "hedera" },
-      { name: "Linea" },
-      { name: "zkSync Era" },
-    ],
-  },
+const NETWORKS: Network[] = [
+  { name: "Ethereum", logo: "ethereum" },
+  { name: "Bitcoin", logo: "bitcoin" },
+  { name: "Solana", logo: "solana" },
+  { name: "Polygon", logo: "polygon" },
+  { name: "BNB Chain", logo: "bnb-chain" },
+  { name: "Arbitrum", logo: "arbitrum" },
+  { name: "Optimism", logo: "optimism" },
+  { name: "Base", logo: "base" },
+  { name: "Avalanche", logo: "avalanche" },
+  { name: "Cosmos Hub", logo: "cosmos" },
+  { name: "XRP Ledger", logo: "xrp" },
+  { name: "Hedera", logo: "hedera" },
+  { name: "Arc" },
+  { name: "Monad" },
+  { name: "Osmosis" },
+  { name: "Celestia" },
+  { name: "Injective" },
+  { name: "dYdX" },
+  { name: "Noble" },
+  { name: "Neutron" },
+  { name: "Akash" },
+  { name: "Axelar" },
+  { name: "Stargaze" },
+  { name: "Linea" },
+  { name: "zkSync Era" },
 ]
 
-export const NETWORK_COUNT = GROUPS.reduce((total, group) => total + group.networks.length, 0)
+export const NETWORK_COUNT = NETWORKS.length
 
 function NetworkMark({ network }: { network: Network }) {
   if (network.logo) {
@@ -94,7 +66,7 @@ export function NetworkCoverage() {
                 Network coverage
               </span>
               <h2 id="networks-heading" className="mt-3 text-3xl sm:text-4xl text-foreground uppercase text-balance">
-                {NETWORK_COUNT} networks, one evidence trail
+                {NETWORK_COUNT} supported networks
               </h2>
             </div>
             <p className="max-w-sm text-sm text-muted-foreground leading-relaxed text-pretty">
@@ -103,30 +75,17 @@ export function NetworkCoverage() {
             </p>
           </div>
 
-          <div className="mt-12 border-t border-border">
-            {GROUPS.map((group) => (
-              <div
-                key={group.family}
-                className="grid gap-4 border-b border-border py-6 md:grid-cols-[14rem_1fr] md:gap-8"
+          <ul className="mt-12 flex flex-wrap gap-2" aria-label="Supported networks">
+            {NETWORKS.map((network) => (
+              <li
+                key={network.name}
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-card py-1.5 pl-1.5 pr-3.5 text-sm text-foreground"
               >
-                <div>
-                  <h3 className="text-base font-semibold text-foreground">{group.family}</h3>
-                  <p className="mt-1 text-sm text-muted-foreground leading-relaxed">{group.capabilities}</p>
-                </div>
-                <ul className="flex flex-wrap content-start items-start gap-2" aria-label={`${group.family} networks`}>
-                  {group.networks.map((network) => (
-                    <li
-                      key={network.name}
-                      className="inline-flex items-center gap-2 rounded-full border border-border bg-card py-1.5 pl-1.5 pr-3.5 text-sm text-foreground"
-                    >
-                      <NetworkMark network={network} />
-                      {network.name}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+                <NetworkMark network={network} />
+                {network.name}
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       </div>
     </section>
