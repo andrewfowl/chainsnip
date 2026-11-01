@@ -89,6 +89,12 @@ const NETWORK_DEFINITIONS: Record<string, NetworkDefinition> = {
     publicRpcUrl: "https://rpc.testnet.arc.io",
     publicRpcIsArchive: true,
   },
+  monad: {
+    name: "Monad",
+    chainId: 143,
+    alchemyHost: "monad-mainnet",
+    publicRpcUrl: "https://rpc1.monad.xyz",
+  },
 }
 
 // Priority: dedicated Chainstack node > Alchemy archive > public (non-archive) RPC
@@ -286,6 +292,7 @@ async function queryBalanceAtBlock(
       base: "ETH",
       arc: "USDC",
       "arc-testnet": "USDC",
+      monad: "MON",
       avalanche: "AVAX",
     }
 

@@ -51,6 +51,11 @@ export const COMMON_TOKENS: Record<string, { address: string; symbol: string; na
     { address: "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E", symbol: "USDC", name: "USD Coin" },
   ],
   arc: [{ address: "0x3600000000000000000000000000000000000000", symbol: "USDC", name: "USD Coin" }],
+  monad: [
+    { address: "0x754704Bc059F8C67012fEd69BC8A327a5aafb603", symbol: "USDC", name: "USD Coin" },
+    { address: "0xe7cd86e13AC4309349F30B3435a9d337750fC82D", symbol: "USDT0", name: "Tether USD" },
+    { address: "0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A", symbol: "WMON", name: "Wrapped MON" },
+  ],
   "arc-testnet": [
     { address: "0x3600000000000000000000000000000000000000", symbol: "USDC", name: "USD Coin" },
     { address: "0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a", symbol: "EURC", name: "Euro Coin" },

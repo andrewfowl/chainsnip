@@ -57,6 +57,7 @@ export function detectChainFromUrl(url: string): { chain: string; explorer: stri
   if (urlLower.includes("zksync.blockscout.com") || urlLower.includes("era.zksync.network"))
     return { chain: "zkSync Era", explorer: "zkSync Explorer" }
 
+  if (urlLower.includes("monadscan.com")) return { chain: "Monad", explorer: "MonadScan" }
   if (urlLower.includes("monadexplorer.com") || urlLower.includes("monadvision.com")) {
     return { chain: "Monad", explorer: "MonadVision" }
   }
@@ -241,6 +242,7 @@ export const SUPPORTED_EXPLORERS = [
   { name: "Arc Explorer", chain: "Arc", url: "explorer.arc.io" },
   { name: "Arc Explorer", chain: "Arc Testnet", url: "explorer.testnet.arc.io" },
   // Monad
+  { name: "MonadScan", chain: "Monad", url: "monadscan.com" },
   { name: "MonadVision", chain: "Monad", url: "monadvision.com" },
   { name: "Monad Explorer", chain: "Monad", url: "monadexplorer.com" },
   // Solana
