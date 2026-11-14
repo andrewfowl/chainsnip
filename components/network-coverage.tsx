@@ -48,7 +48,7 @@ function NetworkMark({ network }: { network: Network }) {
   return (
     <span
       aria-hidden="true"
-      className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-foreground font-mono text-[9px] font-semibold uppercase text-background"
+      className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-foreground font-mono text-[11px] font-semibold uppercase text-background"
     >
       {network.name.slice(0, 2)}
     </span>
@@ -62,14 +62,14 @@ export function NetworkCoverage() {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div className="max-w-xl">
-              <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+              <span className="font-mono text-sm md:text-xs uppercase tracking-widest text-muted-foreground">
                 Network coverage
               </span>
               <h2 id="networks-heading" className="mt-3 text-3xl sm:text-4xl text-foreground uppercase text-balance">
                 {NETWORK_COUNT} supported networks
               </h2>
             </div>
-            <p className="max-w-sm text-sm text-muted-foreground leading-relaxed text-pretty">
+            <p className="max-w-sm text-base md:text-sm text-muted-foreground leading-relaxed text-pretty">
               Paste a link from any supported explorer, or look up a balance directly on the chains your clients
               actually hold.
             </p>
@@ -79,7 +79,7 @@ export function NetworkCoverage() {
             {NETWORKS.map((network) => (
               <li
                 key={network.name}
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-card py-1.5 pl-1.5 pr-3.5 text-sm text-foreground"
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-card py-1.5 pl-1.5 pr-3.5 text-base md:text-sm text-foreground"
               >
                 <NetworkMark network={network} />
                 {network.name}

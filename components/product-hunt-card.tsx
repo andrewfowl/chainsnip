@@ -18,7 +18,7 @@ export function ProductHuntCard({ className = "" }: { className?: string }) {
         />
         <div className="min-w-0 flex-1">
           <p className="truncate text-lg font-semibold leading-tight text-foreground">ChainSnip</p>
-          <p className="mt-1 line-clamp-2 text-sm leading-snug text-muted-foreground">
+          <p className="mt-1 line-clamp-2 text-base md:text-sm leading-snug text-muted-foreground">
             {"Accountant's Proof of the Wallet's Balance"}
           </p>
         </div>
@@ -27,7 +27,7 @@ export function ProductHuntCard({ className = "" }: { className?: string }) {
         href={PRODUCT_HUNT_URL}
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-4 inline-flex items-center gap-1 rounded-full bg-[#ff6154] px-4 py-2 text-base font-semibold text-white transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        className="mt-4 inline-flex items-center gap-1 rounded-full bg-[#cc3d32] px-4 py-2 text-base font-semibold text-white transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       >
         {"Check it out on Product Hunt →"}
         <span className="sr-only">(opens in a new tab)</span>

@@ -115,7 +115,7 @@ export default function HomePage() {
               </div>
               <Link
                 href="#networks"
-                className="mt-8 inline-block font-mono text-xs text-muted-foreground hover:text-foreground transition-colors"
+                className="mt-8 inline-block font-mono text-sm md:text-xs text-muted-foreground hover:text-foreground transition-colors"
               >
                 {NETWORK_COUNT} networks · EVM · Solana · Cosmos · Bitcoin
               </Link>
@@ -138,11 +138,11 @@ export default function HomePage() {
 
             {/* Right: evidence specimen — the signature element */}
             <div className="relative">
-              <div className="rounded-[2.5rem] bg-card overflow-hidden font-mono text-sm p-2">
+              <div className="rounded-[2.5rem] bg-card overflow-hidden font-mono text-base md:text-sm p-2">
                 {/* Record header */}
                 <div className="flex items-center justify-between px-5 py-4">
-                  <span className="text-xs uppercase tracking-widest text-muted-foreground">Snapshot Record</span>
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-sulfur px-3 py-1 text-foreground text-xs">
+                  <span className="text-sm md:text-xs uppercase tracking-widest text-muted-foreground">Snapshot Record</span>
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-sulfur px-3 py-1 text-foreground text-sm md:text-xs">
                     <Check className="h-3.5 w-3.5" strokeWidth={3} aria-hidden="true" />
                     Verified
                   </span>
@@ -150,24 +150,24 @@ export default function HomePage() {
                 {/* Captured explorer content (stylized) */}
                 <div className="px-5 pb-5 space-y-3">
                   <div className="flex items-baseline justify-between gap-4">
-                    <span className="text-muted-foreground text-xs">Address</span>
+                    <span className="text-muted-foreground text-sm md:text-xs">Address</span>
                     <span className="text-foreground truncate">0x742d35Cc6634C0532925a3b8D4a8fF</span>
                   </div>
                   <div className="flex items-baseline justify-between gap-4">
-                    <span className="text-muted-foreground text-xs">ETH Balance</span>
+                    <span className="text-muted-foreground text-sm md:text-xs">ETH Balance</span>
                     <span className="text-foreground">1,284.5091 ETH</span>
                   </div>
                   <div className="flex items-baseline justify-between gap-4">
-                    <span className="text-muted-foreground text-xs">USDC</span>
+                    <span className="text-muted-foreground text-sm md:text-xs">USDC</span>
                     <span className="text-foreground">2,410,882.00</span>
                   </div>
                   <div className="flex items-baseline justify-between gap-4">
-                    <span className="text-muted-foreground text-xs">Source</span>
+                    <span className="text-muted-foreground text-sm md:text-xs">Source</span>
                     <span className="text-foreground">etherscan.io</span>
                   </div>
                 </div>
                 {/* Proof footer */}
-                <div className="rounded-[2rem] bg-foreground text-background p-5 grid grid-cols-1 gap-2.5 text-xs [&_.text-foreground]:text-background [&_.text-muted-foreground]:text-background/60">
+                <div className="rounded-[2rem] bg-foreground text-background p-5 grid grid-cols-1 gap-2.5 text-sm md:text-xs [&_.text-foreground]:text-background [&_.text-muted-foreground]:text-background/60">
                   <div className="flex items-baseline justify-between gap-4">
                     <span className="text-muted-foreground">Captured</span>
                     <span className="text-foreground">2025-05-31 23:59:00 UTC</span>
@@ -190,7 +190,7 @@ export default function HomePage() {
         <div className="container mx-auto px-4 py-24">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center max-w-6xl mx-auto">
             <div>
-              <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+              <span className="font-mono text-sm md:text-xs uppercase tracking-widest text-muted-foreground">
                 Historical balances
               </span>
               <h2 className="mt-3 text-3xl sm:text-4xl text-foreground uppercase text-balance">
@@ -206,7 +206,7 @@ export default function HomePage() {
                   "Rebasing tokens like stETH, where balances move without transactions",
                   "Results filed by client, ready to export as CSV",
                 ].map((point) => (
-                  <li key={point} className="flex items-start gap-3 text-sm text-foreground">
+                  <li key={point} className="flex items-start gap-3 text-base md:text-sm text-foreground">
                     <Check className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={3} aria-hidden="true" />
                     {point}
                   </li>
@@ -220,8 +220,8 @@ export default function HomePage() {
               </Link>
             </div>
 
-            <div className="rounded-[2.5rem] bg-card font-mono text-sm p-2" aria-hidden="true">
-              <div className="grid grid-cols-3 gap-3 px-5 py-4 text-xs">
+            <div className="rounded-[2.5rem] bg-card font-mono text-base md:text-sm p-2" aria-hidden="true">
+              <div className="grid grid-cols-3 gap-3 px-5 py-4 text-sm md:text-xs">
                 <div>
                   <p className="text-muted-foreground">Network</p>
                   <p className="mt-1 text-foreground">Ethereum</p>
@@ -242,11 +242,11 @@ export default function HomePage() {
                   ["USDC", "880,120.55"],
                 ].map(([token, amount]) => (
                   <div key={token} className="flex items-baseline justify-between gap-4">
-                    <span className="text-muted-foreground text-xs">{token}</span>
+                    <span className="text-muted-foreground text-sm md:text-xs">{token}</span>
                     <span className="text-foreground">{amount}</span>
                   </div>
                 ))}
-                <div className="flex items-baseline justify-between gap-4 border-t border-border pt-3 text-xs">
+                <div className="flex items-baseline justify-between gap-4 border-t border-border pt-3 text-sm md:text-xs">
                   <span className="text-muted-foreground">Block</span>
                   <span className="text-foreground">#24,136,902</span>
                 </div>
@@ -282,12 +282,12 @@ export default function HomePage() {
                   key={feature.title}
                   className="grid grid-cols-[auto_1fr_auto] items-start gap-4 sm:gap-6 py-6 border-b border-border group"
                 >
-                  <span className="font-mono text-xs text-muted-foreground pt-1 tabular-nums">
+                  <span className="font-mono text-sm md:text-xs text-muted-foreground pt-1 tabular-nums">
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <div>
                     <dt className="text-base font-semibold text-foreground">{feature.title}</dt>
-                    <dd className="mt-1 text-sm text-muted-foreground leading-relaxed max-w-md">
+                    <dd className="mt-1 text-base md:text-sm text-muted-foreground leading-relaxed max-w-md">
                       {feature.description}
                     </dd>
                   </div>
@@ -312,9 +312,9 @@ export default function HomePage() {
                   key={item.title}
                   className="py-8 md:py-10 md:px-8 md:first:pl-0 border-b md:border-b-0 md:border-r last:border-r-0 border-border"
                 >
-                  <span className="font-mono text-sm text-foreground tabular-nums">{String(i + 1).padStart(2, "0")}</span>
+                  <span className="font-mono text-base md:text-sm text-foreground tabular-nums">{String(i + 1).padStart(2, "0")}</span>
                   <h3 className="mt-4 text-lg font-semibold text-foreground">{item.title}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{item.description}</p>
+                  <p className="mt-2 text-base md:text-sm text-muted-foreground leading-relaxed">{item.description}</p>
                 </div>
               ))}
             </div>
@@ -348,7 +348,7 @@ export default function HomePage() {
                   <blockquote className="text-foreground leading-relaxed text-pretty">{t.quote}</blockquote>
                   <figcaption className="mt-6">
                     <p className="font-semibold text-foreground">{t.name}</p>
-                    <p className="text-sm text-muted-foreground">{t.role}</p>
+                    <p className="text-base md:text-sm text-muted-foreground">{t.role}</p>
                   </figcaption>
                 </figure>
               ))}
