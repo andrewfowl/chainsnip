@@ -101,17 +101,15 @@ export default function HomePage() {
                 cryptographic hash. Evidence your auditor cannot argue with.
               </p>
               <div className="mt-8 flex flex-col sm:flex-row gap-3">
-                <Link href="/auth/signup">
-                  <Button size="lg" className="group w-full sm:w-auto">
-                    Get started
-                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
-                  </Button>
-                </Link>
-                <Link href="#how-it-works">
-                  <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                    How it works
-                  </Button>
-                </Link>
+                <Button asChild size="lg" className="group w-full sm:w-auto">
+                  <Link href="/auth/signup">
+                    Get started free
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
+                  </Link>
+                </Button>
+                <Button asChild size="lg" variant="outline" className="w-full sm:w-auto">
+                  <Link href="#how-it-works">How it works</Link>
+                </Button>
               </div>
               <Link
                 href="#networks"
@@ -167,7 +165,7 @@ export default function HomePage() {
                   </div>
                 </div>
                 {/* Proof footer */}
-                <div className="rounded-[2rem] bg-foreground text-background p-5 grid grid-cols-1 gap-2.5 text-sm md:text-xs [&_.text-foreground]:text-background [&_.text-muted-foreground]:text-background/60">
+                <div className="rounded-[2rem] bg-foreground text-background p-5 grid grid-cols-1 gap-2.5 text-sm md:text-xs [&_.text-foreground]:text-background [&_.text-muted-foreground]:text-background/75">
                   <div className="flex items-baseline justify-between gap-4">
                     <span className="text-muted-foreground">Captured</span>
                     <span className="text-foreground">2025-05-31 23:59:00 UTC</span>
@@ -212,12 +210,12 @@ export default function HomePage() {
                   </li>
                 ))}
               </ul>
-              <Link href="/auth/signup" className="mt-8 inline-block">
-                <Button variant="outline" className="group">
+              <Button asChild variant="outline" className="group mt-8">
+                <Link href="/auth/signup">
                   Start looking up balances
-                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
-                </Button>
-              </Link>
+                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
+                </Link>
+              </Button>
             </div>
 
             <div className="rounded-[2.5rem] bg-card font-mono text-base md:text-sm p-2" aria-hidden="true">
@@ -268,12 +266,12 @@ export default function HomePage() {
                 Stop screenshotting explorer pages by hand. ChainSnip turns balance verification into a repeatable,
                 defensible record.
               </p>
-              <Link href="/auth/signup" className="inline-block mt-6">
-                <Button className=" group">
-                  Start free
-                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
-                </Button>
-              </Link>
+              <Button asChild className="group mt-6">
+                <Link href="/auth/signup">
+                  Get started free
+                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
+                </Link>
+              </Button>
             </div>
 
             <dl className="lg:col-span-2 border-t border-border">
@@ -291,7 +289,7 @@ export default function HomePage() {
                       {feature.description}
                     </dd>
                   </div>
-                  <feature.icon className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors mt-0.5" />
+                  <feature.icon className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors mt-0.5" aria-hidden="true" />
                 </div>
               ))}
             </dl>
@@ -385,20 +383,15 @@ export default function HomePage() {
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 shrink-0">
-              <Link href="/auth/signup">
-                <Button
-                  size="lg"
-                  className="group"
-                >
+              <Button asChild size="lg" className="group">
+                <Link href="/auth/signup">
                   Get started free
-                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
-                </Button>
-              </Link>
-              <Link href="#pricing">
-                <Button size="lg" variant="outline">
-                  View pricing
-                </Button>
-              </Link>
+                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline">
+                <Link href="#pricing">View pricing</Link>
+              </Button>
             </div>
           </div>
         </div>
