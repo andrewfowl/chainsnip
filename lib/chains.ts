@@ -213,13 +213,19 @@ export function extractWalletAddress(url: string): string {
 }
 
 export function getMonthEndDate(date: Date = new Date()): Date {
-  return new Date(date.getFullYear(), date.getMonth() + 1, 0)
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 0))
 }
 
-export function getNextMonthEnd(): Date {
-  const now = new Date()
-  const nextMonth = new Date(now.getFullYear(), now.getMonth() + 2, 0)
-  return nextMonth
+/** Hour (UTC) on the last day of the month when scheduled captures run. */
+export const SCHEDULED_CAPTURE_HOUR_UTC = 23
+
+/** The next month-end capture time that is still ahead: this month's if not yet passed, otherwise next month's. */
+export function getNextMonthEnd(now: Date = new Date()): Date {
+  const thisMonth = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0, SCHEDULED_CAPTURE_HOUR_UTC),
+  )
+  if (thisMonth.getTime() > now.getTime()) return thisMonth
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 2, 0, SCHEDULED_CAPTURE_HOUR_UTC))
 }
 
 export const PLAN_LIMITS = {

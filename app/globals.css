@@ -35,7 +35,7 @@
     --secondary-foreground: 300 8% 3%;
 
     --muted: 48 20% 93%;
-    --muted-foreground: 45 3% 35%; /* 5.3:1 on pumice */
+    --muted-foreground: 45 4% 24%; /* ~8.6:1 on pumice */
 
     --accent: 50 8% 82%; /* neutral hover surface */
     --accent-foreground: 300 8% 3%;
@@ -65,7 +65,7 @@
     --secondary: 300 3% 11%;
     --secondary-foreground: 48 24% 96%;
     --muted: 300 3% 11%;
-    --muted-foreground: 45 4% 62%;
+    --muted-foreground: 45 6% 76%;
     --accent: 300 3% 15%;
     --accent-foreground: 48 24% 96%;
     --destructive: 0 72% 51%;

@@ -68,27 +68,21 @@ export default function Header() {
           <div className="hidden lg:flex items-center gap-2">
             {user ? (
               <>
-                <Link href="/dashboard">
-                  <Button variant="ghost" size="sm" className="text-sm text-muted-foreground hover:text-foreground">
-                    Dashboard
-                  </Button>
-                </Link>
+                <Button asChild variant="ghost" size="sm" className="text-sm text-muted-foreground hover:text-foreground">
+                  <Link href="/dashboard">Dashboard</Link>
+                </Button>
                 <Button variant="ghost" size="sm" className="text-sm text-muted-foreground hover:text-foreground" onClick={handleSignOut}>
                   Sign Out
                 </Button>
               </>
             ) : (
               <>
-                <Link href="/auth/login">
-                  <Button variant="ghost" size="sm" className="text-sm text-muted-foreground hover:text-foreground">
-                    Sign in
-                  </Button>
-                </Link>
-                <Link href="/auth/signup">
-                  <Button size="sm" className="text-sm bg-foreground text-background hover:bg-foreground/90">
-                    Get Started
-                  </Button>
-                </Link>
+                <Button asChild variant="ghost" size="sm" className="text-sm text-muted-foreground hover:text-foreground">
+                  <Link href="/auth/login">Sign in</Link>
+                </Button>
+                <Button asChild size="sm" className="text-sm bg-foreground text-background hover:bg-foreground/90">
+                  <Link href="/auth/signup">Get started</Link>
+                </Button>
               </>
             )}
           </div>
@@ -96,7 +90,8 @@ export default function Header() {
           <button
             className="lg:hidden p-2"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Toggle menu"
+            aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isMobileMenuOpen}
           >
             {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -124,12 +119,12 @@ export default function Header() {
               <div className="border-t border-border pt-4 mt-2 flex flex-col gap-2">
                 {user ? (
                   <>
-                    <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
-                      <Button variant="outline" className="w-full justify-start bg-transparent">
-                        <LayoutDashboard className="mr-2 h-4 w-4" />
+                    <Button asChild variant="outline" className="w-full justify-start bg-transparent">
+                      <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
+                        <LayoutDashboard className="mr-2 h-4 w-4" aria-hidden="true" />
                         Dashboard
-                      </Button>
-                    </Link>
+                      </Link>
+                    </Button>
                     <Button variant="ghost" className="w-full justify-start" onClick={handleSignOut}>
                       <LogOut className="mr-2 h-4 w-4" />
                       Sign Out
@@ -137,14 +132,16 @@ export default function Header() {
                   </>
                 ) : (
                   <>
-                    <Link href="/auth/login" onClick={() => setIsMobileMenuOpen(false)}>
-                      <Button variant="outline" className="w-full bg-transparent">
-                        Log in
-                      </Button>
-                    </Link>
-                    <Link href="/auth/signup" onClick={() => setIsMobileMenuOpen(false)}>
-                      <Button className="w-full">Sign up</Button>
-                    </Link>
+                    <Button asChild variant="outline" className="w-full bg-transparent">
+                      <Link href="/auth/login" onClick={() => setIsMobileMenuOpen(false)}>
+                        Sign in
+                      </Link>
+                    </Button>
+                    <Button asChild className="w-full">
+                      <Link href="/auth/signup" onClick={() => setIsMobileMenuOpen(false)}>
+                        Get started
+                      </Link>
+                    </Button>
                   </>
                 )}
               </div>

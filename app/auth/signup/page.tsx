@@ -54,7 +54,7 @@ export default function SignupPage() {
       return
     }
 
-    const result = await signUp(email, password, name)
+    const result = await signUp(email, password, name, (formData.get("website") as string) || "")
 
     if (result.success) {
       toast({ title: "Success", description: "Account created successfully!" })
@@ -82,6 +82,10 @@ export default function SignupPage() {
       }
     >
       <form onSubmit={handleSubmit} className="space-y-4">
+        <div aria-hidden="true" className="absolute -left-[10000px] h-px w-px overflow-hidden">
+          <label htmlFor="website">Website</label>
+          <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />
+        </div>
         <div className="space-y-2">
           <Label htmlFor="name">Full Name</Label>
           <Input id="name" name="name" type="text" placeholder="John Doe" required disabled={isLoading} />
