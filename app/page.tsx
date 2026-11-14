@@ -291,7 +291,7 @@ export default function HomePage() {
                       {feature.description}
                     </dd>
                   </div>
-                  <feature.icon className="h-5 w-5 text-muted-foreground/60 group-hover:text-foreground transition-colors mt-0.5" />
+                  <feature.icon className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors mt-0.5" />
                 </div>
               ))}
             </dl>
