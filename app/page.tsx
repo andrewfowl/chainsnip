@@ -330,8 +330,14 @@ export default function HomePage() {
             <h2 className="text-3xl sm:text-4xl text-foreground uppercase max-w-xl">
               Accountants who care about evidence
             </h2>
-            <div className="mt-16 grid md:grid-cols-2 gap-px bg-border border border-border rounded-lg overflow-hidden">
+            <div className="mt-16 grid md:grid-cols-3 gap-px bg-border border border-border rounded-lg overflow-hidden">
               {[
+                {
+                  quote:
+                    "I've been using ChainSnip and I can't believe that there wasn't an app made before. I find it really helpful to use during month-ends.",
+                  name: "Dane Balatbat, CPA, CTT",
+                  role: "Accounting Manager, Blockchain at Aprio",
+                },
                 {
                   quote:
                     "Auditors stopped questioning our balance verification. We show them the timestamped proof and they move on. Saves us three hours per client.",
