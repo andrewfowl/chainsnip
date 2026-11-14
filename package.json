@@ -88,6 +88,7 @@
     "autoprefixer": "^10.4.20",
     "bcryptjs": "3.0.3",
     "better-sqlite3": "latest",
+    "botid": "^1.5.13",
     "bun-types": "latest",
     "canvas": "latest",
     "class-variance-authority": "^0.7.0",

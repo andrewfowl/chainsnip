@@ -13,6 +13,7 @@ import {
   clearSessionCookie,
   type User,
 } from "@/lib/auth"
+import { checkBotId } from "botid/server"
 import { checkEmailDeliverable, checkSignupRateLimit, recordSignupAttempt } from "@/lib/signup-guard"
 
 // Validate email format
@@ -84,50 +85,58 @@ export async function signUp(
   honeypot = ""
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    email = email.trim().toLowerCase()
-
-    if (honeypot) {
-      return { success: false, error: "An error occurred during sign up" }
-    }
+    email = String(email ?? "").trim().toLowerCase()
 
     const rateLimit = await checkSignupRateLimit()
+    const fail = async (reason: string, error: string) => {
+      await recordSignupAttempt(rateLimit.ipHash, email, false, reason)
+      return { success: false, error }
+    }
+
     if (!rateLimit.ok) {
       return { success: false, error: rateLimit.error }
     }
-    await recordSignupAttempt(rateLimit.ipHash, false)
+
+    if (honeypot) {
+      return fail("honeypot", "An error occurred during sign up")
+    }
+
+    const verification = await checkBotId()
+    if (verification.isBot) {
+      return fail("bot", "We couldn't verify this sign-up. Please try again from a regular browser.")
+    }
 
     if (!isValidEmail(email)) {
-      return { success: false, error: "Invalid email format" }
+      return fail("invalid_email", "Invalid email format")
     }
 
     if (!isValidPassword(password)) {
-      return { success: false, error: "Password must be between 8 and 128 characters" }
+      return fail("invalid_password", "Password must be between 8 and 128 characters")
     }
 
     if (!name || name.trim().length === 0) {
-      return { success: false, error: "Name is required" }
+      return fail("missing_name", "Name is required")
     }
 
     if (name.length > 100) {
-      return { success: false, error: "Name must be less than 100 characters" }
+      return fail("name_too_long", "Name must be less than 100 characters")
     }
 
     const deliverable = await checkEmailDeliverable(email)
     if (!deliverable.ok) {
-      return { success: false, error: deliverable.error }
+      return fail("undeliverable_email", deliverable.error)
     }
 
-    // Check if user already exists
     const existingUser = await getUserByEmail(email)
     if (existingUser) {
-      return { success: false, error: "An account with this email already exists" }
+      return fail("email_exists", "An account with this email already exists")
     }
 
     const user = await createUser(email, password, name)
     if (!user) {
-      return { success: false, error: "Failed to create account" }
+      return fail("create_failed", "Failed to create account")
     }
-    await recordSignupAttempt(rateLimit.ipHash, true)
+    await recordSignupAttempt(rateLimit.ipHash, email, true)
 
     const session = await createSession(user.id)
     await setSessionCookie(session.token)

@@ -1,0 +1,2 @@
+ALTER TABLE signup_attempts ADD COLUMN IF NOT EXISTS email TEXT;
+ALTER TABLE signup_attempts ADD COLUMN IF NOT EXISTS reason TEXT;

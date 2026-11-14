@@ -70,6 +70,20 @@ export async function checkSignupRateLimit(): Promise<GuardResult & { ipHash: st
   return { ok: true, ipHash }
 }
 
-export async function recordSignupAttempt(ipHash: string, succeeded: boolean): Promise<void> {
-  await execute(`INSERT INTO signup_attempts (ip_hash, succeeded) VALUES ($1, $2)`, [ipHash, succeeded])
+export async function recordSignupAttempt(
+  ipHash: string,
+  email: string,
+  succeeded: boolean,
+  reason: string | null = null
+): Promise<void> {
+  try {
+    await execute(`INSERT INTO signup_attempts (ip_hash, email, succeeded, reason) VALUES ($1, $2, $3, $4)`, [
+      ipHash,
+      email.slice(0, 320),
+      succeeded,
+      reason,
+    ])
+  } catch (error: any) {
+    console.error("recordSignupAttempt failed:", error?.message || error)
+  }
 }
