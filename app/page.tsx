@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight, Check, CalendarCheck, FileCheck, Shield, Link2, Clock, Building2 } from "lucide-react"
 import { NetworkCoverage, NETWORK_COUNT } from "@/components/network-coverage"
 import { StripePricingTable } from "@/components/stripe-pricing-table"
-import { TaglineReveal } from "@/components/tagline-reveal"
 import { ProductHuntCard } from "@/components/product-hunt-card"
 import { serializeJsonForScript } from "@/lib/safe-url"
 
@@ -183,8 +182,6 @@ export default function HomePage() {
       </section>
 
       <NetworkCoverage />
-
-      <TaglineReveal />
 
       {/* Historical balance lookup */}
       <section id="balance-lookup" className="border-b border-border scroll-mt-20">
