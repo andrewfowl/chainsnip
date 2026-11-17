@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight, Check, CalendarCheck, FileCheck, Shield, Link2, Clock, Building2 } from "lucide-react"
 import { NetworkCoverage, NETWORK_COUNT } from "@/components/network-coverage"
 import { StripePricingTable } from "@/components/stripe-pricing-table"
-import { TaglineReveal } from "@/components/tagline-reveal"
 import { ProductHuntCard } from "@/components/product-hunt-card"
 import { serializeJsonForScript } from "@/lib/safe-url"
 
@@ -184,8 +183,6 @@ export default function HomePage() {
 
       <NetworkCoverage />
 
-      <TaglineReveal />
-
       {/* Historical balance lookup */}
       <section id="balance-lookup" className="border-b border-border scroll-mt-20">
         <div className="container mx-auto px-4 py-24">
@@ -330,30 +327,17 @@ export default function HomePage() {
             <h2 className="text-3xl sm:text-4xl text-foreground uppercase max-w-xl">
               Accountants who care about evidence
             </h2>
-            <div className="mt-16 grid md:grid-cols-2 gap-px bg-border border border-border rounded-lg overflow-hidden">
-              {[
+            <figure className="mt-16 max-w-3xl bg-card border border-border rounded-lg p-8 md:p-16">
+              <blockquote className="text-xl md:text-2xl text-foreground leading-relaxed text-pretty">
                 {
-                  quote:
-                    "Auditors stopped questioning our balance verification. We show them the timestamped proof and they move on. Saves us three hours per client.",
-                  name: "Jennifer Martinez",
-                  role: "Partner, Pinnacle Accounting",
-                },
-                {
-                  quote:
-                    "Finally, defensible proof that I captured balances when I said I did. The hash verification takes away all doubt.",
-                  name: "David Kim",
-                  role: "Solo CPA, Crypto Tax Practice",
-                },
-              ].map((t) => (
-                <figure key={t.name} className="bg-card p-8 flex flex-col justify-between">
-                  <blockquote className="text-foreground leading-relaxed text-pretty">{t.quote}</blockquote>
-                  <figcaption className="mt-8">
-                    <p className="font-semibold text-foreground">{t.name}</p>
-                    <p className="text-base md:text-sm text-muted-foreground">{t.role}</p>
-                  </figcaption>
-                </figure>
-              ))}
-            </div>
+                  "\u201CI've been using ChainSnip and I can't believe that there wasn't an app made before. I find it really helpful to use during month-ends.\u201D"
+                }
+              </blockquote>
+              <figcaption className="mt-8">
+                <p className="font-semibold text-foreground">Dane Balatbat, CPA, CTT</p>
+                <p className="text-base md:text-sm text-muted-foreground">Accounting Manager, Blockchain at Aprio</p>
+              </figcaption>
+            </figure>
           </div>
         </div>
       </section>
