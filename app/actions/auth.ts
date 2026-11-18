@@ -14,7 +14,7 @@ import {
   type User,
 } from "@/lib/auth"
 import { checkBotId } from "botid/server"
-import { checkEmailDeliverable, checkSignupRateLimit, recordSignupAttempt } from "@/lib/signup-guard"
+import { checkEmailDeliverable, checkSignupRateLimit, clientIpHash, recordSignupAttempt } from "@/lib/signup-guard"
 
 // Validate email format
 function isValidEmail(email: string): boolean {
@@ -84,17 +84,19 @@ export async function signUp(
   name: string,
   honeypot = ""
 ): Promise<{ success: boolean; error?: string }> {
+  email = String(email ?? "").trim().toLowerCase()
+  let ipHash = "unknown"
+  const fail = async (reason: string, error: string) => {
+    await recordSignupAttempt(ipHash, email, false, reason)
+    return { success: false, error }
+  }
+
   try {
-    email = String(email ?? "").trim().toLowerCase()
+    ipHash = await clientIpHash()
 
-    const rateLimit = await checkSignupRateLimit()
-    const fail = async (reason: string, error: string) => {
-      await recordSignupAttempt(rateLimit.ipHash, email, false, reason)
-      return { success: false, error }
-    }
-
+    const rateLimit = await checkSignupRateLimit(ipHash)
     if (!rateLimit.ok) {
-      return { success: false, error: rateLimit.error }
+      return fail("rate_limited", rateLimit.error)
     }
 
     if (honeypot) {
@@ -136,7 +138,7 @@ export async function signUp(
     if (!user) {
       return fail("create_failed", "Failed to create account")
     }
-    await recordSignupAttempt(rateLimit.ipHash, email, true)
+    await recordSignupAttempt(ipHash, email, true)
 
     const session = await createSession(user.id)
     await setSessionCookie(session.token)
@@ -144,7 +146,7 @@ export async function signUp(
     return { success: true }
   } catch (error: any) {
     console.error("Sign up error:", error?.message || error)
-    return { success: false, error: "An error occurred during sign up" }
+    return fail(`error: ${error?.message || String(error)}`, "An error occurred during sign up")
   }
 }
 
