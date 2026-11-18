@@ -57,9 +57,7 @@ export default function SignupPage() {
     const result = await signUp(email, password, name, (formData.get("website") as string) || "")
 
     if (result.success) {
-      toast({ title: "Success", description: "Account created successfully!" })
-      // Use window.location for full page navigation to ensure cookies are sent
-      window.location.href = "/dashboard"
+      router.push(`/auth/check-email?email=${encodeURIComponent(email.trim().toLowerCase())}`)
       return
     } else {
       toast({ title: "Error", description: result.error || "Signup failed", variant: "destructive" })

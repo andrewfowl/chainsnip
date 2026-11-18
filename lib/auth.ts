@@ -9,6 +9,8 @@ export interface User {
   email: string
   name: string
   plan: "free" | "pro" | "enterprise" | "lifetime"
+  email_verified_at: Date | null
+  banned_at: Date | null
   created_at: Date
   updated_at: Date
 }
@@ -77,7 +79,7 @@ export async function createUser(
 // Get user by ID
 export async function getUserById(id: string): Promise<User | null> {
   return queryOne<User>(
-    `SELECT id, email, name, plan, created_at, updated_at FROM users WHERE id = $1`,
+    `SELECT id, email, name, plan, email_verified_at, banned_at, created_at, updated_at FROM users WHERE id = $1`,
     [id]
   )
 }
@@ -85,7 +87,7 @@ export async function getUserById(id: string): Promise<User | null> {
 // Get user by email
 export async function getUserByEmail(email: string): Promise<(User & { password_hash: string }) | null> {
   return queryOne<User & { password_hash: string }>(
-    `SELECT id, email, name, plan, password_hash, created_at, updated_at FROM users WHERE email = $1`,
+    `SELECT id, email, name, plan, password_hash, email_verified_at, banned_at, created_at, updated_at FROM users WHERE email = $1`,
     [email.toLowerCase()]
   )
 }
@@ -108,8 +110,10 @@ export async function createSession(userId: string): Promise<Session> {
 // Get session by token
 export async function getSessionByToken(token: string): Promise<Session | null> {
   return queryOne<Session>(
-    `SELECT id, user_id, token, expires_at, created_at FROM sessions 
-     WHERE token = $1 AND expires_at > NOW()`,
+    `SELECT s.id, s.user_id, s.token, s.expires_at, s.created_at FROM sessions s
+     JOIN users u ON u.id = s.user_id
+     WHERE s.token = $1 AND s.expires_at > NOW()
+       AND u.banned_at IS NULL AND u.email_verified_at IS NOT NULL`,
     [token]
   )
 }
