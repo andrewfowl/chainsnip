@@ -39,6 +39,9 @@ export default function LoginPage() {
       // Use window.location for full page navigation to ensure cookies are sent
       window.location.href = "/dashboard"
       return
+    } else if (result.verificationRequired) {
+      router.push(`/auth/check-email?email=${encodeURIComponent(email.trim().toLowerCase())}`)
+      return
     } else {
       toast({ title: "Error", description: result.error || "Login failed", variant: "destructive" })
     }

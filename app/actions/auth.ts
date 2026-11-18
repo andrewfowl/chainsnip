@@ -14,7 +14,20 @@ import {
   type User,
 } from "@/lib/auth"
 import { checkBotId } from "botid/server"
-import { checkEmailDeliverable, checkSignupRateLimit, recordSignupAttempt } from "@/lib/signup-guard"
+import { checkEmailDeliverable, checkSignupRateLimit, clientIpHash, recordSignupAttempt } from "@/lib/signup-guard"
+import { canResendVerification, consumeVerificationToken, sendVerificationEmail } from "@/lib/email-verification"
+
+type AuthResult = { success: boolean; error?: string; verificationRequired?: boolean }
+
+async function trySendVerification(user: { id: string; email: string; name: string }): Promise<boolean> {
+  try {
+    await sendVerificationEmail(user)
+    return true
+  } catch (error: any) {
+    console.error("Failed to send verification email:", error?.message || error)
+    return false
+  }
+}
 
 // Validate email format
 function isValidEmail(email: string): boolean {
@@ -47,7 +60,7 @@ export async function getCurrentUser(): Promise<User | null> {
 export async function signIn(
   email: string,
   password: string
-): Promise<{ success: boolean; error?: string }> {
+): Promise<AuthResult> {
   try {
     if (!isValidEmail(email)) {
       return { success: false, error: "Invalid email format" }
@@ -67,6 +80,21 @@ export async function signIn(
       return { success: false, error: "Invalid email or password" }
     }
 
+    if (user.banned_at) {
+      return { success: false, error: "This account has been suspended. Contact admin@kabeiri.com if you think this is a mistake." }
+    }
+
+    if (!user.email_verified_at) {
+      if (await canResendVerification(user.id)) {
+        await trySendVerification(user)
+      }
+      return {
+        success: false,
+        verificationRequired: true,
+        error: "Please confirm your email first. We've sent you a confirmation link.",
+      }
+    }
+
     const session = await createSession(user.id)
     await setSessionCookie(session.token)
 
@@ -83,18 +111,20 @@ export async function signUp(
   password: string,
   name: string,
   honeypot = ""
-): Promise<{ success: boolean; error?: string }> {
+): Promise<AuthResult> {
+  email = String(email ?? "").trim().toLowerCase()
+  let ipHash = "unknown"
+  const fail = async (reason: string, error: string) => {
+    await recordSignupAttempt(ipHash, email, false, reason)
+    return { success: false, error }
+  }
+
   try {
-    email = String(email ?? "").trim().toLowerCase()
+    ipHash = await clientIpHash()
 
-    const rateLimit = await checkSignupRateLimit()
-    const fail = async (reason: string, error: string) => {
-      await recordSignupAttempt(rateLimit.ipHash, email, false, reason)
-      return { success: false, error }
-    }
-
+    const rateLimit = await checkSignupRateLimit(ipHash)
     if (!rateLimit.ok) {
-      return { success: false, error: rateLimit.error }
+      return fail("rate_limited", rateLimit.error)
     }
 
     if (honeypot) {
@@ -136,15 +166,43 @@ export async function signUp(
     if (!user) {
       return fail("create_failed", "Failed to create account")
     }
-    await recordSignupAttempt(rateLimit.ipHash, email, true)
+    await recordSignupAttempt(ipHash, email, true)
 
-    const session = await createSession(user.id)
-    await setSessionCookie(session.token)
-
-    return { success: true }
+    await trySendVerification(user)
+    return { success: true, verificationRequired: true }
   } catch (error: any) {
     console.error("Sign up error:", error?.message || error)
-    return { success: false, error: "An error occurred during sign up" }
+    return fail(`error: ${error?.message || String(error)}`, "An error occurred during sign up")
+  }
+}
+
+// Always answers the same way so it can't be used to discover which emails have accounts.
+export async function resendVerificationEmail(email: string): Promise<{ success: boolean }> {
+  try {
+    const normalized = String(email ?? "").trim().toLowerCase()
+    if (!isValidEmail(normalized)) return { success: true }
+    const user = await getUserByEmail(normalized)
+    if (user && !user.email_verified_at && !user.banned_at && (await canResendVerification(user.id))) {
+      await trySendVerification(user)
+    }
+  } catch (error: any) {
+    console.error("Resend verification error:", error?.message || error)
+  }
+  return { success: true }
+}
+
+export async function verifyEmail(token: string): Promise<AuthResult> {
+  try {
+    const userId = await consumeVerificationToken(String(token ?? ""))
+    if (!userId) {
+      return { success: false, error: "This link is invalid or has expired. Log in to get a new one." }
+    }
+    const session = await createSession(userId)
+    await setSessionCookie(session.token)
+    return { success: true }
+  } catch (error: any) {
+    console.error("Verify email error:", error?.message || error)
+    return { success: false, error: "Something went wrong confirming your email. Please try again." }
   }
 }
 

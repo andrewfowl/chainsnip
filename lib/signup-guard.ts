@@ -49,14 +49,13 @@ export async function checkEmailDeliverable(email: string): Promise<GuardResult>
   return { ok: true }
 }
 
-async function clientIpHash(): Promise<string> {
+export async function clientIpHash(): Promise<string> {
   const h = await headers()
   const ip = h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || "unknown"
   return createHash("sha256").update(`${process.env.CRON_SECRET ?? ""}:${ip}`).digest("hex")
 }
 
-export async function checkSignupRateLimit(): Promise<GuardResult & { ipHash: string }> {
-  const ipHash = await clientIpHash()
+export async function checkSignupRateLimit(ipHash: string): Promise<GuardResult> {
   const row = await queryOne<{ attempts: string; accounts: string }>(
     `SELECT
        count(*) FILTER (WHERE created_at > NOW() - INTERVAL '1 hour') AS attempts,
@@ -65,9 +64,9 @@ export async function checkSignupRateLimit(): Promise<GuardResult & { ipHash: st
     [ipHash]
   )
   if (Number(row?.attempts ?? 0) >= MAX_ATTEMPTS_PER_HOUR || Number(row?.accounts ?? 0) >= MAX_ACCOUNTS_PER_DAY) {
-    return { ok: false, error: "Too many sign-up attempts from your network. Please try again later.", ipHash }
+    return { ok: false, error: "Too many sign-up attempts from your network. Please try again later." }
   }
-  return { ok: true, ipHash }
+  return { ok: true }
 }
 
 export async function recordSignupAttempt(
@@ -76,12 +75,14 @@ export async function recordSignupAttempt(
   succeeded: boolean,
   reason: string | null = null
 ): Promise<void> {
+  const safeEmail = String(email ?? "").slice(0, 320) || "(empty)"
+  const safeReason = succeeded ? reason : (reason?.trim() || "unknown").slice(0, 500)
   try {
     await execute(`INSERT INTO signup_attempts (ip_hash, email, succeeded, reason) VALUES ($1, $2, $3, $4)`, [
       ipHash,
-      email.slice(0, 320),
+      safeEmail,
       succeeded,
-      reason,
+      safeReason,
     ])
   } catch (error: any) {
     console.error("recordSignupAttempt failed:", error?.message || error)
