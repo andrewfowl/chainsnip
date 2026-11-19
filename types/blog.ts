@@ -1,25 +1,36 @@
-export interface BlogPost {
-  id: string
-  title: string
-  slug: string // Added slug
-  content: string
-  excerpt: string
-  author: string
-  publishedAt: string
-  tags: string[]
-  category: string
-  readTime: number
-  featured: boolean
+export interface BlogFigure {
+  src: string
+  alt: string
+  caption: string
 }
 
-export interface MergedBlogPost {
-  id: string
-  title: string
+export interface BlogSection {
+  heading: string
+  paragraphs: string[]
+  figure?: BlogFigure
+}
+
+export interface BlogPost {
   slug: string
-  content: string
-  excerpt: string
-  originalPosts: BlogPost[]
-  mergedAt: string
-  tags: string[]
+  title: string
+  subtitle: string
+  description: string
+  author: string
+  publishedAt: string
   readTime: number
+  heroAlt: string
+  ogImage: string
+  video?: {
+    src: string
+    title: string
+  }
+  intro: string[]
+  sections: BlogSection[]
+  closing: string[]
+  cta: {
+    lead: string
+    linkText: string
+    href: string
+    trail: string
+  }
 }
