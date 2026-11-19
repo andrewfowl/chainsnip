@@ -1,131 +1,81 @@
 import type { BlogPost } from "@/types/blog"
-import { slugify } from "./utils" // Import slugify
-
-// Add more diverse tags
-const commonTags = [
-  "creativity",
-  "digital-art",
-  "workflow",
-  "design",
-  "innovation",
-  "color-theory",
-  "ux-design",
-  "3d",
-  "web-development",
-  "immersive",
-  "inspiration",
-  "collaboration",
-  "digital-tools",
-  "tutorials",
-  "case-studies",
-  "future-of-design",
-  "ai-creativity",
-  "motion-design",
-  "3d-artistry",
-  "ui-ux-trends",
-  "brand-storytelling",
-  "interactive-media",
-  "generative-art",
-  "sound-design",
-  "virtual-reality",
-  "augmented-reality",
-  "creative-coding",
-  "mind-mapping",
-  "concept-development",
-  "project-management-creative",
-]
-
-function getRandomTags(count = 3): string[] {
-  const shuffled = [...commonTags].sort(() => 0.5 - Math.random())
-  return shuffled.slice(0, count)
-}
 
 export const blogPosts: BlogPost[] = [
   {
-    id: "1",
-    title: "The Art of Creative Flow: Finding Your Digital Rhythm",
-    slug: slugify("The Art of Creative Flow: Finding Your Digital Rhythm"),
-    content:
-      "In the digital age, creativity flows like liquid inspiration through our minds. Understanding how to harness this flow is essential for any creative professional. When we allow our ideas to merge and blend naturally, we discover new possibilities that emerge from the intersection of different concepts. This post explores techniques to enter and maintain a state of creative flow, optimizing your digital workspace, and leveraging tools that enhance your natural rhythm. We'll delve into the psychology behind flow states and provide actionable tips to make your creative process more fluid and productive.",
-    excerpt:
-      "Discover how to harness your creative flow and find your unique digital rhythm in the modern creative landscape.",
-    author: "Maya Chen",
-    publishedAt: "2024-01-15",
-    tags: ["creativity", "digital-art", "workflow", "productivity", "inspiration"],
-    category: "Creative Process",
-    readTime: 6,
-    featured: true,
-  },
-  {
-    id: "2",
-    title: "Fluid Design Principles: When Ideas Merge",
-    slug: slugify("Fluid Design Principles: When Ideas Merge"),
-    content:
-      "Design is not static—it's a living, breathing entity that evolves through the merger of concepts. Like blobs in a lava lamp, our design ideas should flow together, creating something greater than the sum of their parts. This organic approach to design thinking opens up new avenues for innovation. We'll examine case studies where fluid design led to groundbreaking products and experiences, and discuss how to foster a collaborative environment where ideas can merge seamlessly. Learn practical methods for visual brainstorming and iterative design that embrace fluidity.",
-    excerpt:
-      "Explore how fluid design principles can transform your creative process through the natural merger of ideas.",
-    author: "Alex Rivera",
-    publishedAt: "2024-01-12",
-    tags: ["design-principles", "innovation", "collaboration", "visual-thinking", ...getRandomTags(1)],
-    category: "Design Theory",
-    readTime: 7,
-    featured: false,
-  },
-  {
-    id: "3",
-    title: "The Psychology of Color Transitions in Digital Media",
-    slug: slugify("The Psychology of Color Transitions in Digital Media"),
-    content:
-      "Color transitions in digital media aren't just aesthetic choices—they're psychological tools that guide user experience. When colors blend and merge seamlessly, they create emotional responses that can enhance engagement and create memorable experiences. Understanding this psychology is crucial for modern designers. This article breaks down how different color combinations and transition speeds affect user perception and mood. We'll also cover accessibility considerations for color transitions and provide best practices for implementing them effectively in your projects.",
-    excerpt: "Understand how color transitions affect user psychology and enhance digital experiences.",
-    author: "Dr. Sarah Kim",
-    publishedAt: "2024-01-10",
-    tags: ["color-theory", "psychology", "ux-design", "visual-design", "accessibility", ...getRandomTags(1)],
-    category: "User Experience",
-    readTime: 6,
-    featured: true,
-  },
-  {
-    id: "4",
-    title: "Building Immersive 3D Experiences for the Web",
-    slug: slugify("Building Immersive 3D Experiences for the Web"),
-    content:
-      "The web is evolving into a three-dimensional space where users can explore and interact with content in new ways. Creating immersive 3D experiences requires understanding both technical implementation and user psychology. The key is making complex interactions feel natural and intuitive. This guide covers popular frameworks like Three.js and React Three Fiber, performance optimization techniques for web-based 3D, and design considerations for creating engaging and accessible immersive environments. We'll also look at emerging trends in web 3D.",
-    excerpt: "Learn the fundamentals of creating engaging 3D web experiences that captivate and inspire users.",
-    author: "Jordan Park",
-    publishedAt: "2024-01-08",
-    tags: ["3d-web", "webgl", "react-three-fiber", "immersive-tech", "performance", ...getRandomTags(1)],
-    category: "Technology",
-    readTime: 8,
-    featured: false,
-  },
-  {
-    id: "5",
-    title: "Generative Art: Where Code Meets Creative Flow",
-    slug: slugify("Generative Art: Where Code Meets Creative Flow"),
-    content:
-      "Generative art is a fascinating intersection of programming and artistic expression. By defining rules and algorithms, artists can create ever-evolving, unique visual pieces. This post explores the tools and techniques behind generative art, from p5.js to custom shaders. We'll discuss how embracing randomness and systemic design can unlock new forms of creative flow, and showcase inspiring examples of generative art projects. Learn how to start your own journey into this exciting field where logic and imagination merge.",
-    excerpt: "Dive into the world of generative art and discover how code can become a medium for fluid creativity.",
-    author: "Casey Lee",
-    publishedAt: "2024-02-01",
-    tags: ["generative-art", "creative-coding", "p5js", "algorithms", "digital-art", ...getRandomTags(1)],
-    category: "Digital Art",
-    readTime: 7,
-    featured: true,
-  },
-  {
-    id: "6",
-    title: "Mind Mapping Your Way to Innovative Solutions",
-    slug: slugify("Mind Mapping Your Way to Innovative Solutions"),
-    content:
-      "Mind mapping is a powerful technique for visualizing connections between ideas and fostering innovative thinking. This article explores various digital and analog mind mapping tools and methodologies. We'll show you how to use mind maps to break down complex problems, brainstorm new concepts, and structure creative projects. Discover how this visual approach can enhance your creative flow, improve collaboration, and lead to more innovative solutions by allowing ideas to merge and diverge organically.",
-    excerpt:
-      "Unlock your creative potential by mastering the art of mind mapping for brainstorming and problem-solving.",
-    author: "Devon Quinn",
-    publishedAt: "2024-02-05",
-    tags: ["mind-mapping", "brainstorming", "innovation", "problem-solving", "productivity", ...getRandomTags(1)],
-    category: "Creative Techniques",
-    readTime: 5,
-    featured: false,
+    slug: "audit-evidence-for-every-month-end-wallet-balance",
+    title: "Audit Evidence for Every Month-End Wallet Balance",
+    subtitle: "Period-end wallet balance support your auditor can verify, including for months you didn't capture.",
+    description:
+      "How ChainSnip captures block explorer snapshots at every month-end and returns exact wallet balances at a past date or block, so crypto finance teams have audit-defensible period-end support.",
+    author: "ChainSnip",
+    publishedAt: "2026-11-19",
+    readTime: 3,
+    heroAlt:
+      "Twelve small month calendars with the last day of each one lit in yellow and framed like a camera viewfinder, next to the headline Month-End Snapshots on Schedule.",
+    ogImage: "/blog/month-end-snapshots/og.png",
+    video: {
+      src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ChainSnip-2OFAyih6P2MoShak59D5hbSuLKU0zm.mp4",
+      title: "ChainSnip video",
+    },
+    intro: [
+      "Controllers and technical accountants at crypto companies can use ChainSnip to keep period-end wallet balance evidence without taking screenshots by hand. ChainSnip captures each wallet's block explorer page at every month-end, and when a period-end was missed, it reads what the wallet held at that date.",
+      "The quantity of digital assets held at period-end is an input to nearly every crypto audit. In practice, the support for it is often a screenshot someone took by hand, at whatever hour they remembered, saved in a folder the auditor then has to take on trust.",
+    ],
+    sections: [
+      {
+        heading: "1. Month-end explorer snapshots on a schedule",
+        paragraphs: [
+          "You add the explorer link for each wallet once, from Etherscan, Solscan, Mintscan or another supported explorer, and turn on month-end capture. ChainSnip then captures the page on the last day of every month, without anyone on the team at a browser.",
+          "Each snapshot records its capture time, its source URL and a SHA-256 hash. In other words, if an auditor later asks whether a file was edited, you can re-hash it and show that it matches the value recorded at capture.",
+        ],
+        figure: {
+          src: "/blog/month-end-snapshots/sha256-rehash.png",
+          alt: "A wallet snapshot file is re-hashed with SHA-256. The hash recorded at capture and the hash computed today are identical, marked as a match.",
+          caption:
+            "When an auditor asks whether a month-end file was edited, re-hash it and show that the SHA-256 matches the one recorded when it was captured (values shown are samples).",
+        },
+      },
+      {
+        heading: "2. Exact balances at a past date or block",
+        paragraphs: [
+          "A missed month-end can still be supported. You choose a network, a wallet and a date or block height, and ChainSnip returns the balance at that block, on Ethereum and the other major EVM networks, Arc, Monad and Solana.",
+          "This matters most for rebasing tokens such as stETH, where the balance changes without a transaction and the explorer's current page says nothing about a prior quarter-end.",
+        ],
+      },
+      {
+        heading: "3. Evidence filed by client",
+        paragraphs: [
+          "Snapshots and lookups are filed by client, and lookup results export to CSV with the block number and date behind each balance. For a quarterly review or a year-end audit, that keeps the period-end quantities and their support together.",
+        ],
+      },
+      {
+        heading: "4. How to start",
+        paragraphs: [
+          "A free account includes balance lookups and a small number of snapshots, and scheduled month-end capture is part of the paid plans.",
+        ],
+      },
+    ],
+    closing: [
+      "ChainSnip reflects the principle behind our advisory work: crypto-native finance teams should have audit-defensible support for their digital assets without paying Big 4 rates.",
+    ],
+    cta: {
+      lead: "To try it, ",
+      linkText: "create a free account at chainsnip.com",
+      href: "/auth/signup",
+      trail: " and run a lookup for one wallet at your last quarter-end.",
+    },
   },
 ]
+
+export function getPostBySlug(slug: string) {
+  return blogPosts.find((post) => post.slug === slug)
+}
+
+export function formatPostDate(date: string) {
+  return new Date(`${date}T00:00:00Z`).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    timeZone: "UTC",
+  })
+}
